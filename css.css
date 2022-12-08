@@ -1,0 +1,22 @@
+*{
+    margin:0;
+    padding:0;
+}
+header{
+    width: 100%;
+    background-color: black;
+    color: white;
+}
+.list{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-right: 70px;
+}
+.list li{
+    margin:20px;
+    list-style: none;
+}
+.foto-perfil{
+    width: 300px;
+}
