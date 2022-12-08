@@ -2,10 +2,14 @@
     margin:0;
     padding:0;
 }
+body{
+    background-color: black;
+}
 header{
     width: 100%;
     background-color: black;
     color: white;
+    padding: 20px 0;
 }
 .list{
     display: flex;
@@ -16,7 +20,20 @@ header{
 .list li{
     margin:20px;
     list-style: none;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
 }
 .foto-perfil{
     width: 300px;
+}
+nav{
+    width: 100%;
+    background-color: black;
+    color: white;
+}
+nav p{
+    font-size: 4rem;
+}
+.container-1{
+    margin: 80px 40px;
 }
