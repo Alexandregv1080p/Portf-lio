@@ -1,13 +1,16 @@
+:root{
+    --color-main:rgb(33, 87, 235);
+}
 *{
     margin:0;
     padding:0;
 }
 body{
-    background-color: black;
+    background-color: #1D1E22;
 }
 header{
     width: 100%;
-    background-color: black;
+    background-color: #1D1E22;
     color: white;
     padding: 20px 0;
 }
@@ -28,12 +31,38 @@ header{
 }
 nav{
     width: 100%;
-    background-color: black;
     color: white;
 }
+
 nav p{
     font-size: 4rem;
 }
 .container-1{
-    margin: 80px 40px;
+    margin-left: 70px;
+    margin-top:10% ;
+}
+.blue-text{
+    color: var(--color-main);
+}
+.typing-animation{
+    animation: blinkCursor 500ms infinite normal, typing 4s steps(40) 1s normal both;
+}
+.lines{
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: 1px solid white;
+}
+@keyframes blinkCursor{
+    from{
+        border-right-color:rgba(255,255,255,.75);
+    }to{
+        border-right-color:transparent;
+    }
+}
+@keyframes typing{
+    from{
+        width: 0;
+    }to{
+        width: 18em;
+    }
 }
