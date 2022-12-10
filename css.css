@@ -18,7 +18,7 @@ header{
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
-    margin-right: 70px;
+    margin-right: 150px;
 }
 .list li{
     margin:20px;
@@ -29,17 +29,12 @@ header{
 .foto-perfil{
     width: 300px;
 }
-nav{
-    width: 100%;
-    color: white;
-}
 
-nav p{
-    font-size: 4rem;
-}
 .container-1{
     margin-left: 70px;
     margin-top:10% ;
+    font-size: 4rem;
+    color: white;
 }
 .blue-text{
     color: var(--color-main);
@@ -65,4 +60,67 @@ nav p{
     }to{
         width: 18em;
     }
+}
+.animate{
+    position: relative;
+    top: 65px;
+    height: 30.1rem;
+}
+.animation-position{
+    position: absolute;
+    left: 70%;
+    top: 40%;
+    animation: position 4s linear infinite;
+}
+@keyframes position{
+    0%{
+        top:40%
+    }
+    35%{
+        top:30%;
+    }
+    50%{
+        top:30%;
+    }
+    70%{
+        top:30%;
+    }
+    100%{
+        top: 40%;
+    }
+}
+.card{
+    top: 4.1rem;
+    left: 70%;
+    z-index: 2;
+    max-width: 22rem;
+    animation: floating 6s infinite;
+}
+.img-abs{
+    position: absolute;
+}
+.ballon-1{
+    position: relative;
+    width: 200px;
+    height: 50px;
+    background-color: rgba(80, 89, 97, 0.26);
+    border-radius: 10px;
+    left: 65%;
+}
+.ballon-2{
+    position: absolute;
+    width: 200px;
+    height: 50px;
+    background-color: rgba(80, 89, 97, 0.26);
+    border-radius: 10px;
+    left:95%;
+}
+.ltl{
+    position: relative;
+    width: 80px;
+    height: 15px;
+    background-color: rgba(92, 102, 110, 0.26);
+    top: 10px;
+    left: 10px;
+    border-radius: 10px;
 }
