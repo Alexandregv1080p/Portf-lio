@@ -1,14 +1,12 @@
 :root{
     --color-main:rgb(33, 87, 235);
 }
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@1,300&display=swap');
-
 *{
     margin:0;
     padding:0;
 }
-body{
-    background-image:linear-gradient(to bottom,#1f1f22,#33363d,white) ;
+.back{
+    background-image:linear-gradient(to bottom,#1f1f22,#33363d,#545964,white) ;
 }
 header{
     width: 100%;
@@ -24,15 +22,19 @@ header{
 .list li{
     margin:20px;
     list-style: none;
-    font-size: 1.125rem;
+    font-size: 1.5rem;
     line-height: 1.75rem;
+    font-family: 'Darker Grotesque';
 }
 .animation-fadeIn{
-    animation: fadeIn 3s linear
+    animation: fadeIn 1s linear
+}
+.sub{
+    margin: 40px;
 }
 @keyframes fadeIn{
     from{opacity: 0}
-    to{opacity: 1}
+    to{opacity: 1;transition: .3s ease-in-out;}
 }
 .container-1{
     margin-left: 70px;
@@ -40,9 +42,6 @@ header{
     font-size: 3rem;
     color: white;
     height:700px;
-}
-.lines{
-    font-family: 'Special Elite', cursive;
 }
 .blue-text{
     color: var(--color-main);
@@ -54,10 +53,17 @@ header{
     white-space: nowrap;
     overflow: hidden;
     border-right: 1px solid white;
-    font-family: 'Roboto Mono', monospace;
+    font-family: 'Darker Grotesque';
 }
 .sub-title{
     font-size: 2rem;
+    width: 25%;
+    font-family: 'Darker Grotesque';
+}
+.txt-line{
+    width: 850px;
+    position: absolute;
+    
 }
 @keyframes blinkCursor{
     from{
@@ -70,7 +76,7 @@ header{
     from{
         width: 0;
     }to{
-        width: 21em;
+        width: 16em;
     }
 }
 .animate{
@@ -152,12 +158,15 @@ header{
     border-radius: 10px;
 }
 .about{
-    width: 100%;
-    height:700px;
+    width:95%;
+    height:800px;
 }
 .ctr-txt{
     text-align: center;
     padding-top: 30px;
+    font-family: 'Darker Grotesque';
+    color: white;
+    margin-right: 30px;
 }
 .img-perfil{
     max-width: 20em;
@@ -167,12 +176,20 @@ header{
 .abt-txt,.img-perfil{
     display: inline-block;
 }
+.about h2,.abt-line{
+    display: inline-block;
+}
+.about .abt-line{
+    border-color: #8a8a97;
+    width: 1500px;
+    margin-left: 60px;
+}
 .img-text{
     display: flex;
-    align-items: center;
     width: 50%;
     margin-left: 25%;
-    justify-content: center;
+    margin-top: 100px;
+    align-items: center;
 }
 
 /*Aqui são as animações*/
@@ -182,12 +199,30 @@ header{
     transition: .3s;
 }
 [data-anime="left"]{
-    transform: translate3d(0px, 50px, 50px);
+    transform: translate3d(-50px, -50px, -50px);
 }
 [data-anime="right"]{
     transform: translate3d(50px, 0, 0);
 }
-[data-anime].animate{
+[data-anime].animator{
     opacity: 1;
     transform: translate3d(50px,50px,50px);
+}
+.abt-txt{
+    border: 2px solid white;
+    padding: 10px;
+    background-color: antiquewhite;
+
+}
+.tecno{
+    width:95%;
+    height:800px;
+}
+.tecno .abt-line{
+    border-color: #8a8a97;
+    width: 1500px;
+    margin-left: 30px;
+}
+.tecno h2, .abt-line {
+    display: inline-block;
 }
