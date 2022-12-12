@@ -35,6 +35,7 @@ header{
     margin-top:10% ;
     font-size: 4rem;
     color: white;
+    height:700px;
 }
 .blue-text{
     color: var(--color-main);
@@ -106,6 +107,21 @@ header{
     background-color: rgba(80, 89, 97, 0.26);
     border-radius: 10px;
     left: 65%;
+    overflow: hidden;
+}
+.animate-ballon{
+    animation:blink-1 4s infinite normal;
+}
+@keyframes blink-1{
+    0%{
+        opacity: 1;
+    }
+    50%{
+        opacity: 0;
+    }
+    100%{
+        opacity: 1;
+    }
 }
 .ballon-2{
     position: absolute;
@@ -123,4 +139,12 @@ header{
     top: 10px;
     left: 10px;
     border-radius: 10px;
+}
+.about{
+    background-color: white;
+    width: 100%;
+}
+.ctr-txt{
+    text-align: center;
+    padding-top: 30px;
 }
