@@ -215,14 +215,31 @@ header{
 
 }
 .tecno{
-    width:95%;
+    width:100%;
     height:800px;
 }
 .tecno .abt-line{
     border-color: #8a8a97;
-    width: 1500px;
+    width: 1300px;
     margin-left: 30px;
 }
 .tecno h2, .abt-line {
     display: inline-block;
+}
+.conteiner-tecno{
+    display: flex;
+    position: relative;
+    justify-content: center;
+    top: 90px;
+}
+.tecnologys{
+    background-color: #5d5d68;
+    width: 250px;
+    height: 300px;
+    margin: 20px;
+}
+.tecno-icons{
+    margin: 20px;
+    width: 70px;
+    height: 70px;
 }
