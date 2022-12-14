@@ -230,16 +230,24 @@ header{
     display: flex;
     position: relative;
     justify-content: center;
+    flex-wrap: wrap;
     top: 90px;
+    width: 90%;
+    margin: 0 auto;
 }
 .tecnologys{
-    background-color: #5d5d68;
+    background-color: #babacc;
     width: 250px;
     height: 300px;
     margin: 20px;
+
 }
 .tecno-icons{
     margin: 20px;
     width: 70px;
     height: 70px;
+}
+.icon-txt{
+    display: flex;
+    align-items: center;
 }
