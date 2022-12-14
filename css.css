@@ -239,7 +239,7 @@ header{
 .tecnologys{
     background-color: white;
     width: 250px;
-    height: 300px;
+    height: 200px;
     margin: 20px;
     border: 2px solid #dbdbe6 ;
     border-radius: 10px;
@@ -269,4 +269,9 @@ header{
 }
 .projects h2, .abt-line {
     display: inline-block;
+}
+.tecnologys p{
+    text-align: center;
+    font-size: 1.25rem;
+    margin-top: 25px;
 }
