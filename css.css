@@ -58,7 +58,7 @@ header{
 }
 .sub-title{
     font-size: 2rem;
-    width: 25%;
+    width: 70%;
     font-family: 'Darker Grotesque';
 }
 .txt-line{
@@ -337,8 +337,8 @@ header{
 .img-login-A2W{
     max-width: 1000px;
     max-height:600px;
-    min-width: 500px;
-    min-height:300px;
+    min-width: 200px;
+    min-height:150px;
 }
 .img-cad-A2W{
     position: relative;
