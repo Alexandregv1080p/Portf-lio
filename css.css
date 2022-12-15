@@ -298,10 +298,10 @@ header{
     width: 500px;
     height: 350px;
     background-color: white;
-    right:570px;
+    right:500px;
     border: 2px solid black;
     border-radius: 50px;
-    top: 180px;
+    top: 300px;
 }
 .ballon h3{
     text-align: center;
@@ -331,5 +331,44 @@ header{
 }
 .slide{
     display: block;
-    height: 900px;
+    height: 1130px;
+}
+.img-login-A2W{
+    max-width: 1000px;
+    max-height:600px;
+}
+.img-cad-A2W{
+    position: relative;
+    max-width: 350px;
+    max-height: 400px;
+    top: 250px;
+    right: 220px;
+}
+.ballon-two{
+    position: absolute;
+    width: 500px;
+    height: 350px;
+    background-color: white;
+    right:500px;
+    border: 2px solid black;
+    border-radius: 50px;
+    top: 300px;
+}
+.ballon-two p{
+    margin: 40px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+.ballon-two .buttons{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -40px;
+}
+.ballon-two h3{
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700px;
 }
