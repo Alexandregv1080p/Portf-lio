@@ -289,8 +289,8 @@ header{
     margin: 0 auto;
 }
 .img-login{
-    position: absolute;
-    top: 300px;
+    position: relative;
+    top: 250px;
     right: 300px;
 }
 .ballon{
@@ -298,10 +298,10 @@ header{
     width: 500px;
     height: 350px;
     background-color: white;
-    bottom: 50px;
-    right:600px;
+    right:570px;
     border: 2px solid black;
     border-radius: 50px;
+    top: 180px;
 }
 .ballon h3{
     text-align: center;
@@ -325,4 +325,11 @@ header{
     padding: 20px;
     margin: 20px;
     cursor: pointer;
+}
+.slide-igs{
+    margin-left:100px;
+}
+.slide{
+    display: block;
+    height: 900px;
 }
