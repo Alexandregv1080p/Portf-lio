@@ -7,6 +7,7 @@
 }
 .back{
     background-image:linear-gradient(to bottom,#1f1f22,#33363d,#545964,white) ;
+    width: 100%;
 }
 header{
     width: 100%;
@@ -86,7 +87,7 @@ header{
 }
 .animation-position{
     position: absolute;
-    left: 70%;
+    left: 60%;
     top: 40%;
     animation: position 4s linear infinite;
 }
@@ -158,7 +159,7 @@ header{
     border-radius: 10px;
 }
 .about{
-    width:95%;
+    width:100%;
     height:800px;
 }
 .ctr-txt{
@@ -181,8 +182,8 @@ header{
 }
 .about .abt-line{
     border-color: #8a8a97;
-    width: 1500px;
-    margin-left: 60px;
+    width: 1300px;
+    margin-left: 30px;
 }
 .img-text{
     display: flex;
@@ -259,7 +260,7 @@ header{
 }
 .projects{
     width:100%;
-    height:1400px;
+    height:3000px;
     font-family: 'Darker Grotesque';
 }
 .projects .abt-line{
@@ -331,18 +332,20 @@ header{
 }
 .slide{
     display: block;
-    height: 1130px;
+    height: 930px;
 }
 .img-login-A2W{
     max-width: 1000px;
     max-height:600px;
+    min-width: 500px;
+    min-height:300px;
 }
 .img-cad-A2W{
     position: relative;
     max-width: 350px;
     max-height: 400px;
     top: 250px;
-    right: 220px;
+    right: 300px;
 }
 .ballon-two{
     position: absolute;
