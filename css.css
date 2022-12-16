@@ -277,9 +277,12 @@ header{
     margin-top: 25px;
 }
 .img-bord{
-    border: 7px solid rgba(80, 89, 97, 0.26);
+    border: 7px solid #1f1f22;
     border-radius: 50px;
+    overflow: hidden;
+    border: 2px solid #000;
 }
+
 .projects-coteiner{
     display: flex;
     position: relative;
@@ -327,9 +330,19 @@ header{
     margin: 20px;
     cursor: pointer;
 }
-.slide-igs{
+.slide-igs {
     margin-left:100px;
 }
+.slide-igs img{
+    -webkit-transition: -webkit-transform .5s ease;
+    overflow: hidden;
+    transition: transform .5s ease;
+    background: transparent;
+}
+.slide-igs:hover img{
+    -webkit-transform: scale(1.1);
+    transform: scale(1.1);
+ }
 .slide{
     display: block;
     height: 930px;
