@@ -272,7 +272,7 @@
         left: -12%;
     }
     .txt-head {
-        margin-left: -53px;
+        margin-left: 20px;
     }
     .container-1 {
         font-size: 1.6rem;
@@ -299,5 +299,25 @@
 @media (max-width: 555px){
     .slide-igs {
         margin-left: 282px;
+    }
+}
+/*Celular*/
+@media (max-width: 573px){
+    .txt-line {
+        width: 444px;
+    }
+    .container-1 {
+        margin-left: 0px;
+    }
+}
+@media (max-width: 414px max-height){
+    .txt-line {
+        width: 444px;
+    }
+    .container-1 {
+        margin-left: 0px;
+    }
+    header .list{
+        margin-right: 51px;
     }
 }
