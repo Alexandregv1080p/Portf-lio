@@ -221,7 +221,14 @@ header{
     margin-top: 100px;
     align-items: center;
 }
-
+.disp{
+    display: flex;
+    flex-direction: column;
+}
+.disp p{
+    margin-top: 20px; 
+    border-radius: 20px;
+}
 /*Aqui são as animações*/
 
 [data-anime]{
@@ -239,10 +246,10 @@ header{
     transform: translate3d(50px,50px,50px);
 }
 .abt-txt{
-    border: 2px solid white;
     padding: 10px;
-    background-color: antiquewhite;
-
+    background-color: rgb(161, 151, 151);
+    box-shadow: rgb(0 0 0 / 35%) 0px 5px 15px;
+    color: white;
 }
 .tecno{
     width:100%;
@@ -289,7 +296,7 @@ header{
 }
 .projects{
     width:100%;
-    height:3000px;
+    height:4000px;
     font-family: 'Darker Grotesque';
 }
 .projects .abt-line{
@@ -335,6 +342,7 @@ header{
     border: 2px solid black;
     border-radius: 50px;
     top: 300px;
+    box-shadow: rgb(0 0 0 / 35%) 0px 5px 15px;
 }
 .ballon h3{
     text-align: center;
@@ -446,4 +454,19 @@ header{
     text-align: center;
     font-size: 2rem;
     font-weight: 700px;
+}
+.foot{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100px;
+    background-color: #000;
+    color: white;
+    font-family: 'Darker Grotesque';
+    flex-direction: column;
+}
+.foot a{
+    text-decoration: none;
+    color: white;
 }

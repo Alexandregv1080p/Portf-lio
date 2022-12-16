@@ -34,6 +34,9 @@
     .slide-igs {
         margin-left: 15px;
     } 
+    .tecno {
+        height: 1305px;
+    }
 }
 @media(max-width:1400px){
     .projects{
@@ -70,6 +73,9 @@
 @media(max-width:1320px){
     .projects{
         width: 96%;
+    }
+    .disp p {
+        width: 330px;
     }
 }
 @media(max-width:1280px){
@@ -120,7 +126,7 @@
 }
 @media (max-width: 1050px){
     .tecno{
-        height:1250px;
+        height:2324px;
     }
     .about .abt-line {
         width: 874px;
@@ -154,6 +160,9 @@
     }
     .slide-igs {
         margin-left: 320px;
+    }
+    .img-text {
+        margin-left: 10%;
     }
 }
 @media (max-width: 930px) {
@@ -220,10 +229,17 @@
     .about .abt-line {
         width: 574px;
     }
+    .img-perfil {
+        max-width: 18em;
+    }
 }
 @media (max-width: 819px){
     .projects {
         width: 36%;
+    }
+    .img-text {
+        margin-left: 20%;
+        flex-direction: column-reverse;
     }
 }
 @media (max-width: 730px) {
@@ -389,7 +405,13 @@
         max-width: 371px;
     }
     .back {
-        width: 127%;
+        width: 106%;
+    }
+    .slide-igs {
+        margin-left: 99px;
+    }
+    .card {
+        max-width: 19rem;
     }
 }
 @media (max-width: 320px){
@@ -464,4 +486,25 @@
         font-size: 1rem;
         width: 51%;
     }
+    .card {
+        top: 4.1rem;
+        left: 70%;
+        max-width: 19rem;
+    }
+    .tecno .abt-line {
+        width: 241px;
+        margin-left: 0px;
+    }
+    .projects .abt-line {
+        width: 241px;
+        margin-left: 0px;
+    }
+    .about .abt-line {
+        width: 241px;
+        margin-left: 0px;
+    }
+    .ctr-txt {
+        margin-right: 50px;
+    }
+
 }
