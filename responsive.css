@@ -436,6 +436,11 @@
     .projects .abt-line {
         width: 250px;
     }
+    .img-perfil {
+        max-width: 16em;
+        height: 14em;
+        margin: 20px;
+    }
 }
 @media(max-width: 250px) {
     .back {
@@ -443,5 +448,20 @@
     } 
     header .list {
         margin-right: 17px;
+    }
+    .container-1 {
+        font-size: 1rem;
+    }
+    .animation-position {
+        left: -58%;
+        max-width: 19rem;
+        margin-top: 100%;
+    }
+    header .list {
+        margin-right: 30px;
+    }
+    .sub-title {
+        font-size: 1rem;
+        width: 51%;
     }
 }
