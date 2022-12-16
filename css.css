@@ -5,6 +5,9 @@
     margin:0;
     padding:0;
 }
+html{
+    scroll-behavior: smooth;
+}
 .back{
     background-image:linear-gradient(to bottom,#1f1f22,#33363d,#545964,white) ;
     width: 100%;
@@ -54,6 +57,10 @@ header{
 }
 .sub{
     margin: 40px;
+}
+.txt-head .sub a{
+    text-decoration: none;
+    color: white;
 }
 @keyframes fadeIn{
     from{opacity: 0}
@@ -256,7 +263,7 @@ header{
     justify-content: center;
     flex-wrap: wrap;
     top: 90px;
-    width: 90%;
+    width: 60%;
     margin: 0 auto;
 }
 .tecnologys{
@@ -351,38 +358,35 @@ header{
     background: none;
     padding: 10px;
     width: 150px;
-    height: -7px;
     margin: 20px;
     cursor: pointer;
-    border-radius: 15px;
-    min-width: 50px;
-    transition: color 0.4 linear;
+    border-radius: 10px;
     position: relative;
 }
-.ballon .btn:hover{
+.ballon .buttons .btn:hover{
     color: white;
+    z-index: 2
 }
-.ballon .btn::before{
+.ballon .btn::before {
     content: "";
-    position: absolute;
+    position: absolute;  
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
+    background-color: #00000086;
     z-index: -1;
-    background-color: #000;
-    transition: transform 0.5s;
-    transform-origin: 0 0;
-    transition-timing-function:cubic-bezier(0.5,1.6,0.4,0.7);
+    transition : transform 0.5s;
+    transform-origin:0 0 ;
+    transition-timing-function: cubic-bezier(0.5,1.6,0.4,0.7);
+}
+.ballon .btn::before {
+    transform: scaleX(0);
     
 }
-.btn-1::before{
-    transform: scaleX(0);
-}
-.btn-1:hover::before{
+.ballon .btn:hover::before{
     transform: scaleX(1);
 }
-
 
 .slide-igs {
     margin-left:100px;

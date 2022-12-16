@@ -244,6 +244,7 @@
         width: 482px;
         position: absolute;
     }
+    
 }
 @media (max-width: 705px) {
     .tecno{
@@ -273,7 +274,7 @@
         margin-top: 124px;
     }
     .ballon {
-        max-width: 313px;
+        max-width: 340px;
         right: -30px;
         top: 196px;
     }
@@ -324,8 +325,8 @@
         max-width: 371px;
     }
     .ballon {
-        max-width: 226px;
-        right: 21px;
+        max-width: 348px;
+        right: -46px;
         top: 196px;
     }
 }
