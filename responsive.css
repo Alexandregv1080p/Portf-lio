@@ -262,8 +262,8 @@
         margin-top: 124px;
     }
     .ballon {
-        max-width: 336px;
-        right: -1px;
+        max-width: 278px;
+        right: 35px;
         top: 196px;
     }
 }
@@ -284,10 +284,10 @@
         width: 0%;
     }
     .projects .abt-line {
-        width: 374px;;
+        width: 425px;;
     }
     .slide-igs {
-        margin-left: 282px;
+        margin-left: 337px;
     }
     .tecno {
         width: 94%;
@@ -295,10 +295,21 @@
     .sobre {
         width: 95%;
     }
+    .img-login-A2W {
+        max-width: 371px;
+    }
+    .ballon {
+        max-width: 226px;
+        right: 21px;
+        top: 196px;
+    }
 }
 @media (max-width: 555px){
     .slide-igs {
         margin-left: 282px;
+    }
+    .projects .abt-line {
+        width: 349px;
     }
 }
 /*Celular*/
@@ -310,14 +321,36 @@
         margin-left: 0px;
     }
 }
-@media (max-width: 414px max-height){
+@media (max-width: 430px){
     .txt-line {
-        width: 444px;
+        width: 357px;
     }
     .container-1 {
         margin-left: 0px;
+        font-size: 1.5rem;
     }
     header .list{
         margin-right: 51px;
+    }
+    .animation-position {
+        left: -25%;
+    }
+    .about .abt-line {
+        width: 188px;
+    }
+    .projects .abt-line {
+        width: 289px;
+    }
+    .tecno .abt-line {
+        width: 293px;
+    }
+    .tecno {
+        width: 78%;
+    }
+    .slide-igs {
+        margin-left: 211px;
+    }
+    .img-login-A2W {
+        max-width: 371px;
     }
 }
