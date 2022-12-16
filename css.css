@@ -27,6 +27,14 @@ header{
     line-height: 1.75rem;
     font-family: 'Darker Grotesque';
 }
+.list li:after{
+    content: "";
+    position: absolute;
+    background: #545964;
+    height: 3px;
+    width: 100px;
+    bottom: 10px;
+}
 .animation-fadeIn{
     animation: fadeIn 1s linear
 }
