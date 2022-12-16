@@ -164,6 +164,17 @@
         max-width: 370px;
         right: 40px;
     }
+    .ballon .btn {
+        margin-top: 10px;
+        min-width: 50px;
+    }
+    .ballon p {
+        margin: 10px;
+        padding: 20px;
+    }
+    .ballon .buttons {
+        margin-top: 10px;
+    }
 }
 @media (max-width: 900px) {
     .animation-position{
