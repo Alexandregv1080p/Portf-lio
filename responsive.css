@@ -265,6 +265,21 @@
         max-width: 278px;
         right: 35px;
         top: 196px;
+        height: 275px;
+    }
+    .ballon h3 {
+        text-align: center;
+        font-size: 1.17rem;
+        font-weight: 700px;
+    }
+    .ballon .btn {
+        padding: 13px;
+        margin: -19px 10px 29px 17px;
+        margin-top: 26px;
+    }
+    .ballon p {
+        margin: 6px;
+        padding: 20px;
     }
 }
 @media (max-width: 605px) {
@@ -305,17 +320,26 @@
     }
 }
 @media (max-width: 555px){
+    .back {
+        width: 106%;
+    }
     .slide-igs {
         margin-left: 282px;
     }
     .projects .abt-line {
         width: 349px;
     }
+    .txt-line {
+        width: 393px;
+    }
+    .list {
+        margin-right: 100px;
+    }
 }
 /*Celular*/
 @media (max-width: 573px){
     .txt-line {
-        width: 444px;
+        width: 393px;
     }
     .container-1 {
         margin-left: 0px;
@@ -352,5 +376,61 @@
     }
     .img-login-A2W {
         max-width: 371px;
+    }
+    .back {
+        width: 127%;
+    }
+}
+@media (max-width: 320px){
+    .back {
+        width: 121%;
+    }    
+    .tecno {
+        width: 107%;
+    }
+    .about .abt-line {
+        width: 144px;
+    }
+    .animation-position {
+        left: -37%;
+        max-width: 19rem;
+    }
+    .container-1 {
+        font-size: 1.3rem;
+    }
+    .txt-line {
+        width: 262px;
+    }
+    .card {
+        max-width: 18rem;
+    }
+    .img-login-A2W {
+        max-width: 266px;
+    }
+    .ballon {
+        max-width: 285px;
+        right: -60px;
+        top: 175px;
+        height: 253px;
+    }
+    .ballon hr{
+        margin-top: 13px;
+    }
+    .ballon h3{
+        margin-top: 10px;
+    }
+    .tecno .abt-line {
+        width: 257px;
+    }
+    .projects .abt-line {
+        width: 250px;
+    }
+}
+@media(max-width: 250px) {
+    .back {
+        width: 142%;
+    } 
+    header .list {
+        margin-right: 17px;
     }
 }
