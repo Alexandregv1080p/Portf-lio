@@ -21,19 +21,33 @@ header{
     margin-right: 150px;
 }
 .list li{
+    position: relative;
     margin:20px;
     list-style: none;
     font-size: 1.5rem;
     line-height: 1.75rem;
     font-family: 'Darker Grotesque';
 }
-.list li:after{
+.list li a{
+    text-decoration: none;
+    color: #dbdbe6;
+}
+.list li a:after{
     content: "";
     position: absolute;
     background: #545964;
     height: 3px;
-    width: 100px;
-    bottom: 10px;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+}
+.list li a:after{
+    transform: scale(0,1);
+    transform-origin:0% 100% ;
+    transition: transform 0.3s ease;
+}
+.list li a:hover::after{
+    transform: scale(1,1);
 }
 .animation-fadeIn{
     animation: fadeIn 1s linear
@@ -308,7 +322,7 @@ header{
 .ballon{
     position: absolute;
     width: 500px;
-    height: 350px;
+    height: 300px;
     background-color: white;
     right:500px;
     border: 2px solid black;
@@ -333,23 +347,28 @@ header{
     justify-content: center;
     margin-top: -40px;
 }
-.ballon .btn{
-    padding: 20px;
+.ballon .btn {
+    padding: 10px;
+    width: 150px;
+    height: -7px;
     margin: 20px;
     cursor: pointer;
+    border-radius: 15px;
+    min-width: 50px;
 }
 .slide-igs {
     margin-left:100px;
 }
 .slide-igs img{
-    -webkit-transition: -webkit-transform .5s ease;
-    overflow: hidden;
     transition: transform .5s ease;
     background: transparent;
+    
+    position: relative;
 }
 .slide-igs:hover img{
     -webkit-transform: scale(1.1);
     transform: scale(1.1);
+    opacity: 1;
  }
 .slide{
     display: block;

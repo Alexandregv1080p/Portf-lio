@@ -262,10 +262,9 @@
         margin-top: 124px;
     }
     .ballon {
-        max-width: 278px;
-        right: 35px;
+        max-width: 313px;
+        right: -30px;
         top: 196px;
-        height: 275px;
     }
     .ballon h3 {
         text-align: center;
@@ -321,7 +320,7 @@
 }
 @media (max-width: 555px){
     .back {
-        width: 106%;
+        width: 100%;
     }
     .slide-igs {
         margin-left: 282px;
