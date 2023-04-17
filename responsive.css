@@ -77,6 +77,9 @@
     .disp p {
         width: 330px;
     }
+    .tecno {
+        height: 1450px;
+    }
 }
 @media(max-width:1280px){
     .tecno {
@@ -126,7 +129,7 @@
 }
 @media (max-width: 1050px){
     .tecno{
-        height:2324px;
+        height:1700px;
     }
     .about .abt-line {
         width: 874px;
@@ -163,6 +166,11 @@
     }
     .img-text {
         margin-left: 10%;
+    }
+}
+@media (max-width: 900px){
+    .tecno {
+        height: 2700px;
     }
 }
 @media (max-width: 930px) {
@@ -264,7 +272,7 @@
 }
 @media (max-width: 705px) {
     .tecno{
-        height:2250px;
+        height:2635px;
     }
     .projects .abt-line {
         width: 491px;;
