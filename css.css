@@ -57,6 +57,7 @@ header{
 }
 .sub{
     margin: 40px;
+    margin-top: 30px;
 }
 .txt-head .sub a{
     text-decoration: none;
@@ -94,6 +95,56 @@ header{
     width: 850px;
     position: absolute;
     
+}
+.s4{
+    width: 80px;
+    height: 80px;
+    margin-top: 20px;
+    text-decoration: none;
+    position: relative;
+    font-size: 30px;
+    border-radius: 50%;
+}
+.s4::before{
+    position: absolute;
+    color: #33363d;
+    z-index: 1;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+}
+.s4::after{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border-radius: 100%;
+    z-index: 0;
+    color: white;
+}
+.sub .s4{
+    background-color: white;
+}
+.sub .s4::after{
+    background-color: white;
+    transition: 0.4s;
+    color: white;
+}
+.sub .s4:hover::after{
+    transform: scale(1.3);
+    opacity: 0;
+    color: white;
+}
+.s4:hover{
+    color: white;
+}
+.sub .s4:hover{
+    transform: scale(1.3);
+    background-color: #545964;
+    color: white;
 }
 @keyframes blinkCursor{
     from{
