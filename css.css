@@ -1,41 +1,49 @@
-:root{
-    --color-main:rgb(33, 87, 235);
+:root {
+    --color-main: rgb(33, 87, 235);
 }
-*{
-    margin:0;
-    padding:0;
+
+* {
+    margin: 0;
+    padding: 0;
 }
-html{
+
+html {
     scroll-behavior: smooth;
 }
-.back{
-    background-image:linear-gradient(to bottom,#1f1f22,#33363d,#545964,white) ;
+
+.back {
+    background-image: linear-gradient(to bottom, #1f1f22, #33363d, #545964, white);
     width: 100%;
 }
-header{
+
+header {
     width: 100%;
     color: white;
     padding: 20px 0;
 }
-.list{
+
+.list {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
     margin-right: 150px;
 }
-.list li{
+
+.list li {
     position: relative;
-    margin:20px;
+    margin: 20px;
     list-style: none;
     font-size: 1.5rem;
     line-height: 1.75rem;
     font-family: 'Darker Grotesque';
 }
-.list li a{
+
+.list li a {
     text-decoration: none;
     color: #dbdbe6;
 }
-.list li a:after{
+
+.list li a:after {
     content: "";
     position: absolute;
     background: #545964;
@@ -44,59 +52,78 @@ header{
     bottom: 0;
     width: 100%;
 }
-.list li a:after{
-    transform: scale(0,1);
-    transform-origin:0% 100% ;
+
+.list li a:after {
+    transform: scale(0, 1);
+    transform-origin: 0% 100%;
     transition: transform 0.3s ease;
 }
-.list li a:hover::after{
-    transform: scale(1,1);
+
+.list li a:hover::after {
+    transform: scale(1, 1);
 }
-.animation-fadeIn{
+
+.animation-fadeIn {
     animation: fadeIn 1s linear
 }
-.sub{
+
+.sub {
     margin: 40px;
     margin-top: 30px;
 }
-.txt-head .sub a{
+
+.txt-head .sub a {
     text-decoration: none;
     color: white;
 }
-@keyframes fadeIn{
-    from{opacity: 0}
-    to{opacity: 1;transition: .3s ease-in-out;}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0
+    }
+
+    to {
+        opacity: 1;
+        transition: .3s ease-in-out;
+    }
 }
-.container-1{
+
+.container-1 {
     margin-left: 70px;
-    margin-top:10% ;
+    margin-top: 10%;
     font-size: 3rem;
     color: white;
-    height:700px;
+    height: 700px;
 }
-.blue-text{
+
+.blue-text {
     color: var(--color-main);
 }
-.typing-animation{
+
+.typing-animation {
     animation: blinkCursor 500ms infinite normal, typing 4s steps(40) 1s normal both;
 }
-.lines{
+
+.lines {
     white-space: nowrap;
     overflow: hidden;
     border-right: 1px solid white;
     font-family: 'Darker Grotesque';
 }
-.sub-title{
+
+.sub-title {
     font-size: 2rem;
     width: 70%;
     font-family: 'Darker Grotesque';
 }
-.txt-line{
+
+.txt-line {
     width: 850px;
     position: absolute;
-    
+
 }
-.s4{
+
+.s4 {
     width: 80px;
     height: 80px;
     margin-top: 20px;
@@ -105,15 +132,17 @@ header{
     font-size: 30px;
     border-radius: 50%;
 }
-.s4::before{
+
+.s4::before {
     position: absolute;
     color: #33363d;
     z-index: 1;
     left: 50%;
     top: 50%;
-    transform: translate(-50%,-50%);
+    transform: translate(-50%, -50%);
 }
-.s4::after{
+
+.s4::after {
     content: '';
     position: absolute;
     top: 0;
@@ -125,80 +154,101 @@ header{
     z-index: 0;
     color: white;
 }
-.sub .s4{
+
+.sub .s4 {
     background-color: white;
 }
-.sub .s4::after{
+
+.sub .s4::after {
     background-color: white;
     transition: 0.4s;
     color: white;
 }
-.sub .s4:hover::after{
+
+.sub .s4:hover::after {
     transform: scale(1.3);
     opacity: 0;
     color: white;
 }
-.s4:hover{
+
+.s4:hover {
     color: white;
 }
-.sub .s4:hover{
+
+.sub .s4:hover {
     transform: scale(1.3);
     background-color: #545964;
     color: white;
 }
-@keyframes blinkCursor{
-    from{
-        border-right-color:rgba(255,255,255,.75);
-    }to{
-        border-right-color:transparent;
+
+@keyframes blinkCursor {
+    from {
+        border-right-color: rgba(255, 255, 255, .75);
+    }
+
+    to {
+        border-right-color: transparent;
     }
 }
-@keyframes typing{
-    from{
+
+@keyframes typing {
+    from {
         width: 0;
-    }to{
+    }
+
+    to {
         width: 16em;
     }
 }
-.animate{
+
+.animate {
     position: relative;
     top: 65px;
     height: 30.1rem;
 }
-.animation-position{
+
+.animation-position {
     position: absolute;
     left: 60%;
     top: 40%;
     animation: position 4s linear infinite;
 }
-@keyframes position{
-    0%{
-        top:40%
+
+@keyframes position {
+    0% {
+        top: 40%
     }
-    35%{
-        top:30%;
+
+    35% {
+        top: 30%;
     }
-    50%{
-        top:30%;
+
+    50% {
+        top: 30%;
     }
-    70%{
-        top:30%;
+
+    70% {
+        top: 30%;
     }
-    100%{
+
+    100% {
         top: 40%;
     }
 }
-.card{
+
+.card {
     top: 4.1rem;
     left: 70%;
     z-index: 2;
     max-width: 22rem;
     animation: floating 6s infinite;
 }
-.img-abs{
+
+.img-abs {
     position: absolute;
 }
-.ballon-1{
+
+.ballon-1 {
     position: relative;
     width: 200px;
     height: 50px;
@@ -207,29 +257,35 @@ header{
     left: 65%;
     overflow: hidden;
 }
-.animate-ballon{
-    animation:blink-1 4s infinite normal;
+
+.animate-ballon {
+    animation: blink-1 4s infinite normal;
 }
-@keyframes blink-1{
-    0%{
+
+@keyframes blink-1 {
+    0% {
         opacity: 1;
     }
-    50%{
+
+    50% {
         opacity: 0;
     }
-    100%{
+
+    100% {
         opacity: 1;
     }
 }
-.ballon-2{
+
+.ballon-2 {
     position: absolute;
     width: 200px;
     height: 50px;
     background-color: rgba(80, 89, 97, 0.26);
     border-radius: 10px;
-    left:95%;
+    left: 95%;
 }
-.ltl{
+
+.ltl {
     position: relative;
     width: 80px;
     height: 15px;
@@ -238,86 +294,107 @@ header{
     left: 10px;
     border-radius: 10px;
 }
-.about{
-    width:100%;
-    height:800px;
+
+.about {
+    width: 100%;
+    height: 800px;
 }
-.ctr-txt{
+
+.ctr-txt {
     text-align: center;
     padding-top: 30px;
     font-family: 'Darker Grotesque';
     color: white;
     margin-right: 30px;
 }
-.img-perfil{
+
+.img-perfil {
     max-width: 20em;
     height: 16em;
     margin: 20px;
     border: 2px solid black;
     border-radius: 10px;
 }
-.abt-txt,.img-perfil{
+
+.abt-txt,
+.img-perfil {
     display: inline-block;
 }
-.about h2,.abt-line{
+
+.about h2,
+.abt-line {
     display: inline-block;
 }
-.about .abt-line{
+
+.about .abt-line {
     border-color: #8a8a97;
     width: 1300px;
     margin-left: 30px;
 }
-.img-text{
+
+.img-text {
     display: flex;
     width: 50%;
     margin-left: 25%;
     margin-top: 100px;
     align-items: center;
 }
-.disp{
+
+.disp {
     display: flex;
     flex-direction: column;
 }
-.disp p{
-    margin-top: 20px; 
+
+.disp p {
+    margin-top: 20px;
     border-radius: 20px;
 }
+
 /*Aqui são as animações*/
 
-[data-anime]{
+[data-anime] {
     opacity: 0;
     transition: .3s;
 }
-[data-anime="left"]{
+
+[data-anime="left"] {
     transform: translate3d(-50px, -50px, -50px);
 }
-[data-anime="right"]{
+
+[data-anime="right"] {
     transform: translate3d(50px, 0, 0);
 }
-[data-anime].animator{
+
+[data-anime].animator {
     opacity: 1;
-    transform: translate3d(50px,50px,50px);
+    transform: translate3d(50px, 50px, 50px);
 }
-.abt-txt{
+
+.abt-txt {
     padding: 10px;
     background-color: rgb(161, 151, 151);
     box-shadow: rgb(0 0 0 / 35%) 0px 5px 15px;
     color: white;
 }
-.tecno{
-    width:100%;
-    height:900px;
+
+.tecno {
+    width: 100%;
+    height: 900px;
     font-family: 'Darker Grotesque';
 }
-.tecno .abt-line{
+
+.tecno .abt-line {
     border-color: #8a8a97;
     width: 1300px;
     margin-left: 30px;
 }
-.tecno h2, .abt-line {
+
+.tecno h2,
+.abt-line {
     display: inline-block;
 }
-.conteiner-tecno{
+
+.conteiner-tecno {
     display: flex;
     position: relative;
     justify-content: center;
@@ -326,53 +403,63 @@ header{
     width: 70%;
     margin: 0 auto;
 }
-.tecnologys{
+
+.tecnologys {
     background-color: white;
     width: 250px;
     height: 200px;
     margin: 20px;
-    border: 2px solid #dbdbe6 ;
+    border: 2px solid #dbdbe6;
     border-radius: 10px;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
-.tecno-icons{
+
+.tecno-icons {
     margin: 20px;
     width: 70px;
     height: 70px;
 }
-.icon-txt{
+
+.icon-txt {
     display: flex;
     align-items: center;
 }
-.tecno hr{
-    border:1px solid black;
+
+.tecno hr {
+    border: 1px solid black;
 }
-.projects{
-    width:100%;
-    height:6000px;
+
+.projects {
+    width: 100%;
+    height: 6000px;
     font-family: 'Darker Grotesque';
 }
-.projects .abt-line{
+
+.projects .abt-line {
     border-color: #8a8a97;
     width: 1300px;
     margin-left: 30px;
 }
-.projects h2, .abt-line {
+
+.projects h2,
+.abt-line {
     display: inline-block;
 }
-.tecnologys p{
+
+.tecnologys p {
     text-align: center;
     font-size: 1.25rem;
     margin-top: 25px;
 }
-.img-bord{
+
+.img-bord {
     border: 7px solid #1f1f22;
     border-radius: 50px;
     overflow: hidden;
     border: 2px solid #000;
 }
 
-.projects-coteiner{
+.projects-coteiner {
     display: flex;
     position: relative;
     justify-content: center;
@@ -381,40 +468,46 @@ header{
     width: 90%;
     margin: 0 auto;
 }
-.img-login{
+
+.img-login {
     position: relative;
     top: 250px;
     right: 300px;
 }
-.ballon{
+
+.ballon {
     position: absolute;
     width: 500px;
     height: 300px;
     background-color: white;
-    right:500px;
+    right: 500px;
     border: 2px solid black;
     border-radius: 50px;
     top: 300px;
     box-shadow: rgb(0 0 0 / 35%) 0px 5px 15px;
 }
-.ballon h3{
+
+.ballon h3 {
     text-align: center;
     font-size: 2rem;
     font-weight: 700px;
 }
-.ballon p{
+
+.ballon p {
     margin: 27px;
     background-color: white;
     padding: 20px;
     border-radius: 10px;
 }
-.ballon .buttons{
+
+.ballon .buttons {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-top: -40px;
 }
+
 .ballon .btn {
     background: none;
     padding: 10px;
@@ -424,91 +517,105 @@ header{
     border-radius: 10px;
     position: relative;
 }
-.ballon .buttons .btn:hover{
+
+.ballon .buttons .btn:hover {
     color: white;
     z-index: 2
 }
+
 .ballon .btn::before {
     content: "";
-    position: absolute;  
+    position: absolute;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     background-color: #00000086;
     z-index: -1;
-    transition : transform 0.5s;
-    transform-origin:0 0 ;
-    transition-timing-function: cubic-bezier(0.5,1.6,0.4,0.7);
+    transition: transform 0.5s;
+    transform-origin: 0 0;
+    transition-timing-function: cubic-bezier(0.5, 1.6, 0.4, 0.7);
 }
+
 .ballon .btn::before {
     transform: scaleX(0);
-    
+
 }
-.ballon .btn:hover::before{
+
+.ballon .btn:hover::before {
     transform: scaleX(1);
 }
 
 .slide-igs {
-    margin-left:100px;
+    margin-left: 100px;
 }
-.slide-igs img{
+
+.slide-igs img {
     transition: transform .5s ease;
     background: transparent;
-    
+
     position: relative;
 }
-.slide-igs:hover img{
+
+.slide-igs:hover img {
     -webkit-transform: scale(1.1);
     transform: scale(1.1);
     opacity: 1;
- }
-.slide{
+}
+
+.slide {
     display: block;
     height: 930px;
 }
-.img-login-A2W{
+
+.img-login-A2W {
     max-width: 1000px;
-    max-height:600px;
+    max-height: 600px;
     min-width: 200px;
-    min-height:150px;
+    min-height: 150px;
 }
-.img-cad-A2W{
+
+.img-cad-A2W {
     position: relative;
     max-width: 350px;
     max-height: 400px;
     top: 250px;
     right: 300px;
 }
-.ballon-two{
+
+.ballon-two {
     position: absolute;
     width: 500px;
     height: 350px;
     background-color: white;
-    right:500px;
+    right: 500px;
     border: 2px solid black;
     border-radius: 50px;
     top: 300px;
 }
-.ballon-two p{
+
+.ballon-two p {
     margin: 40px;
     background-color: white;
     padding: 20px;
     border-radius: 10px;
 }
-.ballon-two .buttons{
+
+.ballon-two .buttons {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-top: -40px;
 }
-.ballon-two h3{
+
+.ballon-two h3 {
     text-align: center;
     font-size: 2rem;
     font-weight: 700px;
 }
-.foot{
+
+.foot {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -518,8 +625,12 @@ header{
     color: white;
     font-family: 'Darker Grotesque';
     flex-direction: column;
+    position: relative;
+    bottom: 0;
+    top: 170px;
 }
-.foot a{
+
+.foot a {
     text-decoration: none;
     color: white;
 }

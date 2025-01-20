@@ -1,516 +1,666 @@
-@media(max-width:1720px){
-    .animation-position{
+@media(max-width:1720px) {
+    .animation-position {
         left: 58%;
     }
+
     .tecno {
         width: 98%;
     }
 }
-@media(max-width:1600px){
-    .animation-position{
+
+@media(max-width:1600px) {
+    .animation-position {
         left: 61%;
         top: 26%;
     }
+
     .img-cad-A2W {
         top: -125px;
         left: 800px;
     }
 }
-@media(max-width:1500px){
-    .sobre{
+
+@media(max-width:1500px) {
+    .sobre {
         width: 98%;
     }
-    .projects{
+
+    .projects {
         width: 98%;
     }
-    .ballon{
+
+    .ballon {
         position: absolute;
-        right:300px;
+        right: 300px;
     }
-    .img-login{
+
+    .img-login {
         top: -298px;
         right: -651px;
-    } 
+    }
+
     .slide-igs {
         margin-left: 15px;
-    } 
+    }
+
     .tecno {
         height: 1305px;
     }
 }
-@media(max-width:1400px){
-    .projects{
+
+@media(max-width:1400px) {
+    .projects {
         width: 98%;
     }
-    .animation-position{
+
+    .animation-position {
         left: 57%;
         top: 26%;
     }
+
     .about .abt-line {
         border-color: #8a8a97;
         width: 1100px;
         margin-left: 30px;
     }
+
     .projects .abt-line {
         border-color: #8a8a97;
         width: 1100px;
         margin-left: 30px;
     }
+
     .tecno .abt-line {
         border-color: #8a8a97;
         width: 1100px;
         margin-left: 30px;
     }
-    .img-cad-A2W{
+
+    .img-cad-A2W {
         position: absolute;
         opacity: 0;
         display: none;
-    } 
+    }
+
     .ballon {
         right: 212px;
     }
 }
-@media(max-width:1320px){
-    .projects{
+
+@media(max-width:1320px) {
+    .projects {
         width: 96%;
     }
+
     .disp p {
         width: 330px;
     }
+
     .tecno {
         height: 1450px;
     }
 }
-@media(max-width:1280px){
+
+@media(max-width:1280px) {
     .tecno {
         width: 95%;
     }
-    .sobre{
+
+    .sobre {
         width: 96%;
     }
-    .projects{
+
+    .projects {
         width: 91%;
     }
 }
-@media(max-width:1200px){
-    .projects{
+
+@media(max-width:1200px) {
+    .projects {
         width: 78%;
     }
+
     .about .abt-line {
         width: 950px;
     }
+
     .projects .abt-line {
         width: 950px;
     }
+
     .tecno .abt-line {
         width: 950px;
     }
+
     .animation-position {
         left: 42%;
         margin-top: 11%;
     }
+
     .slide-igs {
         margin-left: 70px;
     }
 }
-@media (max-width: 1100px){
+
+@media (max-width: 1100px) {
     .projects {
         width: 71%;
     }
+
     .img-login-A2W {
         max-width: 870px;
     }
+
     .slide-igs {
         margin-left: 155px;
     }
+
     .ballon {
         right: 110px;
     }
 }
-@media (max-width: 1050px){
-    .tecno{
-        height:1700px;
+
+@media (max-width: 1050px) {
+    .tecno {
+        height: 1700px;
     }
+
     .about .abt-line {
         width: 874px;
     }
+
     .projects .abt-line {
         width: 874px;
     }
+
     .tecno .abt-line {
         width: 874px;
     }
+
     .projects {
         width: 68%;
     }
 }
-@media (max-width: 1000px){
+
+@media (max-width: 1000px) {
     .projects {
         width: 46%;
     }
+
     .txt-line {
         width: 770px;
         position: absolute;
     }
+
     .about .abt-line {
         width: 770px;
     }
+
     .projects .abt-line {
         width: 770px;
     }
+
     .tecno .abt-line {
         width: 770px;
     }
+
     .slide-igs {
         margin-left: 320px;
     }
+
     .img-text {
         margin-left: 10%;
     }
 }
-@media (max-width: 900px){
+
+@media (max-width: 900px) {
     .tecno {
         height: 2700px;
     }
 }
+
 @media (max-width: 930px) {
     .img-login-A2W {
         max-width: 570px;
     }
+
     .ballon {
         max-width: 370px;
         right: 40px;
     }
+
     .ballon .btn {
         margin-top: 10px;
         min-width: 50px;
     }
+
     .ballon p {
         margin: 10px;
         padding: 20px;
     }
+
     .ballon .buttons {
         margin-top: 10px;
     }
 }
+
 @media (max-width: 900px) {
-    .animation-position{
+    .animation-position {
         left: 15%;
         margin-top: 24%;
     }
+
     .container-1 {
         height: 915px;
     }
 }
-@media (max-width: 885px){
+
+@media (max-width: 885px) {
     .txt-line {
         width: 582px;
         position: absolute;
     }
+
     .about .abt-line {
         width: 676px;
     }
+
     .projects .abt-line {
         width: 676px;
     }
+
     .tecno .abt-line {
         width: 676px;
     }
 }
+
 @media (max-width: 855px) {
     .projects {
         width: 36%;
     }
+
     .container-1 {
         font-size: 2.5rem;
     }
+
     .sub-title {
         font-size: 1.8rem;
         width: 51%;
     }
+
     .projects .abt-line {
         width: 574px;
     }
+
     .tecno .abt-line {
         width: 574px;
     }
+
     .about .abt-line {
         width: 574px;
     }
+
     .img-perfil {
         max-width: 18em;
     }
 }
-@media (max-width: 819px){
+
+@media (max-width: 819px) {
     .projects {
         width: 36%;
+        height: 4080px;
     }
+
     .img-text {
         margin-left: 20%;
         flex-direction: column-reverse;
     }
 }
+
 @media (max-width: 730px) {
     .projects {
         width: 15%;
     }
+
     .container-1 {
         font-size: 2rem;
     }
+
     .sub-title {
         font-size: 1.4rem;
         width: 51%;
     }
+
     .sub {
         margin: 2px;
-    }    
+    }
+
     .txt-line {
         width: 482px;
         position: absolute;
     }
-    
+
 }
+
 @media (max-width: 705px) {
-    .tecno{
-        height:2635px;
+    .tecno {
+        height: 2635px;
     }
+
+    .slide {
+        height: 589px;
+    }
+
     .projects .abt-line {
-        width: 491px;;
+        width: 491px;
+        ;
     }
+
     .tecno .abt-line {
         width: 374px;
     }
+
     .about .abt-line {
         width: 374px;
     }
+
     .img-text {
-        margin-left: 11%;
+        margin-left: 19%;
         flex-direction: column-reverse;
     }
+
     .animation-position {
         left: 4%;
     }
+
     .img-login-A2W {
         max-width: 440px;
     }
-    .txt-head{
+
+    .txt-head {
         margin-left: -20px;
         margin-top: 124px;
     }
+
     .ballon {
         max-width: 340px;
         right: -30px;
         top: 196px;
     }
+
     .ballon h3 {
         text-align: center;
         font-size: 1.17rem;
         font-weight: 700px;
     }
+
     .ballon .btn {
         padding: 13px;
         margin: -19px 10px 29px 17px;
         margin-top: 26px;
     }
+
     .ballon p {
         margin: 6px;
         padding: 20px;
     }
 }
+
 @media (max-width: 605px) {
     .animation-position {
         left: -12%;
+        margin-top: 75%;
     }
+
     .txt-head {
         margin-left: 20px;
     }
+
     .container-1 {
         font-size: 1.6rem;
     }
+
     .txt-line {
         width: 434px;
     }
+
     .projects {
         width: 0%;
+        position: relative;
+        top: 270px;
     }
+
     .projects .abt-line {
-        width: 425px;;
+        width: 425px;
+        ;
     }
+
     .slide-igs {
         margin-left: 337px;
     }
+
     .tecno {
         width: 94%;
+        top: 220px;
+        position: relative;
     }
+
     .sobre {
         width: 95%;
     }
+
     .img-login-A2W {
         max-width: 371px;
     }
+
     .ballon {
         max-width: 348px;
         right: -46px;
         top: 196px;
     }
 }
-@media (max-width: 555px){
+
+@media (max-width: 555px) {
     .back {
         width: 100%;
     }
+
     .slide-igs {
         margin-left: 282px;
     }
+
     .projects .abt-line {
         width: 349px;
     }
+
     .txt-line {
         width: 393px;
     }
+
     .list {
         margin-right: 100px;
     }
 }
+
 /*Celular*/
-@media (max-width: 573px){
+@media (max-width: 573px) {
     .txt-line {
         width: 393px;
     }
+
     .container-1 {
         margin-left: 0px;
     }
 }
-@media (max-width: 430px){
+
+@media (max-width: 430px) {
     .txt-line {
         width: 357px;
     }
+
     .container-1 {
         margin-left: 0px;
         font-size: 1.5rem;
     }
-    header .list{
+
+    header .list {
         margin-right: 51px;
     }
+
     .animation-position {
         left: -25%;
     }
+
     .about .abt-line {
         width: 188px;
     }
+
     .projects .abt-line {
         width: 289px;
     }
+
     .tecno .abt-line {
         width: 293px;
     }
+
     .tecno {
         width: 100%;
     }
+
     .slide-igs {
         margin-left: 211px;
     }
+
     .img-login-A2W {
         max-width: 371px;
     }
+
     .back {
         width: 106%;
     }
+
     .slide-igs {
         margin-left: 99px;
     }
+
     .card {
         max-width: 19rem;
     }
 }
-@media (max-width: 320px){
+
+@media (max-width: 320px) {
     .back {
         width: 121%;
-    }    
+    }
+
     .tecno {
         width: 107%;
     }
+
     .about .abt-line {
         width: 144px;
     }
+
     .animation-position {
         left: -37%;
         max-width: 19rem;
     }
+
     .container-1 {
         font-size: 1.3rem;
     }
+
     .txt-line {
         width: 262px;
     }
+
     .card {
         max-width: 18rem;
     }
+
     .img-login-A2W {
         max-width: 266px;
     }
+
     .ballon {
         max-width: 285px;
         right: -60px;
         top: 175px;
         height: 253px;
     }
-    .ballon hr{
+
+    .ballon hr {
         margin-top: 13px;
     }
-    .ballon h3{
+
+    .ballon h3 {
         margin-top: 10px;
     }
+
     .tecno .abt-line {
         width: 257px;
     }
+
     .projects .abt-line {
         width: 250px;
     }
+
     .img-perfil {
         max-width: 16em;
         height: 14em;
         margin: 20px;
     }
 }
+
 @media(max-width: 250px) {
     .back {
         width: 142%;
-    } 
+    }
+
     header .list {
         margin-right: 17px;
     }
+
     .container-1 {
         font-size: 1rem;
     }
+
     .animation-position {
         left: -58%;
         max-width: 19rem;
         margin-top: 100%;
     }
+
     header .list {
         margin-right: 30px;
     }
+
     .sub-title {
         font-size: 1rem;
         width: 51%;
     }
+
     .card {
         top: 4.1rem;
         left: 70%;
         max-width: 19rem;
     }
+
     .tecno .abt-line {
         width: 241px;
         margin-left: 0px;
     }
+
     .projects .abt-line {
         width: 241px;
         margin-left: 0px;
     }
+
     .about .abt-line {
         width: 241px;
         margin-left: 0px;
     }
+
     .ctr-txt {
         margin-right: 50px;
     }
