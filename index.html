@@ -1,309 +1,458 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="css.css">
-    <link rel="stylesheet" href="responsive.css">
-    <link href='https://fonts.googleapis.com/css?family=Darker Grotesque' rel='stylesheet'>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alexandre Gomes Vieira · Full Stack Developer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css.css">
 </head>
 
 <body>
-    <div class="back">
-        <header>
-            <ul class="list animation-fadeIn">
-                <li><a href="#sob">Sobre</a></li>
-                <li><a href="#tec">Contato</a></li>
-                <li><a href="#pj">Projetos</a></li>
-            </ul>
-        </header>
-        <section class="container-1 relative ">
-            <article class="txt-head">
-                <p class="lines typing-animation"><span class="blue-text">&ltp&gt</span>Olá, meu nome é Alexandre
-                    Gomes<span class="blue-text">&lt/p&gt</span>
-                    <!-- <br> <span class="blue-text">&ltp&gt</span>Desenvolvedor Front-end<span class="blue-text">&lt/p&gt</span></span>-->
-                </p>
-                <div class="sub">
-                    <hr class="txt-line animation-fadeIn">
-                    <p class="sub-title animation-fadeIn">Sou desenvolvedor Full Stack</p>
-                    <a href="https://github.com/Alexandregv1080p" target="_blank" class="s4 fa fa-github"></a>
-                    <a href="https://www.linkedin.com/in/alexandre-gomes-vieira-9625b31b5/"
-                        class="s4 fa fa-linkedin-square" target="_blank" style="margin-left:20px ;"></a>
-                    <a href="pastar curriculo/Currículoso.pdf" class="s4 fa fa-file-text-o" target="_blank"
-                        style="margin-left:20px"> </a>
-                </div>
-            </article>
-            <div class="animate animation-position">
-                <img src="imgs/computer.png" class="card img-abs">
-                <div class="ballon-1 animate-ballon">
-                    <div class="ltl"></div>
-                </div>
-                <div class="ballon-2">
-                    <div class="ltl"></div>
-                </div>
-            </div>
-        </section>
-        <section class="sobre" id="sob">
-            <div class="about">
-                <h2 class="ctr-txt" data-anime="left">Sobre mim
-                    <hr class="abt-line">
-                </h2>
-                <article class="img-text">
-                    <div class="disp">
-                        <p class="abt-txt" data-anime="left">Olá, meu nome é Alexandre Gomes. Comecei o meu contato com
-                            o mundo da programação em 2020, quando me deparei com um vídeo de HTML e CSS do Gustavo
-                            Guanabara, desde então, a programação deixou de ser um hobby para se tornar uma meta de vida
-                            com uma extrema paixão.</p>
-                        <p class="abt-txt" data-anime="left">Atualmente atuo como desenvolvedor Full Stack, na empresa
-                            Play2Sell. Realizo manutenção de código Angular e Node (TypeScript), onde realizo novas
-                            correções e implementações, juntamente com o banco de dados MongoDB. Também faço parte da
-                            integração de dados no chat do GPT Maker e impletação de nódulos no N8N.</p>
-                        <p class="abt-txt" data-anime="left">Possuo experiência profissional de 1 ano e 5 meses, como
-                            desenvolvedor Full Stack, na empresa chamada Postaqui Logística. Minha atuação dentro da
-                            empresa foi a criação do site institucional, resolver falhas no sistema e implementação de
-                            novas telas. Tenho fácil manuseio com ReactJS, NodeJS, MongoDB e criação de testes de
-                            integrações
-                            utilizando o Jest.</p>
-                        <p class="abt-txt" data-anime="left">Possuo experiência profissional de desenvolvedor Front End,
-                            dentro
-                            da empresa A2W Agronegócio, onde aprendi a manipular elementos do Angular, fazer requisição
-                            para o Back End , Programação Orientada Objetos e Teórica de Metodologias Ágeis.</p>
-                    </div>
-                    <img src="imgs/foto-perfil-cortada.jpg" class="img-perfil" data-anime="right">
-                </article>
-            </div>
-        </section>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#home" class="nav-logo">AG<span class="accent">.</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#sobre">Sobre</a></li>
+        <li><a href="#experiencia">Experiência</a></li>
+        <li><a href="#habilidades">Habilidades</a></li>
+        <li><a href="#projetos">Projetos</a></li>
+        <li><a href="#contato" class="nav-cta">Contato</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-    <section class="tecno" id="tec">
-        <h2 class="ctr-txt" style="color: black;" data-anime="left">Tecnologias
-            <hr class="abt-line">
-        </h2>
-        <div class="conteiner-tecno" data-anime="right">
-            <div class="tecnologys">
-                <div class="icon-txt">
-                    <img src="imgs/html-icon.png" class="tecno-icons">
-                    <h3>HTML 5</h3>
-                </div>
-                <hr>
-                <p>Experiência Intermediário</p>
-            </div>
-            <div class="tecnologys">
-                <div class="icon-txt">
-                    <img src="imgs/javascript-icon.png" class="tecno-icons">
-                    <h3>JavaScript</h3>
-                </div>
-                <hr>
-                <p>Experiência Intermediário</p>
-            </div>
-            <div class="tecnologys">
-                <div class="icon-txt">
-                    <img src="imgs/angular-icon.png" class="tecno-icons">
-                    <h3>Angular</h3>
-                </div>
-                <hr>
-                <p>Experiência Intermediário</p>
-            </div>
-            <div class="tecnologys">
-                <div class="icon-txt">
-                    <img src="imgs/react-icon.png" class="tecno-icons">
-                    <h3>React</h3>
-                </div>
-                <hr>
-                <p>Experiência Intermediário</p>
-            </div>
-            <div class="tecnologys">
-                <div class="icon-txt">
-                    <img src="imgs/css3-icon.png" class="tecno-icons">
-                    <h3>CSS3</h3>
-                </div>
-                <hr>
-                <p>Experiência Intermediário</p>
-            </div>
-            <div class="tecnologys">
-                <div class="icon-txt">
-                    <img src="imgs/c-sharp-icon.png" class="tecno-icons">
-                    <h3>C sharp</h3>
-                </div>
-                <hr>
-                <p>Experiência Básico</p>
-            </div>
-            <div class="tecnologys">
-                <div class="icon-txt">
-                    <img src="imgs/nodejs-icon.png" class="tecno-icons">
-                    <h3>Node Js</h3>
-                </div>
-                <hr>
-                <p>Experiência Intermediário</p>
-            </div>
-            <div class="tecnologys">
-                <div class="icon-txt">
-                    <img src="imgs/sql-icon.png" class="tecno-icons">
-                    <h3>SQL Server</h3>
-                </div>
-                <hr>
-                <p>Experiência Intermediário</p>
-            </div>
-            <div class="tecnologys">
-                <div class="icon-txt">
-                    <img src="imgs/java-icon.png" class="tecno-icons">
-                    <h3>Java</h3>
-                </div>
-                <hr>
-                <p>Experiência Intermediário</p>
-            </div>
-            <div class="tecnologys">
-                <div class="icon-txt">
-                    <img src="imgs/spring-icon.png" class="tecno-icons">
-                    <h3>SpringBoot</h3>
-                </div>
-                <hr>
-                <p>Experiência Intermediário</p>
-            </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-content">
+      <p class="hero-greeting">Olá, eu sou</p>
+      <h1 class="hero-name">Alexandre <span class="accent">Gomes</span></h1>
+      <h2 class="hero-role">
+        <span class="typing-text" id="typing"></span><span class="cursor">|</span>
+      </h2>
+      <p class="hero-desc">Desenvolvedor Full Stack com experiência em aplicações web de ponta a ponta — do front-end ao back-end, microsserviços e CI/CD.</p>
+      <div class="hero-actions">
+        <a href="#projetos" class="btn-primary">Ver Projetos</a>
+        <a href="#contato" class="btn-secondary">Falar Comigo</a>
+      </div>
+      <div class="hero-socials">
+        <a href="https://github.com/Alexandregv1080p" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        <a href="https://linkedin.com/in/alexandre-gomes-vieira" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+        <a href="mailto:alexandregv1999@gmail.com" title="E-mail"><i class="fa-solid fa-envelope"></i></a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="code-block">
+        <div class="code-header">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">perfil.ts</span>
         </div>
-    </section>
-    <section class="projects" id="pj">
-        <h2 class="ctr-txt" style="color: black;" data-anime="left">Meus projetos
-            <hr class="abt-line">
-        </h2>
-        <div class="projects-coteiner">
+        <pre class="code-body"><code><span class="kw">const</span> <span class="var">dev</span> = {
+  <span class="prop">nome</span>: <span class="str">"Alexandre Gomes"</span>,
+  <span class="prop">cargo</span>: <span class="str">"Full Stack Developer"</span>,
+  <span class="prop">local</span>: <span class="str">"Alfenas - MG, Brasil"</span>,
+  <span class="prop">stack</span>: [
+    <span class="str">"React"</span>, <span class="str">"Angular"</span>,
+    <span class="str">"Node.js"</span>, <span class="str">"Java/Spring"</span>,
+    <span class="str">"MongoDB"</span>, <span class="str">"TypeScript"</span>
+  ],
+  <span class="prop">objetivo</span>: <span class="str">"Full Stack Sênior"</span>,
+  <span class="prop">disponivel</span>: <span class="kw">true</span>
+};</code></pre>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <span>scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
 
-            <div class="slide" data-anime="left">
-
-                <div class="slide-igs">
-                    <img src="imgs/todoLanding.png" data-anime="left" class="img-bord img-login-A2W">
-                    <img src="imgs/todoCode.png" data-anime="right" class="img-bord img-cad-A2W" srcset="">
-                </div>
-                <div class="ballon">
-                    <h3>Projeto ToDo com React</h3>
-                    <hr>
-                    <p>Projeto onde utilizei React, NodeJS e MongoDB. O projeto consiste em um sistema de cadastros de
-                        afazeres,
-                        onde o usuario pode adicionar uma tarefa, marca-la como concluida e excluir após ser marcada
-                        como concluida.
-                    </p>
-                    <div class="buttons">
-                        <a href="https://www.linkedin.com/feed/update/urn:li:activity:7112795958706356224/"
-                            target="_blank"><button class="btn">LINK</button></a>
-                        <a href="https://github.com/Alexandregv1080p/ToDo-APP" target="_blank"><button
-                                class="btn">GITHUB<i class="fa fa-github"
-                                    style="font-size: 20px; margin-left: 10px;"></i></button></a>
-                    </div>
-                </div>
-
-            </div>
-            <div class="slide" data-anime="right">
-                <div class="slide-igs">
-                    <img src="imgs/A2W-Agular-tabel.png" data-anime="left" class="img-bord img-login-A2W">
-                    <img src="imgs/A2W-Agular-cad.png" data-anime="right" class="img-bord img-cad-A2W" srcset="">
-                </div>
-                <div class="ballon">
-                    <h3>Projeto Angular A2W consumo de API</h3>
-                    <hr>
-                    <p>Projeto onde faço consumo de API pelo back end, podendo cadastrar clientes,módulos e módulos por
-                        cliente separados</p>
-                    <div class="buttons">
-                        <a href="https://alexandregv1080p.github.io/Prot-tipo-A2W-Angular/Crud/frontend/src/app/login/login.component.html"
-                            target="_blank"><button class="btn btn-s">LINK</button></a>
-                        <a href="https://github.com/Alexandregv1080p/Plataforma-A2W" target="_blank"><button
-                                class="btn">GITHUB<i class="fa fa-github"
-                                    style="font-size: 20px; margin-left: 10px;"></i></button></a>
-                    </div>
-                </div>
-            </div>
-            <div class="slide" data-anime="left">
-                <div class="slide-igs">
-                    <img src="imgs/springMain.png" data-anime="left" class="img-bord img-login-A2W">
-                    <img src="imgs/springLogin.png" data-anime="right" class="img-bord img-cad-A2W" srcset="">
-                </div>
-                <div class="ballon">
-                    <h3>Projeto Angular + SpringBoot</h3>
-                    <hr>
-                    <p>Projeto que utilizei o Angular, SpringBoot, Docker e PostgreSQL.
-                        O projeto consiste em uma aplicação CRUD, seguindo o modelo de Dashboard.
-                        É permitido o cadastro de clientes e atribuir tarefas aos clientes ativos.
-                        No Dashboard principal é onde são recuperadas as informações do backend.
-                    </p>
-                    <div class="buttons">
-                        <a href="https://www.linkedin.com/feed/update/urn:li:activity:7110268993587851264/"
-                            target="_blank"><button class="btn">LINK</button></a>
-                        <a href="https://github.com/Alexandregv1080p/Projeto-Angular-Spring-1" target="_blank"><button
-                                class="btn">GITHUB<i class="fa fa-github"
-                                    style="font-size: 20px; margin-left: 10px;"></i></button></a>
-                    </div>
-                </div>
-            </div>
-            <div class="slide" data-anime="left">
-                <div class="slide-igs">
-                    <img src="imgs/lyceu.png" data-anime="left" class="img-bord img-login-A2W">
-                    <img src="imgs/lyceu-code.png" data-anime="right" class="img-bord img-cad-A2W" srcset="">
-                </div>
-                <div class="ballon">
-                    <h3>Projeto cópia do lyceum em desenvolvimento</h3>
-                    <hr>
-                    <p>Projeto que visa ser uma cópia do sistema acadêmico da UNIFENAS. Estou utilizando apenas o
-                        Angular </p>
-                    <div class="buttons">
-                        <a href="https://alexandregv1080p.github.io/Calculo-de-IMC/exImc/" target="_blank"><button
-                                class="btn">LINK</button></a>
-                        <a href="https://github.com/Alexandregv1080p/Calculo-de-IMC" target="_blank"><button
-                                class="btn">GITHUB<i class="fa fa-github"
-                                    style="font-size: 20px; margin-left: 10px;"></i></button></a>
-                    </div>
-                </div>
-            </div>
-            <div class="slide" data-anime="left">
-                <div class="slide-igs">
-                    <img src="imgs/PostMan-Amazon.png" data-anime="left" class="img-bord img-login-A2W">
-                    <img src="imgs/Code-Amazon.png" data-anime="right" class="img-bord img-cad-A2W" srcset="">
-                </div>
-                <div class="ballon">
-                    <h3>Projeto API Rest com Amazon RDS </h3>
-                    <hr>
-                    <p>Projeto de Rest aplicado com Spring Data, Spring Jpa, Spring Web e conectado com PostgreSQL ao
-                        Amazon RDS, sendo incluso com o Hateoas. </p>
-                    <div class="buttons">
-                        <a href="https://github.com/Alexandregv1080p/ConectandoSpringAmazon/tree/master/apirest/src/main/java/com/example/dioclass/apirest/Hateoas"
-                            target="_blank"><button class="btn">GITHUB<i class="fa fa-github"
-                                    style="font-size: 20px; margin-left: 10px;"></i></button></a>
-                    </div>
-                </div>
-            </div>
-            <div class="slide" data-anime="left">
-                <div class="slide-igs">
-                    <img src="imgs/Swagger.png" class="img-bord img-login-A2W">
-                    <img src="imgs/Swagger-code.png" data-anime="right" class="img-bord img-cad-A2W" srcset="">
-                </div>
-                <div class="ballon">
-                    <h3>Projeto via cep com Spring Swagger </h3>
-                    <hr>
-                    <p>Projeto desenvolvido com o Spring Web e o Swagger, onde os dados são armazenados do banco de
-                        dados em memória, H2.
-                        Ao fazermos uma requisição POST com o cep, o Swagger retorna todas as especificações do CEP em
-                        formato de JSON </p>
-                    <div class="buttons">
-                        <a href="https://github.com/Alexandregv1080p/PadroesDeProjetosJava/tree/master/lab-padroes-projeto-spring"
-                            target="_blank"><button class="btn">GITHUB<i class="fa fa-github"
-                                    style="font-size: 20px; margin-left: 10px;"></i></button></a>
-                    </div>
-                </div>
-            </div>
+  <!-- SOBRE -->
+  <section class="section" id="sobre">
+    <div class="container">
+      <div class="section-header" data-anime>
+        <span class="section-tag">// sobre</span>
+        <h2 class="section-title">Quem sou eu</h2>
+      </div>
+      <div class="sobre-grid">
+        <div class="sobre-img-wrap" data-anime>
+          <img src="imgs/foto-perfil-cortada.jpg" alt="Alexandre Gomes Vieira" class="sobre-img">
+          <div class="sobre-img-badge">
+            <i class="fa-solid fa-code"></i>
+            <span>4+ anos<br>de código</span>
+          </div>
         </div>
-    </section>
-    <footer class="foot">
-        <h3>Email para contato: alexandregv1999@gmail.com</h3>
-        <h3>Redes sociais: <a href="https://github.com/Alexandregv1080p" target="_blank"><i
-                    class="fa fa-github"></i></a><a href="https://www.linkedin.com/in/alexandre-gomes-vieira-9625b31b5/"
-                target="_blank"><i class="fa fa-linkedin-square" style="margin-left:10px ;"></i></a><a
-                href="pastar curriculo/curriculo atual.pdf" target="_blank"><i class="fa fa-file-text-o"
-                    aria-hidden="true" style="margin-left:10px"></i></a></h3>
-    </footer>
-    <script src="script.js"></script>
+        <div class="sobre-text" data-anime>
+          <p>Comecei minha jornada na programação em <strong>2020</strong>, após descobrir HTML e CSS. O que começou como hobby rapidamente se transformou em paixão e carreira.</p>
+          <p>Hoje atuo como <strong>Desenvolvedor Full Stack</strong> na <strong>Spotside</strong> (Portugal, remoto), onde desenvolvo uma plataforma SaaS de digital signage com arquitetura de microsserviços, além de atuar na <strong>CroSoften</strong> em projetos Angular e mobile com Kotlin.</p>
+          <p>Tenho experiência comprovada em ReactJS, NextJS, Angular, Node.js, Java/Spring e pipelines de CI/CD — sempre com foco em qualidade de código e entregas contínuas.</p>
+          <div class="sobre-info">
+            <div class="info-item"><i class="fa-solid fa-location-dot"></i> Alfenas, MG — Brasil</div>
+            <div class="info-item"><i class="fa-solid fa-graduation-cap"></i> Ciências da Computação · Estácio</div>
+            <div class="info-item"><i class="fa-solid fa-briefcase"></i> Disponível para oportunidades</div>
+          </div>
+          <a href="pastar curriculo/Currículoso.pdf" target="_blank" class="btn-outline"><i class="fa-solid fa-file-arrow-down"></i> Download CV</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIÊNCIA -->
+  <section class="section section-dark" id="experiencia">
+    <div class="container">
+      <div class="section-header" data-anime>
+        <span class="section-tag">// experiência</span>
+        <h2 class="section-title">Trajetória profissional</h2>
+      </div>
+      <div class="timeline">
+
+        <div class="timeline-item" data-anime>
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">Fev 2026 – Atual</div>
+          <div class="timeline-card">
+            <div class="timeline-header">
+              <h3>Desenvolvedor Angular / Front-end</h3>
+              <span class="company">CroSoften</span>
+            </div>
+            <p>Desenvolvimento de projetos front-end em Angular e apps Android em Kotlin: app bancário, sistema gerencial de farmácias e lojas virtuais.</p>
+            <div class="tags"><span>Angular</span><span>Kotlin</span><span>TypeScript</span><span>HTML/CSS</span></div>
+          </div>
+        </div>
+
+        <div class="timeline-item" data-anime>
+          <div class="timeline-dot accent-dot"></div>
+          <div class="timeline-date">Out 2025 – Atual</div>
+          <div class="timeline-card featured-card">
+            <div class="current-badge">Atual</div>
+            <div class="timeline-header">
+              <h3>Desenvolvedor Full Stack</h3>
+              <span class="company">Spotside · Portugal (Remoto)</span>
+            </div>
+            <p>Desenvolvimento full stack da plataforma de digital signage Spotside/Andy — SaaS com microsserviços gerenciando conteúdo e dispositivos em tempo real.</p>
+            <ul class="timeline-list">
+              <li>Múltiplos serviços Node.js (API, store, supervisor, conversão de arquivos) com Express, MongoDB e Socket.io</li>
+              <li>Documentação de plugins com schemas de dados e fluxo integrado a GitLab e Jira</li>
+              <li>Front-end SPA, renderizador Electron, integração Keycloak/JWT, MinIO e GraphQL</li>
+            </ul>
+            <div class="tags"><span>Node.js</span><span>Express</span><span>MongoDB</span><span>Socket.io</span><span>Electron</span><span>GraphQL</span><span>GitLab CI/CD</span></div>
+          </div>
+        </div>
+
+        <div class="timeline-item" data-anime>
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">Mar 2025 – Jul 2025</div>
+          <div class="timeline-card">
+            <div class="timeline-header">
+              <h3>Desenvolvedor Full Stack</h3>
+              <span class="company">Play2Sell</span>
+            </div>
+            <p>Aplicações com Angular no front-end e Node.js (TypeScript) no back-end, incluindo automações em low code com N8N e integração com GPT Maker.</p>
+            <div class="tags"><span>Angular</span><span>TypeScript</span><span>Node.js</span><span>MongoDB</span><span>N8N</span><span>Scrum</span></div>
+          </div>
+        </div>
+
+        <div class="timeline-item" data-anime>
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">Out 2023 – Jan 2025</div>
+          <div class="timeline-card">
+            <div class="timeline-header">
+              <h3>Desenvolvedor Júnior Full Stack</h3>
+              <span class="company">Postaqui Logística</span>
+            </div>
+            <p>Desenvolvimento full stack com ReactJS/NextJS e Node.js, com foco em qualidade de código, testes e entregas contínuas. Criação do site institucional e implementação de novas telas.</p>
+            <div class="tags"><span>ReactJS</span><span>NextJS</span><span>Node.js</span><span>MongoDB</span><span>Jest</span><span>Tailwind</span><span>CI/CD</span></div>
+          </div>
+        </div>
+
+        <div class="timeline-item" data-anime>
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2022</div>
+          <div class="timeline-card">
+            <div class="timeline-header">
+              <h3>Desenvolvedor Estagiário</h3>
+              <span class="company">A2W Tecnologia e Inovações</span>
+            </div>
+            <p>Desenvolvimento front-end com Angular, consumo de APIs REST e prototipação no Figma, em metodologia Scrum.</p>
+            <div class="tags"><span>Angular</span><span>API REST</span><span>TypeScript</span><span>Figma</span><span>Scrum</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- HABILIDADES -->
+  <section class="section" id="habilidades">
+    <div class="container">
+      <div class="section-header" data-anime>
+        <span class="section-tag">// habilidades</span>
+        <h2 class="section-title">Stack técnico</h2>
+      </div>
+      <div class="skills-grid">
+
+        <div class="skill-category" data-anime>
+          <h3><i class="fa-solid fa-display"></i> Front-end</h3>
+          <div class="skill-list">
+            <div class="skill-item">
+              <div class="skill-info"><img src="imgs/react-icon.png" alt="React"><span>ReactJS / NextJS</span></div>
+              <div class="skill-bar"><div class="skill-fill" data-width="90"></div></div>
+              <span class="skill-label">Avançado</span>
+            </div>
+            <div class="skill-item">
+              <div class="skill-info"><img src="imgs/angular-icon.png" alt="Angular"><span>Angular</span></div>
+              <div class="skill-bar"><div class="skill-fill" data-width="90"></div></div>
+              <span class="skill-label">Avançado</span>
+            </div>
+            <div class="skill-item">
+              <div class="skill-info"><img src="imgs/javascript-icon.png" alt="JS"><span>JavaScript / TypeScript</span></div>
+              <div class="skill-bar"><div class="skill-fill" data-width="90"></div></div>
+              <span class="skill-label">Avançado</span>
+            </div>
+            <div class="skill-item">
+              <div class="skill-info"><img src="imgs/html-icon.png" alt="HTML"><span>HTML5 / CSS3</span></div>
+              <div class="skill-bar"><div class="skill-fill" data-width="85"></div></div>
+              <span class="skill-label">Avançado</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="skill-category" data-anime>
+          <h3><i class="fa-solid fa-server"></i> Back-end</h3>
+          <div class="skill-list">
+            <div class="skill-item">
+              <div class="skill-info"><img src="imgs/nodejs-icon.png" alt="Node"><span>Node.js / Express</span></div>
+              <div class="skill-bar"><div class="skill-fill" data-width="90"></div></div>
+              <span class="skill-label">Avançado</span>
+            </div>
+            <div class="skill-item">
+              <div class="skill-info"><img src="imgs/java-icon.png" alt="Java"><span>Java / Spring Boot</span></div>
+              <div class="skill-bar"><div class="skill-fill" data-width="85"></div></div>
+              <span class="skill-label">Avançado</span>
+            </div>
+            <div class="skill-item">
+              <div class="skill-info"><img src="imgs/c-sharp-icon.png" alt="C#"><span>C# / PHP</span></div>
+              <div class="skill-bar"><div class="skill-fill" data-width="55"></div></div>
+              <span class="skill-label">Intermediário</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="skill-category" data-anime>
+          <h3><i class="fa-solid fa-database"></i> Banco de Dados & DevOps</h3>
+          <div class="skill-list">
+            <div class="skill-item">
+              <div class="skill-info"><img src="imgs/sql-icon.png" alt="MongoDB"><span>MongoDB / MySQL</span></div>
+              <div class="skill-bar"><div class="skill-fill" data-width="70"></div></div>
+              <span class="skill-label">Intermediário</span>
+            </div>
+            <div class="skill-item">
+              <div class="skill-info"><i class="fa-brands fa-git-alt skill-icon-fa"></i><span>Git / Gitflow / CI-CD</span></div>
+              <div class="skill-bar"><div class="skill-fill" data-width="90"></div></div>
+              <span class="skill-label">Avançado</span>
+            </div>
+            <div class="skill-item">
+              <div class="skill-info"><i class="fa-brands fa-docker skill-icon-fa"></i><span>Docker</span></div>
+              <div class="skill-bar"><div class="skill-fill" data-width="65"></div></div>
+              <span class="skill-label">Intermediário</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="skill-category" data-anime>
+          <h3><i class="fa-solid fa-certificate"></i> Certificações</h3>
+          <div class="cert-list">
+            <div class="cert-item">
+              <div class="cert-icon"><i class="fa-solid fa-award"></i></div>
+              <div>
+                <strong>Bootcamp Banco PAN – Java Dev</strong>
+                <span>DIO · 2023 · 114h — Spring Boot, JPA, MongoDB, AWS</span>
+              </div>
+            </div>
+            <div class="cert-item">
+              <div class="cert-icon"><i class="fa-solid fa-award"></i></div>
+              <div>
+                <strong>Bootcamp Banco PAN – Java Dev</strong>
+                <span>DIO · 2023 · 112h — Spring, Kotlin, MySQL, Docker</span>
+              </div>
+            </div>
+            <div class="cert-item">
+              <div class="cert-icon"><i class="fa-solid fa-award"></i></div>
+              <div>
+                <strong>React + Redux do Absoluto Zero</strong>
+                <span>Udemy · 2025 · 54,5h — Hooks, Redux, Webpack</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJETOS -->
+  <section class="section section-dark" id="projetos">
+    <div class="container">
+      <div class="section-header" data-anime>
+        <span class="section-tag">// projetos</span>
+        <h2 class="section-title">O que já construí</h2>
+      </div>
+      <div class="projects-grid">
+
+        <div class="project-card" data-anime>
+          <div class="project-img">
+            <img src="imgs/springMain.png" alt="Dashboard CRUD">
+            <div class="project-overlay">
+              <a href="https://github.com/Alexandregv1080p/Projeto-AngularSpring-1" target="_blank" class="overlay-btn"><i class="fa-brands fa-github"></i> GitHub</a>
+            </div>
+          </div>
+          <div class="project-info">
+            <h3>Dashboard CRUD com API REST</h3>
+            <p>Sistema de cadastro de usuários com autenticação, tarefas e contatos. CRUD completo com API segura e banco relacional.</p>
+            <div class="tags"><span>Spring Boot</span><span>Spring Security</span><span>Angular</span><span>PostgreSQL</span><span>Docker</span></div>
+          </div>
+        </div>
+
+        <div class="project-card" data-anime>
+          <div class="project-img">
+            <img src="imgs/todoLanding.png" alt="ToDo App">
+            <div class="project-overlay">
+              <a href="https://github.com/Alexandregv1080p/ToDo-APP" target="_blank" class="overlay-btn"><i class="fa-brands fa-github"></i> GitHub</a>
+              <a href="https://www.linkedin.com/feed/update/urn:li:activity:7112795958706356224/" target="_blank" class="overlay-btn"><i class="fa-brands fa-linkedin-in"></i> Demo</a>
+            </div>
+          </div>
+          <div class="project-info">
+            <h3>ToDo App com React</h3>
+            <p>Aplicação de gerenciamento de tarefas com adição, marcação como concluída e exclusão. Stack completa com React, Node.js e MongoDB.</p>
+            <div class="tags"><span>ReactJS</span><span>Node.js</span><span>MongoDB</span></div>
+          </div>
+        </div>
+
+        <div class="project-card" data-anime>
+          <div class="project-img">
+            <img src="imgs/A2W-Agular-tabel.png" alt="A2W Angular">
+            <div class="project-overlay">
+              <a href="https://github.com/Alexandregv1080p/Plataforma-A2W" target="_blank" class="overlay-btn"><i class="fa-brands fa-github"></i> GitHub</a>
+            </div>
+          </div>
+          <div class="project-info">
+            <h3>Plataforma A2W – Consumo de API</h3>
+            <p>Aplicação Angular com consumo de API REST para cadastro de clientes e módulos. Interface completa com listagem e filtros.</p>
+            <div class="tags"><span>Angular</span><span>TypeScript</span><span>API REST</span></div>
+          </div>
+        </div>
+
+        <div class="project-card" data-anime>
+          <div class="project-img">
+            <img src="imgs/Swagger.png" alt="Spring Swagger">
+            <div class="project-overlay">
+              <a href="https://github.com/Alexandregv1080p/PadroesDeProjetosJava/tree/master/lab-padroes-projeto-spring" target="_blank" class="overlay-btn"><i class="fa-brands fa-github"></i> GitHub</a>
+            </div>
+          </div>
+          <div class="project-info">
+            <h3>Via CEP com Spring & Swagger</h3>
+            <p>API REST com Spring Web e documentação Swagger. Consulta de CEP com retorno de dados em JSON armazenados em banco H2.</p>
+            <div class="tags"><span>Spring Boot</span><span>Swagger</span><span>H2</span><span>Java</span></div>
+          </div>
+        </div>
+
+        <div class="project-card" data-anime>
+          <div class="project-img">
+            <img src="imgs/PostMan-Amazon.png" alt="Amazon RDS API">
+            <div class="project-overlay">
+              <a href="https://github.com/Alexandregv1080p/ConectandoSpringAmazon" target="_blank" class="overlay-btn"><i class="fa-brands fa-github"></i> GitHub</a>
+            </div>
+          </div>
+          <div class="project-info">
+            <h3>API REST com Amazon RDS</h3>
+            <p>API conectada ao Amazon RDS (PostgreSQL) usando Spring Data JPA, Spring Web e HATEOAS para navegação hipermídia.</p>
+            <div class="tags"><span>Spring Boot</span><span>AWS RDS</span><span>HATEOAS</span><span>PostgreSQL</span></div>
+          </div>
+        </div>
+
+        <div class="project-card" data-anime>
+          <div class="project-img">
+            <img src="imgs/lyceu.png" alt="Lyceum Clone">
+            <div class="project-overlay">
+              <a href="https://github.com/Alexandregv1080p/Calculo-de-IMC" target="_blank" class="overlay-btn"><i class="fa-brands fa-github"></i> GitHub</a>
+            </div>
+          </div>
+          <div class="project-info">
+            <h3>Clone do Sistema Acadêmico Lyceum</h3>
+            <p>Recriação do sistema acadêmico da UNIFENAS em Angular, com telas de login, dashboard e gestão de disciplinas.</p>
+            <div class="tags"><span>Angular</span><span>TypeScript</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTATO -->
+  <section class="section" id="contato">
+    <div class="container">
+      <div class="section-header" data-anime>
+        <span class="section-tag">// contato</span>
+        <h2 class="section-title">Vamos conversar?</h2>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-text" data-anime>
+          <p>Estou aberto a novas oportunidades, freelas ou apenas uma boa conversa sobre tecnologia. Pode me chamar!</p>
+          <div class="contact-links">
+            <a href="mailto:alexandregv1999@gmail.com" class="contact-item">
+              <i class="fa-solid fa-envelope"></i>
+              <span>alexandregv1999@gmail.com</span>
+            </a>
+            <a href="tel:+5535984249011" class="contact-item">
+              <i class="fa-solid fa-phone"></i>
+              <span>(35) 9 8424-9011</span>
+            </a>
+            <a href="https://linkedin.com/in/alexandre-gomes-vieira" target="_blank" class="contact-item">
+              <i class="fa-brands fa-linkedin-in"></i>
+              <span>linkedin.com/in/alexandre-gomes-vieira</span>
+            </a>
+            <a href="https://github.com/Alexandregv1080p" target="_blank" class="contact-item">
+              <i class="fa-brands fa-github"></i>
+              <span>github.com/Alexandregv1080p</span>
+            </a>
+          </div>
+        </div>
+        <div class="contact-card" data-anime>
+          <div class="contact-card-inner">
+            <i class="fa-solid fa-paper-plane"></i>
+            <h3>Bora codar algo incrível juntos?</h3>
+            <p>Alfenas, MG · Brasil<br>Disponível para remoto</p>
+            <a href="mailto:alexandregv1999@gmail.com" class="btn-primary">Enviar mensagem</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <span class="nav-logo">AG<span class="accent">.</span></span>
+        <p>Feito com <span class="accent">♥</span> por Alexandre Gomes Vieira</p>
+        <div class="footer-socials">
+          <a href="https://github.com/Alexandregv1080p" target="_blank"><i class="fa-brands fa-github"></i></a>
+          <a href="https://linkedin.com/in/alexandre-gomes-vieira" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+          <a href="mailto:alexandregv1999@gmail.com"><i class="fa-solid fa-envelope"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
 
 </body>
-
 </html>
