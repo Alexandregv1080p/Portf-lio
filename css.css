@@ -19,6 +19,33 @@
   --font-mono: 'Fira Code', monospace;
 }
 
+/* DYNAMIC THEMING — accent color variants */
+:root, [data-theme="green"] {
+  --accent: #5cffb1;
+  --accent-dim: rgba(92, 255, 177, 0.15);
+  --accent-glow: rgba(92, 255, 177, 0.25);
+}
+[data-theme="blue"] {
+  --accent: #5ca8ff;
+  --accent-dim: rgba(92, 168, 255, 0.15);
+  --accent-glow: rgba(92, 168, 255, 0.25);
+}
+[data-theme="violet"] {
+  --accent: #b15cff;
+  --accent-dim: rgba(177, 92, 255, 0.15);
+  --accent-glow: rgba(177, 92, 255, 0.25);
+}
+[data-theme="amber"] {
+  --accent: #ffb15c;
+  --accent-dim: rgba(255, 177, 92, 0.15);
+  --accent-glow: rgba(255, 177, 92, 0.25);
+}
+[data-theme="rose"] {
+  --accent: #ff5c8a;
+  --accent-dim: rgba(255, 92, 138, 0.15);
+  --accent-glow: rgba(255, 92, 138, 0.25);
+}
+
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
@@ -105,6 +132,33 @@ ul { list-style: none; }
   gap: 0.4rem;
 }
 .window-title i { color: var(--accent); font-size: 0.7rem; }
+.theme-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: auto;
+  margin-right: 1rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.theme-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--dot);
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 0 0 0 transparent;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.2s ease;
+}
+.theme-dot:hover { transform: scale(1.2); }
+.theme-dot.active {
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 10px var(--dot);
+}
 .win-actions {
   display: flex;
   gap: 0.7rem;
@@ -591,53 +645,4 @@ ul { list-style: none; }
 .proj-main { flex: 1; min-width: 0; }
 .proj-main h3 {
   font-size: 1.1rem;
-  font-weight: 500;
-  margin-bottom: 0.4rem;
-  letter-spacing: -0.3px;
-  transition: color 0.2s;
-}
-.project-row:hover .proj-main h3 { color: var(--accent); }
-.proj-main p { color: var(--text-muted); font-size: 0.86rem; max-width: 560px; }
-.proj-year {
-  font-family: var(--font-mono);
-  color: var(--text-dim);
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-.project-row:hover .proj-year { color: var(--accent); }
-
-/* ===========================
-   CONTACT (terminal style)
-=========================== */
-.contact-body { font-family: var(--font-mono); }
-.terminal-line {
-  font-size: 0.88rem;
-  color: var(--text-muted);
-  margin-bottom: 0.6rem;
-}
-.terminal-line.out { color: var(--accent); padding-left: 1.4rem; }
-.prompt { color: var(--accent); margin-right: 0.6rem; }
-.cursor-blink { animation: blink 1s step-end infinite; color: var(--accent); }
-@keyframes blink { 50% { opacity: 0; } }
-
-.contact-cards {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin: 1.5rem 0 1rem;
-}
-.contact-card-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.1rem 1.4rem;
-  transition: all 0.2s ease;
-  font-family: var(--font);
-}
-.contact-card-item:hover { border-color: var(--accent); box-shadow: 0 0 24px -6px 
+  font-weight: 5

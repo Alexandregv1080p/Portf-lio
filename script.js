@@ -9,6 +9,35 @@ function updateLocalTime() {
 updateLocalTime();
 setInterval(updateLocalTime, 30000);
 
+// Dynamic theming — accent color switcher
+(function () {
+  const root = document.documentElement;
+  const switcher = document.getElementById('theme-switcher');
+  if (!switcher) return;
+  const dots = switcher.querySelectorAll('.theme-dot');
+  const STORAGE_KEY = 'portfolio-theme';
+  const saved = localStorage.getItem(STORAGE_KEY) || 'green';
+
+  function applyTheme(theme) {
+    if (theme === 'green') {
+      root.removeAttribute('data-theme');
+    } else {
+      root.setAttribute('data-theme', theme);
+    }
+    dots.forEach(d => d.classList.toggle('active', d.dataset.theme === theme));
+  }
+
+  applyTheme(saved);
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const theme = dot.dataset.theme;
+      applyTheme(theme);
+      localStorage.setItem(STORAGE_KEY, theme);
+    });
+  });
+})();
+
 // Draggable panels (Sobre section)
 (function () {
   const canvas = document.getElementById('desktop-canvas');
@@ -18,28 +47,4 @@ setInterval(updateLocalTime, 30000);
 
   panels.forEach(panel => {
     const bar = panel.querySelector('.panel-bar');
-    let offsetX = 0, offsetY = 0, dragging = false;
-
-    function bringToFront() {
-      topZ += 1;
-      panel.style.zIndex = topZ;
-    }
-
-    function startDrag(clientX, clientY) {
-      dragging = true;
-      panel.classList.add('dragging');
-      bringToFront();
-      const rect = panel.getBoundingClientRect();
-      const canvasRect = canvas.getBoundingClientRect();
-      offsetX = clientX - rect.left;
-      offsetY = clientY - rect.top;
-      panel.dataset.canvasLeft = canvasRect.left;
-      panel.dataset.canvasTop = canvasRect.top;
-    }
-
-    function moveDrag(clientX, clientY) {
-      if (!dragging) return;
-      const canvasRect = canvas.getBoundingClientRect();
-      let newLeft = clientX - canvasRect.left - offsetX;
-      let newTop = clientY - canvasRect.top - offsetY;
-      newLeft = Math.max(0, Math.min(newLeft, canvas.clientWidth - panel.o
+    let offsetX = 0, offsetY = 0, dragging = 
