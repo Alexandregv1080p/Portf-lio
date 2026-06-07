@@ -358,20 +358,34 @@ ul { list-style: none; }
   padding: 1.1rem 1.25rem;
   font-size: 0.8rem;
   max-height: 280px;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.panel-body p {
+  position: relative;
+  margin: 0 0 0.85rem;
+  padding-left: 1.9rem;
+  color: var(--text-muted);
+}
+.panel-body p:last-child { margin-bottom: 0; }
+.panel-body .line-num {
+  position: absolute;
+  left: 0;
+  top: 0.15rem;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  font-size: 0.68rem;
+  line-height: 1;
 }
 .panel-body.about-text p {
   font-size: 0.8rem;
-  margin-bottom: 0.7rem;
-  color: var(--text-muted);
-  display: flex;
-  gap: 0.6rem;
+  line-height: 1.65;
 }
-.panel-body .line-num {
-  font-family: var(--font-mono);
+.panel-body.about-text .comment {
   color: var(--text-dim);
-  font-size: 0.7rem;
-  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-style: italic;
 }
 .panel-img {
   width: 100%;
@@ -380,8 +394,18 @@ ul { list-style: none; }
   filter: grayscale(35%) contrast(1.05);
   border-radius: 0 0 10px 10px;
 }
-.small-text p { display: flex; align-items: flex-start; gap: 0.6rem; color: var(--text-muted); margin-bottom: 0.6rem; font-size: 0.78rem; }
-.link-list a { color: var(--text-muted); display: inline-flex; align-items: center; gap: 0.4rem; transition: color 0.2s; }
+.small-text p {
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+.small-text p i { margin-left: 0.35rem; }
+.link-list a {
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: color 0.2s;
+}
 .link-list a:hover { color: var(--accent); }
 .link-list i { font-size: 0.65rem; }
 
@@ -612,14 +636,4 @@ ul { list-style: none; }
   margin: 1.5rem 0 1rem;
 }
 .contact-card-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.1rem 1.4rem;
-  transition: all 0.2s ease;
-  font-family: var(--font);
-}
-.contact-card-item:hover { border-color: var(--accent); 
+  display: 
