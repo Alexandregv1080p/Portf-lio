@@ -421,30 +421,6 @@ ul { list-style: none; }
 .link-list a:hover { color: var(--accent); }
 .link-list i { font-size: 0.65rem; }
 
-/* ===========================
-   SOBRE (legacy single window, kept for fallback styling)
-=========================== */
-.about-body {
-  display: grid;
-  grid-template-columns: 1fr 280px;
-  gap: 3rem;
-}
-.about-text p {
-  color: var(--text-muted);
-  font-size: 0.98rem;
-  margin-bottom: 1.1rem;
-  display: flex;
-  gap: 0.9rem;
-}
-.about-text strong { color: var(--text); font-weight: 600; }
-.line-num {
-  font-family: var(--font-mono);
-  color: var(--text-dim);
-  font-size: 0.8rem;
-  flex-shrink: 0;
-  padding-top: 0.2rem;
-}
-.comment { color: var(--text-dim); font-family: var(--font-mono); font-size: 0.88rem; }
 .about-portrait { display: flex; flex-direction: column; align-items: center; }
 .portrait-frame {
   position: relative;
@@ -638,4 +614,25 @@ ul { list-style: none; }
 }
 .terminal-line.out { color: var(--accent); padding-left: 1.4rem; }
 .prompt { color: var(--accent); margin-right: 0.6rem; }
-.cursor-blink { animat
+.cursor-blink { animation: blink 1s step-end infinite; color: var(--accent); }
+@keyframes blink { 50% { opacity: 0; } }
+
+.contact-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0 1rem;
+}
+.contact-card-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.4rem;
+  transition: all 0.2s ease;
+  font-family: var(--font);
+}
+.contact-card-item:hover { border-color: var(--accent); box-shadow: 0 0 24px -6px var(--accent-glow); transform: translateY(-2px); }
+.cont
