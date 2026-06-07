@@ -171,17 +171,23 @@ ul { list-style: none; }
 .hero {
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  padding: 7rem 2rem 4rem 6rem;
-  max-width: 1180px;
-  margin: 0 auto;
+  align-items: stretch;
+  padding: 1.25rem;
+  max-width: none;
+  margin: 0;
 }
-.hero-window { width: 100%; }
+.hero-window {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
 .hero-body {
-  min-height: 480px;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding: 3rem 4rem;
   background:
     radial-gradient(circle at 75% 30%, rgba(92,255,177,0.12), transparent 45%),
     radial-gradient(circle at 20% 80%, rgba(92,255,177,0.06), transparent 40%);
@@ -634,5 +640,4 @@ ul { list-style: none; }
   transition: all 0.2s ease;
   font-family: var(--font);
 }
-.contact-card-item:hover { border-color: var(--accent); box-shadow: 0 0 24px -6px var(--accent-glow); transform: translateY(-2px); }
-.cont
+.contact-card-item:hover { border-color: var(--accent); box-shadow: 0 0 24px -6px 
