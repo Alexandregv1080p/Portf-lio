@@ -384,6 +384,15 @@ ul { list-style: none; }
   font-size: 0.8rem;
   line-height: 1.65;
 }
+.panel-body.about-text.plain p {
+  padding-left: 0;
+  margin-bottom: 1rem;
+  color: var(--text-muted);
+}
+.panel-body.about-text.plain p strong.accent {
+  color: var(--accent);
+  font-weight: 600;
+}
 .panel-body.about-text .comment {
   color: var(--text-dim);
   font-family: var(--font-mono);
@@ -629,11 +638,4 @@ ul { list-style: none; }
 }
 .terminal-line.out { color: var(--accent); padding-left: 1.4rem; }
 .prompt { color: var(--accent); margin-right: 0.6rem; }
-.cursor-blink { animation: blink 1s step-end infinite; color: var(--accent); }
-@keyframes blink { 50% { opacity: 0; } }
-
-.contact-cards {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin: 1
+.cursor-blink { animat
