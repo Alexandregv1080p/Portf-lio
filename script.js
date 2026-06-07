@@ -9,35 +9,37 @@ function updateLocalTime() {
 updateLocalTime();
 setInterval(updateLocalTime, 30000);
 
-// Side rail active state on scroll
-const railDots = document.querySelectorAll('.rail-dot');
-const sections = document.querySelectorAll('section[id]');
+// Draggable panels (Sobre section)
+(function () {
+  const canvas = document.getElementById('desktop-canvas');
+  if (!canvas) return;
+  const panels = canvas.querySelectorAll('.panel');
+  let topZ = 10;
 
-window.addEventListener('scroll', () => {
-  const scrollY = window.scrollY + window.innerHeight / 3;
-  sections.forEach(section => {
-    if (scrollY >= section.offsetTop && scrollY < section.offsetTop + section.offsetHeight) {
-      railDots.forEach(d => d.classList.remove('active'));
-      const match = document.querySelector(`.rail-dot[data-target="${section.id}"]`);
-      if (match) match.classList.add('active');
+  panels.forEach(panel => {
+    const bar = panel.querySelector('.panel-bar');
+    let offsetX = 0, offsetY = 0, dragging = false;
+
+    function bringToFront() {
+      topZ += 1;
+      panel.style.zIndex = topZ;
     }
-  });
-});
 
-// Scroll reveal animations
-const animElements = document.querySelectorAll('[data-anime]');
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry, i) => {
-    if (entry.isIntersecting) {
-      setTimeout(() => {
-        entry.target.classList.add('animated');
-        entry.target.querySelectorAll('.fill').forEach(bar => {
-          bar.style.width = bar.dataset.w + '%';
-        });
-      }, i * 70);
-      observer.unobserve(entry.target);
+    function startDrag(clientX, clientY) {
+      dragging = true;
+      panel.classList.add('dragging');
+      bringToFront();
+      const rect = panel.getBoundingClientRect();
+      const canvasRect = canvas.getBoundingClientRect();
+      offsetX = clientX - rect.left;
+      offsetY = clientY - rect.top;
+      panel.dataset.canvasLeft = canvasRect.left;
+      panel.dataset.canvasTop = canvasRect.top;
     }
-  });
-}, { threshold: 0.15 });
 
-animElements.forEach(el => observer.observe(el));
+    function moveDrag(clientX, clientY) {
+      if (!dragging) return;
+      const canvasRect = canvas.getBoundingClientRect();
+      let newLeft = clientX - canvasRect.left - offsetX;
+      let newTop = clientY - canvasRect.top - offsetY;
+      newLeft = Math.max(0, Math.min(newLeft, canvas.clientWidth - panel.o

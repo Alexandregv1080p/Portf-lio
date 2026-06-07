@@ -64,26 +64,63 @@
       <div class="showcase-tag" data-anime>showcase</div>
       <h2 class="showcase-title" data-anime>Sobre mim</h2>
 
-      <div class="window about-window" data-anime>
+      <p class="drag-hint" data-anime><i class="fa-solid fa-arrows-up-down-left-right"></i> arraste as janelas para reorganizar</p>
+
+      <div class="window desktop-window" data-anime>
         <div class="window-bar">
           <div class="traffic"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
-          <span class="window-title"><i class="fa-solid fa-dollar-sign"></i> sobre-mim.md</span>
+          <span class="window-title"><i class="fa-solid fa-dollar-sign"></i> alexandre &lt;gomes&gt;</span>
         </div>
-        <div class="window-body about-body">
-          <div class="about-text">
-            <p><span class="line-num">01</span> Olá! Comecei na programação em <strong class="accent">2020</strong>, quando descobri HTML e CSS — virou paixão e profissão.</p>
-            <p><span class="line-num">02</span> Hoje sou <strong>desenvolvedor Full Stack</strong> na <strong class="accent">Spotside</strong> (Portugal, remoto), construindo uma plataforma SaaS de digital signage com arquitetura de microsserviços.</p>
-            <p><span class="line-num">03</span> Também atuo na <strong class="accent">CroSoften</strong> em projetos Angular e apps Android com Kotlin.</p>
-            <p><span class="line-num">04</span> Manuseio ReactJS, NextJS, Angular, Node.js, Java/Spring — sempre com foco em código limpo, testes e CI/CD.</p>
-            <p><span class="line-num">05</span> <span class="comment">// objetivo: evoluir para Full Stack Sênior</span></p>
-          </div>
-          <div class="about-portrait">
-            <div class="portrait-frame">
-              <span class="portrait-tag">portrait</span>
-              <img src="imgs/foto-perfil-cortada.jpg" alt="Alexandre Gomes Vieira">
+        <div class="desktop-canvas" id="desktop-canvas">
+
+          <div class="panel" id="panel-about" style="top:30px; left:30px; width:380px;">
+            <div class="panel-bar">
+              <span class="panel-title">about-me</span>
+              <div class="panel-actions"><i class="fa-solid fa-minus"></i><i class="fa-regular fa-square"></i><i class="fa-solid fa-xmark"></i></div>
             </div>
-            <a href="pastar curriculo/Currículoso.pdf" target="_blank" class="btn-ghost btn-sm"><i class="fa-solid fa-file-arrow-down"></i> Baixar CV</a>
+            <div class="panel-body about-text">
+              <p><span class="line-num">01</span> Olá! Comecei na programação em <strong class="accent">2020</strong>, quando descobri HTML e CSS — virou paixão e profissão.</p>
+              <p><span class="line-num">02</span> Hoje sou <strong>desenvolvedor Full Stack</strong> na <strong class="accent">Spotside</strong> (Portugal, remoto), construindo uma plataforma SaaS de digital signage com arquitetura de microsserviços.</p>
+              <p><span class="line-num">03</span> Também atuo na <strong class="accent">CroSoften</strong> em projetos Angular e apps Android com Kotlin.</p>
+              <p><span class="line-num">04</span> Manuseio ReactJS, NextJS, Angular, Node.js, Java/Spring — sempre com foco em código limpo, testes e CI/CD.</p>
+              <p><span class="line-num">05</span> <span class="comment">// objetivo: evoluir para Full Stack Sênior</span></p>
+            </div>
           </div>
+
+          <div class="panel panel-portrait" id="panel-portrait" style="top:60px; left:430px; width:220px;">
+            <div class="panel-bar">
+              <span class="panel-title">portrait</span>
+              <div class="panel-actions"><i class="fa-solid fa-minus"></i><i class="fa-regular fa-square"></i><i class="fa-solid fa-xmark"></i></div>
+            </div>
+            <div class="panel-body" style="padding:0;">
+              <img src="imgs/foto-perfil-cortada.jpg" alt="Alexandre Gomes Vieira" class="panel-img">
+            </div>
+          </div>
+
+          <div class="panel" id="panel-where" style="top:340px; left:60px; width:260px;">
+            <div class="panel-bar">
+              <span class="panel-title">where-i-work</span>
+              <div class="panel-actions"><i class="fa-solid fa-minus"></i><i class="fa-regular fa-square"></i><i class="fa-solid fa-xmark"></i></div>
+            </div>
+            <div class="panel-body small-text">
+              <p><span class="line-num">01</span> Atualmente em Alfenas, Brasil <i class="fa-solid fa-location-dot accent"></i></p>
+              <p><span class="line-num">02</span> Disponível para colaborações remotas em todo o mundo <i class="fa-solid fa-earth-americas accent"></i></p>
+            </div>
+          </div>
+
+          <div class="panel" id="panel-online" style="top:300px; left:380px; width:230px;">
+            <div class="panel-bar">
+              <span class="panel-title">me-online</span>
+              <div class="panel-actions"><i class="fa-solid fa-minus"></i><i class="fa-regular fa-square"></i><i class="fa-solid fa-xmark"></i></div>
+            </div>
+            <div class="panel-body small-text link-list">
+              <p><span class="line-num">01</span> <a href="https://linkedin.com/in/alexandre-gomes-vieira" target="_blank">linkedin <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+              <p><span class="line-num">02</span> <a href="https://github.com/Alexandregv1080p" target="_blank">github <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+              <p><span class="line-num">03</span> <a href="mailto:alexandregv1999@gmail.com">e-mail <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+              <p><span class="line-num">04</span> <a href="pastar curriculo/Currículoso.pdf" target="_blank">currículo <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+            </div>
+          </div>
+
         </div>
         <div class="window-footer">
           <span><i class="fa-solid fa-graduation-cap"></i> Ciências da Computação · Estácio</span>
@@ -334,52 +371,4 @@
       <div class="window contact-window" data-anime>
         <div class="window-bar">
           <div class="traffic"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
-          <span class="window-title"><i class="fa-solid fa-dollar-sign"></i> contato.sh</span>
-        </div>
-        <div class="window-body contact-body">
-          <p class="terminal-line"><span class="prompt">$</span> echo "Estou disponível para novas oportunidades, freelas e parcerias"</p>
-          <p class="terminal-line out">Estou disponível para novas oportunidades, freelas e parcerias</p>
-          <p class="terminal-line"><span class="prompt">$</span> cat contatos.txt</p>
-          <div class="contact-cards">
-            <a href="mailto:alexandregv1999@gmail.com" class="contact-card-item">
-              <i class="fa-solid fa-envelope"></i>
-              <div><strong>E-mail</strong><span>alexandregv1999@gmail.com</span></div>
-            </a>
-            <a href="tel:+5535984249011" class="contact-card-item">
-              <i class="fa-solid fa-phone"></i>
-              <div><strong>Telefone</strong><span>(35) 9 8424-9011</span></div>
-            </a>
-            <a href="https://linkedin.com/in/alexandre-gomes-vieira" target="_blank" class="contact-card-item">
-              <i class="fa-brands fa-linkedin-in"></i>
-              <div><strong>LinkedIn</strong><span>/in/alexandre-gomes-vieira</span></div>
-            </a>
-            <a href="https://github.com/Alexandregv1080p" target="_blank" class="contact-card-item">
-              <i class="fa-brands fa-github"></i>
-              <div><strong>GitHub</strong><span>/Alexandregv1080p</span></div>
-            </a>
-          </div>
-          <p class="terminal-line"><span class="prompt">$</span> <span class="cursor-blink">_</span></p>
-        </div>
-        <div class="window-footer">
-          <span><i class="fa-solid fa-location-dot"></i> Alfenas, MG — Brasil</span>
-          <a href="mailto:alexandregv1999@gmail.com" class="footer-cta">vamos trabalhar juntos <i class="fa-solid fa-arrow-right"></i></a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <footer class="footer">
-    <div class="container footer-inner">
-      <span class="logo">AG<span class="accent">.</span></span>
-      <p>© 2026 Alexandre Gomes Vieira — feito com <i class="fa-solid fa-heart accent"></i> e muito café</p>
-      <div class="footer-socials">
-        <a href="https://github.com/Alexandregv1080p" target="_blank"><i class="fa-brands fa-github"></i></a>
-        <a href="https://linkedin.com/in/alexandre-gomes-vieira" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
-        <a href="mailto:alexandregv1999@gmail.com"><i class="fa-solid fa-envelope"></i></a>
-      </div>
-    </div>
-  </footer>
-
-  <script src="script.js"></script>
-</body>
-</html>
+          <span class="window-title"><
