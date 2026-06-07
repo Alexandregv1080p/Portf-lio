@@ -310,7 +310,7 @@ ul { list-style: none; }
 .desktop-window { width: 100%; }
 .desktop-canvas {
   position: relative;
-  min-height: 620px;
+  min-height: 720px;
   background:
     radial-gradient(circle at 80% 15%, rgba(92,255,177,0.07), transparent 45%),
     radial-gradient(circle at 15% 85%, rgba(92,255,177,0.05), transparent 40%);
@@ -376,6 +376,9 @@ ul { list-style: none; }
   color: var(--text-dim);
   font-size: 0.68rem;
   line-height: 1;
+}
+.panel-body.about-text {
+  max-height: 460px;
 }
 .panel-body.about-text p {
   font-size: 0.8rem;
@@ -633,7 +636,4 @@ ul { list-style: none; }
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
-  margin: 1.5rem 0 1rem;
-}
-.contact-card-item {
-  display: 
+  margin: 1
