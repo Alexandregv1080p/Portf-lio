@@ -134,6 +134,12 @@ const I18N = {
     en: "Recreation of UNIFENAS's academic system in Angular — login, dashboard and course management."
   },
 
+  'projects.devcodex_title': { pt: 'Dev Codex — Plataforma de Cursos Full Stack', en: 'Dev Codex — Full Stack Course Platform' },
+  'projects.devcodex_desc': {
+    pt: 'Plataforma SaaS de cursos online com 3 clientes (web Vue 3, mobile Android/Kotlin, painel admin), backend .NET 8 + SignalR, CI/CD via GitHub Actions e infraestrutura Terraform.',
+    en: 'SaaS online course platform with 3 clients (Vue 3 web, Android/Kotlin mobile, admin panel), .NET 8 backend + SignalR, GitHub Actions CI/CD, and Terraform infrastructure.'
+  },
+
   'contact.title': { pt: 'Vamos trabalhar juntos?', en: 'Shall we work together?' },
   'contact.echo_cmd': {
     pt: 'echo "Estou disponível para novas oportunidades, freelas e parcerias"',
