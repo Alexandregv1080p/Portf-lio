@@ -302,83 +302,95 @@
   <section class="section" id="projetos">
     <div class="container">
       <div class="showcase-tag" data-anime>showcase</div>
-      <h2 class="showcase-title" data-anime data-i18n="projects.title">Lista de projetos</h2>
 
       <div class="window projects-window" data-anime>
         <div class="window-bar">
           <div class="traffic"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
           <span class="window-title"><i class="fa-solid fa-dollar-sign"></i> work/</span>
         </div>
-        <div class="window-body projects-body">
 
-          <a class="project-row" href="https://github.com/Alexandregv1080p/Dev-Codex" target="_blank">
-            <span class="proj-index">01</span>
-            <div class="proj-main">
-              <h3 data-i18n="projects.devcodex_title">Dev Codex — Plataforma de Cursos Full Stack</h3>
-              <p data-i18n="projects.devcodex_desc">Plataforma SaaS de cursos online com 3 clientes (web Vue 3, mobile Android/Kotlin, painel admin), backend .NET 8 + SignalR, CI/CD via GitHub Actions e infraestrutura Terraform.</p>
-              <div class="pill-row sm"><span class="pill">.NET 8</span><span class="pill">Vue 3</span><span class="pill">Kotlin</span><span class="pill">PostgreSQL</span><span class="pill">Docker</span><span class="pill">Terraform</span><span class="pill">CI/CD</span></div>
+        <div class="proj-header">
+          <h2 class="proj-statement" data-i18n-html="projects.statement">FRONT-END, BACK-END &amp; MOBILE — <span class="accent">DO ZERO AO DEPLOY.</span></h2>
+          <p class="proj-subtitle" data-i18n="projects.statement_desc">Cada projeto abaixo representa um problema real resolvido com código limpo, arquitetura sólida e entrega contínua.</p>
+        </div>
+
+        <div class="proj-filter-bar">
+          <button class="proj-filter active" data-filter="all" data-i18n="projects.filter_all">TODOS</button>
+          <button class="proj-filter" data-filter="fullstack">FULLSTACK</button>
+          <button class="proj-filter" data-filter="web">WEB</button>
+          <button class="proj-filter" data-filter="api">API</button>
+        </div>
+
+        <div class="proj-grid" id="proj-grid">
+
+          <a class="proj-card" href="https://github.com/Alexandregv1080p/Dev-Codex" target="_blank" data-category="fullstack">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name" data-i18n="projects.devcodex_title">Dev Codex — Plataforma de Cursos Full Stack</h3>
+              <span class="proj-cat-badge">FULLSTACK</span>
             </div>
-            <span class="proj-year">2025 <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+            <p class="proj-card-stack">.NET 8 · Vue 3 · Kotlin · PostgreSQL · Docker · Terraform</p>
+            <p class="proj-card-desc" data-i18n="projects.devcodex_desc">Plataforma SaaS de cursos online com 3 clientes (web Vue 3, mobile Android/Kotlin, painel admin), backend .NET 8 + SignalR, CI/CD via GitHub Actions e infraestrutura Terraform.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
           </a>
 
-          <a class="project-row" href="https://github.com/Alexandregv1080p/Projeto-AngularSpring-1" target="_blank">
-            <span class="proj-index">02</span>
-            <div class="proj-main">
-              <h3 data-i18n="projects.p1_title">Dashboard CRUD com API REST</h3>
-              <p data-i18n="projects.p1_desc">Cadastro de usuários com autenticação, tarefas e contato — CRUD completo e API segura.</p>
-              <div class="pill-row sm"><span class="pill">Spring Boot</span><span class="pill">Spring Security</span><span class="pill">Angular</span><span class="pill">PostgreSQL</span><span class="pill">Docker</span></div>
+          <a class="proj-card" href="https://github.com/Alexandregv1080p/Projeto-AngularSpring-1" target="_blank" data-category="web">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name" data-i18n="projects.p1_title">Dashboard CRUD com API REST</h3>
+              <span class="proj-cat-badge">WEB</span>
             </div>
-            <span class="proj-year">2023 <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+            <p class="proj-card-stack">Spring Boot · Spring Security · Angular · PostgreSQL · Docker</p>
+            <p class="proj-card-desc" data-i18n="projects.p1_desc">Cadastro de usuários com autenticação, tarefas e contato — CRUD completo e API segura.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
           </a>
 
-          <a class="project-row" href="https://github.com/Alexandregv1080p/ToDo-APP" target="_blank">
-            <span class="proj-index">03</span>
-            <div class="proj-main">
-              <h3 data-i18n="projects.p2_title">ToDo App com React</h3>
-              <p data-i18n="projects.p2_desc">Gerenciador de tarefas: adicionar, concluir e excluir afazeres. Stack completa React + Node + MongoDB.</p>
-              <div class="pill-row sm"><span class="pill">ReactJS</span><span class="pill">Node.js</span><span class="pill">MongoDB</span></div>
+          <a class="proj-card" href="https://github.com/Alexandregv1080p/ToDo-APP" target="_blank" data-category="web">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name" data-i18n="projects.p2_title">ToDo App com React</h3>
+              <span class="proj-cat-badge">WEB</span>
             </div>
-            <span class="proj-year">2023 <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+            <p class="proj-card-stack">ReactJS · Node.js · MongoDB</p>
+            <p class="proj-card-desc" data-i18n="projects.p2_desc">Gerenciador de tarefas: adicionar, concluir e excluir afazeres. Stack completa React + Node + MongoDB.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
           </a>
 
-          <a class="project-row" href="https://github.com/Alexandregv1080p/Plataforma-A2W" target="_blank">
-            <span class="proj-index">04</span>
-            <div class="proj-main">
-              <h3 data-i18n="projects.p3_title">Plataforma A2W — consumo de API</h3>
-              <p data-i18n="projects.p3_desc">Cadastro de clientes, módulos e módulos por cliente, consumindo API REST pelo back-end.</p>
-              <div class="pill-row sm"><span class="pill">Angular</span><span class="pill">TypeScript</span><span class="pill">API REST</span></div>
+          <a class="proj-card" href="https://github.com/Alexandregv1080p/Plataforma-A2W" target="_blank" data-category="web">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name" data-i18n="projects.p3_title">Plataforma A2W — consumo de API</h3>
+              <span class="proj-cat-badge">WEB</span>
             </div>
-            <span class="proj-year">2023 <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+            <p class="proj-card-stack">Angular · TypeScript · API REST</p>
+            <p class="proj-card-desc" data-i18n="projects.p3_desc">Cadastro de clientes, módulos e módulos por cliente, consumindo API REST pelo back-end.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
           </a>
 
-          <a class="project-row" href="https://github.com/Alexandregv1080p/PadroesDeProjetosJava/tree/master/lab-padroes-projeto-spring" target="_blank">
-            <span class="proj-index">05</span>
-            <div class="proj-main">
-              <h3 data-i18n="projects.p4_title">Via CEP com Spring &amp; Swagger</h3>
-              <p data-i18n="projects.p4_desc">API REST documentada com Swagger; consulta de CEP retornando dados em JSON, persistidos em H2.</p>
-              <div class="pill-row sm"><span class="pill">Spring Boot</span><span class="pill">Swagger</span><span class="pill">H2</span><span class="pill">Java</span></div>
+          <a class="proj-card" href="https://github.com/Alexandregv1080p/PadroesDeProjetosJava/tree/master/lab-padroes-projeto-spring" target="_blank" data-category="api">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name" data-i18n="projects.p4_title">Via CEP com Spring &amp; Swagger</h3>
+              <span class="proj-cat-badge">API</span>
             </div>
-            <span class="proj-year">2023 <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+            <p class="proj-card-stack">Spring Boot · Swagger · H2 · Java</p>
+            <p class="proj-card-desc" data-i18n="projects.p4_desc">API REST documentada com Swagger; consulta de CEP retornando dados em JSON, persistidos em H2.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
           </a>
 
-          <a class="project-row" href="https://github.com/Alexandregv1080p/ConectandoSpringAmazon" target="_blank">
-            <span class="proj-index">06</span>
-            <div class="proj-main">
-              <h3 data-i18n="projects.p5_title">API REST com Amazon RDS</h3>
-              <p data-i18n="projects.p5_desc">API com Spring Data JPA, Spring Web e HATEOAS, conectada ao PostgreSQL via Amazon RDS.</p>
-              <div class="pill-row sm"><span class="pill">Spring Boot</span><span class="pill">AWS RDS</span><span class="pill">HATEOAS</span></div>
+          <a class="proj-card" href="https://github.com/Alexandregv1080p/ConectandoSpringAmazon" target="_blank" data-category="api">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name" data-i18n="projects.p5_title">API REST com Amazon RDS</h3>
+              <span class="proj-cat-badge">API</span>
             </div>
-            <span class="proj-year">2023 <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+            <p class="proj-card-stack">Spring Boot · AWS RDS · HATEOAS</p>
+            <p class="proj-card-desc" data-i18n="projects.p5_desc">API com Spring Data JPA, Spring Web e HATEOAS, conectada ao PostgreSQL via Amazon RDS.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
           </a>
 
-          <a class="project-row" href="https://github.com/Alexandregv1080p/Calculo-de-IMC" target="_blank">
-            <span class="proj-index">07</span>
-            <div class="proj-main">
-              <h3 data-i18n="projects.p6_title">Clone do sistema acadêmico Lyceum</h3>
-              <p data-i18n="projects.p6_desc">Recriação do sistema acadêmico da UNIFENAS em Angular — login, dashboard e gestão de disciplinas.</p>
-              <div class="pill-row sm"><span class="pill">Angular</span><span class="pill">TypeScript</span></div>
+          <a class="proj-card" href="https://github.com/Alexandregv1080p/Calculo-de-IMC" target="_blank" data-category="web">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name" data-i18n="projects.p6_title">Clone do sistema acadêmico Lyceum</h3>
+              <span class="proj-cat-badge">WEB</span>
             </div>
-            <span class="proj-year">2023 <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+            <p class="proj-card-stack">Angular · TypeScript</p>
+            <p class="proj-card-desc" data-i18n="projects.p6_desc">Recriação do sistema acadêmico da UNIFENAS em Angular — login, dashboard e gestão de disciplinas.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
           </a>
 
         </div>

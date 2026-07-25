@@ -139,6 +139,16 @@ const I18N = {
     pt: 'Plataforma SaaS de cursos online com 3 clientes (web Vue 3, mobile Android/Kotlin, painel admin), backend .NET 8 + SignalR, CI/CD via GitHub Actions e infraestrutura Terraform.',
     en: 'SaaS online course platform with 3 clients (Vue 3 web, Android/Kotlin mobile, admin panel), .NET 8 backend + SignalR, GitHub Actions CI/CD, and Terraform infrastructure.'
   },
+  'projects.statement': {
+    pt: 'FRONT-END, BACK-END &amp; MOBILE — <span class="accent">DO ZERO AO DEPLOY.</span>',
+    en: 'FRONT-END, BACK-END &amp; MOBILE — <span class="accent">FROM ZERO TO DEPLOY.</span>'
+  },
+  'projects.statement_desc': {
+    pt: 'Cada projeto abaixo representa um problema real resolvido com código limpo, arquitetura sólida e entrega contínua.',
+    en: 'Each project below represents a real problem solved with clean code, solid architecture, and continuous delivery.'
+  },
+  'projects.filter_all': { pt: 'TODOS', en: 'ALL' },
+  'projects.link_github': { pt: 'Ver no GitHub', en: 'View on GitHub' },
 
   'contact.title': { pt: 'Vamos trabalhar juntos?', en: 'Shall we work together?' },
   'contact.echo_cmd': {
@@ -367,3 +377,20 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.15 });
 
 animElements.forEach(el => observer.observe(el));
+
+// Project category filter
+(function () {
+  const filterBtns = document.querySelectorAll('.proj-filter');
+  const projCards = document.querySelectorAll('.proj-card');
+  if (!filterBtns.length) return;
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      projCards.forEach(card => {
+        card.classList.toggle('hidden', filter !== 'all' && card.dataset.category !== filter);
+      });
+    });
+  });
+})();
