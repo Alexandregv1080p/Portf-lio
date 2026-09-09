@@ -19,6 +19,7 @@
   <div class="crt-roll" aria-hidden="true"></div>
   <div class="crt-noise" aria-hidden="true"></div>
   <div class="crt-vignette" aria-hidden="true"></div>
+  <div class="glitch-flash" aria-hidden="true"></div>
 
   <!-- RISING PARTICLES (blood embers) -->
   <div class="rising-particles" id="rising-particles" aria-hidden="true"></div>
@@ -261,7 +262,7 @@
   <section class="section" id="habilidades">
     <div class="container">
       <div class="showcase-tag" data-anime>showcase</div>
-      <h2 class="showcase-title" data-anime data-i18n="skills.title">Stack &amp; ferramentas</h2>
+      <h2 class="showcase-title" data-anime data-i18n-html="skills.title">Stack &amp; ferramentas</h2>
 
       <div class="window skills-window" data-anime>
         <div class="window-bar">
@@ -329,7 +330,7 @@
 
           <a class="proj-card" href="https://github.com/Alexandregv1080p/Dev-Codex" target="_blank" data-category="fullstack">
             <div class="proj-card-top">
-              <h3 class="proj-card-name" data-i18n="projects.devcodex_title">Dev Codex — Plataforma de Cursos Full Stack</h3>
+              <h3 class="proj-card-name glitch" data-i18n="projects.devcodex_title">Dev Codex — Plataforma de Cursos Full Stack</h3>
               <span class="proj-cat-badge">FULLSTACK</span>
             </div>
             <p class="proj-card-stack">.NET 8 · Vue 3 · Kotlin · PostgreSQL · Docker · Terraform</p>
@@ -339,7 +340,7 @@
 
           <a class="proj-card" href="https://github.com/Alexandregv1080p/Projeto-AngularSpring-1" target="_blank" data-category="web">
             <div class="proj-card-top">
-              <h3 class="proj-card-name" data-i18n="projects.p1_title">Dashboard CRUD com API REST</h3>
+              <h3 class="proj-card-name glitch" data-i18n="projects.p1_title">Dashboard CRUD com API REST</h3>
               <span class="proj-cat-badge">WEB</span>
             </div>
             <p class="proj-card-stack">Spring Boot · Spring Security · Angular · PostgreSQL · Docker</p>
@@ -349,7 +350,7 @@
 
           <a class="proj-card" href="https://github.com/Alexandregv1080p/ToDo-APP" target="_blank" data-category="web">
             <div class="proj-card-top">
-              <h3 class="proj-card-name" data-i18n="projects.p2_title">ToDo App com React</h3>
+              <h3 class="proj-card-name glitch" data-i18n="projects.p2_title">ToDo App com React</h3>
               <span class="proj-cat-badge">WEB</span>
             </div>
             <p class="proj-card-stack">ReactJS · Node.js · MongoDB</p>
@@ -359,7 +360,7 @@
 
           <a class="proj-card" href="https://github.com/Alexandregv1080p/Plataforma-A2W" target="_blank" data-category="web">
             <div class="proj-card-top">
-              <h3 class="proj-card-name" data-i18n="projects.p3_title">Plataforma A2W — consumo de API</h3>
+              <h3 class="proj-card-name glitch" data-i18n="projects.p3_title">Plataforma A2W — consumo de API</h3>
               <span class="proj-cat-badge">WEB</span>
             </div>
             <p class="proj-card-stack">Angular · TypeScript · API REST</p>
@@ -369,7 +370,7 @@
 
           <a class="proj-card" href="https://github.com/Alexandregv1080p/PadroesDeProjetosJava/tree/master/lab-padroes-projeto-spring" target="_blank" data-category="api">
             <div class="proj-card-top">
-              <h3 class="proj-card-name" data-i18n="projects.p4_title">Via CEP com Spring &amp; Swagger</h3>
+              <h3 class="proj-card-name glitch" data-i18n-html="projects.p4_title">Via CEP com Spring &amp; Swagger</h3>
               <span class="proj-cat-badge">API</span>
             </div>
             <p class="proj-card-stack">Spring Boot · Swagger · H2 · Java</p>
@@ -379,7 +380,7 @@
 
           <a class="proj-card" href="https://github.com/Alexandregv1080p/ConectandoSpringAmazon" target="_blank" data-category="api">
             <div class="proj-card-top">
-              <h3 class="proj-card-name" data-i18n="projects.p5_title">API REST com Amazon RDS</h3>
+              <h3 class="proj-card-name glitch" data-i18n="projects.p5_title">API REST com Amazon RDS</h3>
               <span class="proj-cat-badge">API</span>
             </div>
             <p class="proj-card-stack">Spring Boot · AWS RDS · HATEOAS</p>
@@ -389,7 +390,7 @@
 
           <a class="proj-card" href="https://github.com/Alexandregv1080p/Calculo-de-IMC" target="_blank" data-category="web">
             <div class="proj-card-top">
-              <h3 class="proj-card-name" data-i18n="projects.p6_title">Clone do sistema acadêmico Lyceum</h3>
+              <h3 class="proj-card-name glitch" data-i18n="projects.p6_title">Clone do sistema acadêmico Lyceum</h3>
               <span class="proj-cat-badge">WEB</span>
             </div>
             <p class="proj-card-stack">Angular · TypeScript</p>
@@ -480,6 +481,22 @@
   </script>
 
   <script src="script.js"></script>
+
+  <!-- Sync data-text for the card-name glitch effect (after i18n applies) -->
+  <script>
+    (function () {
+      function syncGlitch() {
+        document.querySelectorAll('.glitch').forEach(el => {
+          el.setAttribute('data-text', el.textContent.trim());
+        });
+      }
+      syncGlitch();
+      // re-sync shortly after language toggles (i18n rewrites textContent)
+      document.querySelectorAll('#lang-switcher .lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => setTimeout(syncGlitch, 30));
+      });
+    })();
+  </script>
 </body>
 
 </html>
