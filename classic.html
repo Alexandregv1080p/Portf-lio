@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alexandre Gomes Vieira · Full Stack Developer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css.css">
+</head>
+
+<body>
+
+  <!-- VERSION NAV (voltar ao portal / trocar versão) -->
+  <nav aria-label="Trocar versão" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;gap:8px;font-family:'Fira Code',monospace;">
+    <a href="index.html" title="Voltar ao portal" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid rgba(92,255,177,.35);border-radius:6px;background:rgba(8,14,18,.7);color:#5cffb1;font-size:12px;letter-spacing:1px;text-decoration:none;backdrop-filter:blur(4px);">
+      <i class="fa-solid fa-arrow-left"></i><span class="vn-label">portal</span>
+    </a>
+    <a href="horror.html" title="Versão cyber horror" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid rgba(227,6,19,.5);border-radius:6px;background:rgba(18,4,6,.7);color:#ff5a5a;font-size:12px;letter-spacing:1px;text-decoration:none;backdrop-filter:blur(4px);">
+      <i class="fa-solid fa-skull"></i><span class="vn-label">horror</span>
+    </a>
+  </nav>
+
+  <!-- RISING PARTICLES (footer -> header), theme-aware -->
+  <div class="rising-particles" id="rising-particles" aria-hidden="true"></div>
+
+  <!-- SIDEBAR ICONS -->
+  <aside class="side-rail">
+    <a href="#home" class="rail-dot active" data-target="home" title="Home"><i class="fa-solid fa-house"></i></a>
+    <a href="#sobre" class="rail-dot" data-target="sobre" title="Sobre" data-i18n-title="nav.about"><i class="fa-solid fa-user"></i></a>
+    <a href="#experiencia" class="rail-dot" data-target="experiencia" title="Experiência" data-i18n-title="nav.experience"><i class="fa-solid fa-briefcase"></i></a>
+    <a href="#habilidades" class="rail-dot" data-target="habilidades" title="Habilidades" data-i18n-title="nav.skills"><i class="fa-solid fa-code"></i></a>
+    <a href="#projetos" class="rail-dot" data-target="projetos" title="Projetos" data-i18n-title="nav.projects"><i class="fa-solid fa-diagram-project"></i></a>
+    <a href="#contato" class="rail-dot" data-target="contato" title="Contato" data-i18n-title="nav.contact"><i class="fa-solid fa-envelope"></i></a>
+  </aside>
+
+  <!-- HERO WINDOW -->
+  <section class="hero" id="home">
+    <div class="window hero-window">
+      <div class="window-bar">
+        <div class="traffic"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+        <span class="window-title"><i class="fa-solid fa-dollar-sign"></i> alexandre &lt;gomes&gt;</span>
+        <div class="lang-switcher" id="lang-switcher" title="Idioma / Language">
+          <button class="lang-btn active" data-lang="pt" type="button">PT</button>
+          <button class="lang-btn" data-lang="en" type="button">EN</button>
+        </div>
+        <div class="theme-switcher" id="theme-switcher" title="Tema de cor">
+          <button class="theme-dot active" data-theme="green" style="--dot:#5cffb1" aria-label="Tema verde"></button>
+          <button class="theme-dot" data-theme="blue" style="--dot:#5ca8ff" aria-label="Tema azul"></button>
+          <button class="theme-dot" data-theme="violet" style="--dot:#b15cff" aria-label="Tema violeta"></button>
+          <button class="theme-dot" data-theme="amber" style="--dot:#ffb15c" aria-label="Tema âmbar"></button>
+          <button class="theme-dot" data-theme="rose" style="--dot:#ff5c8a" aria-label="Tema rosa"></button>
+        </div>
+        <div class="win-actions"><i class="fa-solid fa-minus"></i><i class="fa-regular fa-square"></i><i class="fa-solid fa-xmark"></i></div>
+      </div>
+      <div class="window-body hero-body">
+        <span class="crumb">home/</span>
+        <p class="hero-greeting" data-i18n="hero.greeting">Olá, eu sou</p>
+        <h1 class="hero-title" data-i18n-html="hero.title">Alexandre, um <span class="accent">full&nbsp;stack</span><br>developer</h1>
+        <p class="hero-sub" data-i18n="hero.sub">Desenvolvo produtos web de ponta a ponta — unindo front-end, back-end e arquitetura de microsserviços com precisão técnica e atenção ao detalhe.</p>
+        <div class="hero-actions">
+          <a href="#projetos" class="btn-glow"><span data-i18n="hero.cta_projects">Ver projetos</span> <i class="fa-solid fa-arrow-right"></i></a>
+          <a href="#contato" class="btn-ghost" data-i18n="hero.cta_talk">Vamos conversar</a>
+        </div>
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+      </div>
+      <div class="window-footer">
+        <span><i class="fa-solid fa-location-dot"></i> <span data-i18n="hero.location">Alfenas, Brasil</span></span>
+        <span class="local-time" id="local-time">Local time —</span>
+        <div class="footer-socials">
+          <a href="https://github.com/Alexandregv1080p" target="_blank"><i class="fa-brands fa-github"></i></a>
+          <a href="https://linkedin.com/in/alexandre-gomes-vieira" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+          <a href="mailto:alexandregv1999@gmail.com"><i class="fa-solid fa-envelope"></i></a>
+        </div>
+        <a href="#contato" class="footer-cta" data-i18n-html="hero.lets_work">let's-work-together <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOBRE -->
+  <section class="section" id="sobre">
+    <div class="container">
+      <div class="showcase-tag" data-anime>showcase</div>
+      <h2 class="showcase-title" data-anime data-i18n="about.title">Sobre mim</h2>
+
+      <p class="drag-hint" data-anime><i class="fa-solid fa-arrows-up-down-left-right"></i> <span data-i18n="about.drag_hint">arraste as janelas para reorganizar</span></p>
+
+      <div class="window desktop-window" data-anime>
+        <div class="window-bar">
+          <div class="traffic"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+          <span class="window-title"><i class="fa-solid fa-dollar-sign"></i> alexandre &lt;gomes&gt;</span>
+        </div>
+        <div class="desktop-canvas" id="desktop-canvas">
+
+          <div class="panel" id="panel-about" style="top:30px; left:30px; width:520px;">
+            <div class="panel-bar">
+              <span class="panel-title">about-me</span>
+              <div class="panel-actions"><i class="fa-solid fa-minus"></i><i class="fa-regular fa-square"></i><i class="fa-solid fa-xmark"></i></div>
+            </div>
+            <div class="panel-body about-text plain">
+              <p data-i18n-html="about.p1">Olá, sou o <strong class="accent">Alexandre</strong>, desenvolvedor Full Stack baseado em Alfenas, Brasil, trabalhando remotamente com equipes ao redor do mundo.</p>
+              <p data-i18n-html="about.p2">Meu foco está no encontro entre criatividade e proficiência técnica — transformar ideias em interfaces fluidas, bem estruturadas e experiências memoráveis.</p>
+              <p data-i18n-html="about.p3">Atualmente construo a plataforma SaaS de digital signage da <strong class="accent">Spotside</strong> (microsserviços em Node.js, MongoDB, Socket.io, Electron), e desenvolvo projetos Angular/Kotlin na <strong class="accent">CroSoften</strong>.</p>
+              <p data-i18n-html="about.p4">Atuo em toda a stack — React, Next.js e Angular no front-end, Node.js e Java/Spring no back-end — sempre com código limpo, testes e CI/CD em mente.</p>
+              <p data-i18n-html="about.p5">Formação em Ciências da Computação, com certificações em Java, .NET, Spring Boot e React. Objetivo: evoluir para Full Stack Sênior.</p>
+            </div>
+          </div>
+
+          <div class="panel panel-portrait" id="panel-portrait" style="top:60px; left:430px; width:220px;">
+            <div class="panel-bar">
+              <span class="panel-title">portrait</span>
+              <div class="panel-actions"><i class="fa-solid fa-minus"></i><i class="fa-regular fa-square"></i><i class="fa-solid fa-xmark"></i></div>
+            </div>
+            <div class="panel-body" style="padding:0;">
+              <img src="imgs/foto-perfil-cortada.jpg" alt="Alexandre Gomes Vieira" class="panel-img">
+            </div>
+          </div>
+
+          <div class="panel" id="panel-where" style="top:340px; left:60px; width:260px;">
+            <div class="panel-bar">
+              <span class="panel-title">where-i-work</span>
+              <div class="panel-actions"><i class="fa-solid fa-minus"></i><i class="fa-regular fa-square"></i><i class="fa-solid fa-xmark"></i></div>
+            </div>
+            <div class="panel-body small-text">
+              <p><span class="line-num">01</span> <span data-i18n="about.where1">Atualmente em Alfenas, Brasil</span> <i class="fa-solid fa-location-dot accent"></i></p>
+              <p><span class="line-num">02</span> <span data-i18n="about.where2">Disponível para colaborações remotas em todo o mundo</span> <i class="fa-solid fa-earth-americas accent"></i></p>
+            </div>
+          </div>
+
+          <div class="panel" id="panel-online" style="top:300px; left:380px; width:230px;">
+            <div class="panel-bar">
+              <span class="panel-title">me-online</span>
+              <div class="panel-actions"><i class="fa-solid fa-minus"></i><i class="fa-regular fa-square"></i><i class="fa-solid fa-xmark"></i></div>
+            </div>
+            <div class="panel-body small-text link-list">
+              <p><span class="line-num">01</span> <a href="https://linkedin.com/in/alexandre-gomes-vieira" target="_blank">linkedin <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+              <p><span class="line-num">02</span> <a href="https://github.com/Alexandregv1080p" target="_blank">github <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+              <p><span class="line-num">03</span> <a href="mailto:alexandregv1999@gmail.com">e-mail <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+              <p><span class="line-num">04</span> <a href="pastar curriculo/Currículoso.pdf" target="_blank"><span data-i18n="about.resume">currículo</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+            </div>
+          </div>
+
+        </div>
+        <div class="window-footer">
+          <span><i class="fa-solid fa-graduation-cap"></i> <span data-i18n="about.education">Ciências da Computação · Estácio</span></span>
+          <span><i class="fa-solid fa-circle-check accent"></i> <span data-i18n="about.available">Disponível para novos projetos</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIÊNCIA -->
+  <section class="section" id="experiencia">
+    <div class="container">
+      <div class="showcase-tag" data-anime>showcase</div>
+      <h2 class="showcase-title" data-anime data-i18n="exp.title">Trajetória profissional</h2>
+
+      <div class="exp-list">
+
+        <div class="window exp-window featured" data-anime>
+          <div class="window-bar">
+            <div class="traffic"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+            <span class="window-title"><i class="fa-solid fa-dollar-sign"></i> spotside/atual</span>
+            <span class="live-badge"><span class="pulse-dot"></span> <span data-i18n="exp.live">ao vivo</span></span>
+          </div>
+          <div class="window-body exp-body">
+            <div class="exp-meta">
+              <span class="exp-index">01</span>
+              <span class="exp-date" data-i18n="exp.date1">Out 2025 — Atual</span>
+            </div>
+            <h3 class="exp-role"><span data-i18n="exp.role1">Desenvolvedor Full Stack</span> <span class="exp-company" data-i18n="exp.company1">@ Spotside · Portugal (Remoto)</span></h3>
+            <p data-i18n="exp.desc1">Plataforma SaaS de digital signage com arquitetura de microsserviços, gerenciando conteúdo e dispositivos de exibição em tempo real.</p>
+            <ul class="exp-bullets">
+              <li data-i18n="exp.b1_1">Múltiplos serviços Node.js (API, store, supervisor, conversão de arquivos) com Express, MongoDB e Socket.io</li>
+              <li data-i18n="exp.b1_2">Documentação de plugins com schemas de dados e fluxo integrado a GitLab/Jira</li>
+              <li data-i18n="exp.b1_3">Front-end SPA, renderizador Electron, Keycloak/JWT, MinIO e GraphQL</li>
+            </ul>
+            <div class="pill-row">
+              <span class="pill">Node.js</span><span class="pill">Express</span><span class="pill">MongoDB</span>
+              <span class="pill">Socket.io</span><span class="pill">Electron</span><span class="pill">GraphQL</span><span class="pill">GitLab CI/CD</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="window exp-window" data-anime>
+          <div class="window-bar">
+            <div class="traffic"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+            <span class="window-title"><i class="fa-solid fa-dollar-sign"></i> crosoften/atual</span>
+          </div>
+          <div class="window-body exp-body">
+            <div class="exp-meta">
+              <span class="exp-index">02</span>
+              <span class="exp-date" data-i18n="exp.date2">Fev 2026 — Atual</span>
+            </div>
+            <h3 class="exp-role"><span data-i18n="exp.role2">Desenvolvedor Angular e Android / Front-end</span> <span class="exp-company" data-i18n="exp.company2">@ CroSoften</span></h3>
+            <p data-i18n="exp.desc2">Projetos front-end (CRUDs) em Angular e apps Android em Kotlin: app bancário, sistema gerencial de farmácias e lojas virtuais.</p>
+            <div class="pill-row">
+              <span class="pill">Angular</span><span class="pill">Kotlin</span><span class="pill">TypeScript</span><span class="pill">HTML/CSS</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="window exp-window" data-anime>
+          <div class="window-bar">
+            <div class="traffic"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+            <span class="window-title"><i class="fa-solid fa-dollar-sign"></i> play2sell/2025</span>
+          </div>
+          <div class="window-body exp-body">
+            <div class="exp-meta">
+              <span class="exp-index">03</span>
+              <span class="exp-date" data-i18n="exp.date3">Mar 2025 — Jul 2025</span>
+            </div>
+            <h3 class="exp-role"><span data-i18n="exp.role3">Desenvolvedor Full Stack</span> <span class="exp-company" data-i18n="exp.company3">@ Play2Sell</span></h3>
+            <p data-i18n="exp.desc3">Aplicações com Angular no front-end e Node.js (TypeScript) no back-end, incluindo automações em low code com N8N e GPT Maker.</p>
+            <div class="pill-row">
+              <span class="pill">Angular</span><span class="pill">TypeScript</span><span class="pill">Node.js</span><span class="pill">MongoDB</span><span class="pill">N8N</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="window exp-window" data-anime>
+          <div class="window-bar">
+            <div class="traffic"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+            <span class="window-title"><i class="fa-solid fa-dollar-sign"></i> postaqui/2023-2025</span>
+          </div>
+          <div class="window-body exp-body">
+            <div class="exp-meta">
+              <span class="exp-index">04</span>
+              <span class="exp-date" data-i18n="exp.date4">Out 2023 — Jan 2025</span>
+            </div>
+            <h3 class="exp-role"><span data-i18n="exp.role4">Desenvolvedor Júnior Full Stack</span> <span class="exp-company" data-i18n="exp.company4">@ Postaqui Logística</span></h3>
+            <p data-i18n="exp.desc4">Desenvolvimento full stack com ReactJS/NextJS e Node.js, com foco em qualidade de código, testes e entregas contínuas. Criação do site institucional e novas telas.</p>
+            <div class="pill-row">
+              <span class="pill">ReactJS</span><span class="pill">NextJS</span><span class="pill">Node.js</span><span class="pill">Jest</span><span class="pill">Tailwind</span><span class="pill">CI/CD</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="window exp-window" data-anime>
+          <div class="window-bar">
+            <div class="traffic"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+            <span class="window-title"><i class="fa-solid fa-dollar-sign"></i> a2w/2022</span>
+          </div>
+          <div class="window-body exp-body">
+            <div class="exp-meta">
+              <span class="exp-index">05</span>
+              <span class="exp-date" data-i18n="exp.date5">2022</span>
+            </div>
+            <h3 class="exp-role"><span data-i18n="exp.role5">Desenvolvedor Estagiário</span> <span class="exp-company" data-i18n="exp.company5">@ A2W Tecnologia e Inovações</span></h3>
+            <p data-i18n="exp.desc5">Desenvolvimento front-end com Angular, consumo de APIs REST e prototipação no Figma, em metodologia Scrum.</p>
+            <div class="pill-row">
+              <span class="pill">Angular</span><span class="pill">API REST</span><span class="pill">Figma</span><span class="pill">Scrum</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- HABILIDADES -->
+  <section class="section" id="habilidades">
+    <div class="container">
+      <div class="showcase-tag" data-anime>showcase</div>
+      <h2 class="showcase-title" data-anime data-i18n="skills.title">Stack &amp; ferramentas</h2>
+
+      <div class="window skills-window" data-anime>
+        <div class="window-bar">
+          <div class="traffic"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+          <span class="window-title"><i class="fa-solid fa-dollar-sign"></i> stack.json</span>
+        </div>
+        <div class="window-body skills-body">
+
+          <div class="skill-col">
+            <h4><span class="bracket">{</span> front-end <span class="bracket">}</span></h4>
+            <div class="skbar"><span>ReactJS / NextJS</span><div class="track"><div class="fill" data-w="90"></div></div><em data-i18n="skills.advanced">Avançado</em></div>
+            <div class="skbar"><span>Angular</span><div class="track"><div class="fill" data-w="90"></div></div><em data-i18n="skills.advanced">Avançado</em></div>
+            <div class="skbar"><span>JavaScript / TypeScript</span><div class="track"><div class="fill" data-w="92"></div></div><em data-i18n="skills.advanced">Avançado</em></div>
+            <div class="skbar"><span>HTML5 / CSS3</span><div class="track"><div class="fill" data-w="85"></div></div><em data-i18n="skills.advanced">Avançado</em></div>
+          </div>
+
+          <div class="skill-col">
+            <h4><span class="bracket">{</span> back-end <span class="bracket">}</span></h4>
+            <div class="skbar"><span>Node.js / Express</span><div class="track"><div class="fill" data-w="90"></div></div><em data-i18n="skills.advanced">Avançado</em></div>
+            <div class="skbar"><span>Java / Spring Boot</span><div class="track"><div class="fill" data-w="85"></div></div><em data-i18n="skills.advanced">Avançado</em></div>
+            <div class="skbar"><span>MongoDB / MySQL</span><div class="track"><div class="fill" data-w="70"></div></div><em data-i18n="skills.intermediate">Intermediário</em></div>
+            <div class="skbar"><span>C# · PHP</span><div class="track"><div class="fill" data-w="55"></div></div><em data-i18n="skills.intermediate">Intermediário</em></div>
+          </div>
+
+          <div class="skill-col">
+            <h4><span class="bracket">{</span> devops &amp; outros <span class="bracket">}</span></h4>
+            <div class="skbar"><span>Git / Gitflow / CI-CD</span><div class="track"><div class="fill" data-w="90"></div></div><em data-i18n="skills.advanced">Avançado</em></div>
+            <div class="skbar"><span>Docker</span><div class="track"><div class="fill" data-w="65"></div></div><em data-i18n="skills.intermediate">Intermediário</em></div>
+            <div class="skbar"><span>Kotlin · Python</span><div class="track"><div class="fill" data-w="40"></div></div><em data-i18n="skills.basic">Básico</em></div>
+          </div>
+
+        </div>
+        <div class="window-footer">
+          <span><i class="fa-solid fa-award accent"></i> <span data-i18n="skills.cert1">Bootcamp Banco PAN — Java Dev (DIO, 2023)</span></span>
+          <span><i class="fa-solid fa-award accent"></i> <span data-i18n="skills.cert2">React + Redux do Absoluto Zero (Udemy, 2025)</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJETOS -->
+  <section class="section" id="projetos">
+    <div class="container">
+      <div class="showcase-tag" data-anime>showcase</div>
+
+      <div class="window projects-window" data-anime>
+        <div class="window-bar">
+          <div class="traffic"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+          <span class="window-title"><i class="fa-solid fa-dollar-sign"></i> work/</span>
+        </div>
+
+        <div class="proj-header">
+          <h2 class="proj-statement" data-i18n-html="projects.statement">FRONT-END, BACK-END &amp; MOBILE — <span class="accent">DO ZERO AO DEPLOY.</span></h2>
+          <p class="proj-subtitle" data-i18n="projects.statement_desc">Cada projeto abaixo representa um problema real resolvido com código limpo, arquitetura sólida e entrega contínua.</p>
+        </div>
+
+        <div class="proj-filter-bar">
+          <button class="proj-filter active" data-filter="all" data-i18n="projects.filter_all">TODOS</button>
+          <button class="proj-filter" data-filter="fullstack">FULLSTACK</button>
+          <button class="proj-filter" data-filter="web">WEB</button>
+          <button class="proj-filter" data-filter="api">API</button>
+        </div>
+
+        <div class="proj-grid" id="proj-grid">
+
+          <a class="proj-card" href="https://github.com/Alexandregv1080p/Dev-Codex" target="_blank" data-category="fullstack">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name" data-i18n="projects.devcodex_title">Dev Codex — Plataforma de Cursos Full Stack</h3>
+              <span class="proj-cat-badge">FULLSTACK</span>
+            </div>
+            <p class="proj-card-stack">.NET 8 · Vue 3 · Kotlin · PostgreSQL · Docker · Terraform</p>
+            <p class="proj-card-desc" data-i18n="projects.devcodex_desc">Plataforma SaaS de cursos online com 3 clientes (web Vue 3, mobile Android/Kotlin, painel admin), backend .NET 8 + SignalR, CI/CD via GitHub Actions e infraestrutura Terraform.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+          </a>
+
+          <a class="proj-card" href="https://github.com/Alexandregv1080p/Projeto-AngularSpring-1" target="_blank" data-category="web">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name" data-i18n="projects.p1_title">Dashboard CRUD com API REST</h3>
+              <span class="proj-cat-badge">WEB</span>
+            </div>
+            <p class="proj-card-stack">Spring Boot · Spring Security · Angular · PostgreSQL · Docker</p>
+            <p class="proj-card-desc" data-i18n="projects.p1_desc">Cadastro de usuários com autenticação, tarefas e contato — CRUD completo e API segura.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+          </a>
+
+          <a class="proj-card" href="https://github.com/Alexandregv1080p/ToDo-APP" target="_blank" data-category="web">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name" data-i18n="projects.p2_title">ToDo App com React</h3>
+              <span class="proj-cat-badge">WEB</span>
+            </div>
+            <p class="proj-card-stack">ReactJS · Node.js · MongoDB</p>
+            <p class="proj-card-desc" data-i18n="projects.p2_desc">Gerenciador de tarefas: adicionar, concluir e excluir afazeres. Stack completa React + Node + MongoDB.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+          </a>
+
+          <a class="proj-card" href="https://github.com/Alexandregv1080p/Plataforma-A2W" target="_blank" data-category="web">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name" data-i18n="projects.p3_title">Plataforma A2W — consumo de API</h3>
+              <span class="proj-cat-badge">WEB</span>
+            </div>
+            <p class="proj-card-stack">Angular · TypeScript · API REST</p>
+            <p class="proj-card-desc" data-i18n="projects.p3_desc">Cadastro de clientes, módulos e módulos por cliente, consumindo API REST pelo back-end.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+          </a>
+
+          <a class="proj-card" href="https://github.com/Alexandregv1080p/PadroesDeProjetosJava/tree/master/lab-padroes-projeto-spring" target="_blank" data-category="api">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name" data-i18n="projects.p4_title">Via CEP com Spring &amp; Swagger</h3>
+              <span class="proj-cat-badge">API</span>
+            </div>
+            <p class="proj-card-stack">Spring Boot · Swagger · H2 · Java</p>
+            <p class="proj-card-desc" data-i18n="projects.p4_desc">API REST documentada com Swagger; consulta de CEP retornando dados em JSON, persistidos em H2.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+          </a>
+
+          <a class="proj-card" href="https://github.com/Alexandregv1080p/ConectandoSpringAmazon" target="_blank" data-category="api">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name" data-i18n="projects.p5_title">API REST com Amazon RDS</h3>
+              <span class="proj-cat-badge">API</span>
+            </div>
+            <p class="proj-card-stack">Spring Boot · AWS RDS · HATEOAS</p>
+            <p class="proj-card-desc" data-i18n="projects.p5_desc">API com Spring Data JPA, Spring Web e HATEOAS, conectada ao PostgreSQL via Amazon RDS.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+          </a>
+
+          <a class="proj-card" href="https://github.com/Alexandregv1080p/Calculo-de-IMC" target="_blank" data-category="web">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name" data-i18n="projects.p6_title">Clone do sistema acadêmico Lyceum</h3>
+              <span class="proj-cat-badge">WEB</span>
+            </div>
+            <p class="proj-card-stack">Angular · TypeScript</p>
+            <p class="proj-card-desc" data-i18n="projects.p6_desc">Recriação do sistema acadêmico da UNIFENAS em Angular — login, dashboard e gestão de disciplinas.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+          </a>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTATO -->
+  <section class="section" id="contato">
+    <div class="container">
+      <div class="showcase-tag" data-anime>showcase</div>
+      <h2 class="showcase-title" data-anime data-i18n="contact.title">Vamos trabalhar juntos?</h2>
+
+      <div class="window contact-window" data-anime>
+        <div class="window-bar">
+          <div class="traffic"><span class="t-dot red"></span><span class="t-dot yellow"></span><span class="t-dot green"></span></div>
+          <span class="window-title"><i class="fa-solid fa-dollar-sign"></i> contato.sh</span>
+        </div>
+        <div class="window-body contact-body">
+          <p class="terminal-line"><span class="prompt">$</span> <span data-i18n="contact.echo_cmd">echo "Estou disponível para novas oportunidades, freelas e parcerias"</span></p>
+          <p class="terminal-line out" data-i18n="contact.echo_out">Estou disponível para novas oportunidades, freelas e parcerias</p>
+          <p class="terminal-line"><span class="prompt">$</span> cat contatos.txt</p>
+          <div class="contact-cards">
+            <a href="mailto:alexandregv1999@gmail.com" class="contact-card-item">
+              <i class="fa-solid fa-envelope"></i>
+              <div><strong data-i18n="contact.email_label">E-mail</strong><span>alexandregv1999@gmail.com</span></div>
+            </a>
+            <a href="tel:+5535984249011" class="contact-card-item">
+              <i class="fa-solid fa-phone"></i>
+              <div><strong data-i18n="contact.phone_label">Telefone</strong><span>(35) 98451-1709</span></div>
+            </a>
+            <a href="https://www.linkedin.com/in/alexandre-gomes-vieira-9625b31b5/" target="_blank" class="contact-card-item">
+              <i class="fa-brands fa-linkedin-in"></i>
+              <div><strong>LinkedIn</strong><span>/in/alexandre-gomes-vieira</span></div>
+            </a>
+            <a href="https://github.com/Alexandregv1080p" target="_blank" class="contact-card-item">
+              <i class="fa-brands fa-github"></i>
+              <div><strong>GitHub</strong><span>/Alexandregv1080p</span></div>
+            </a>
+          </div>
+          <p class="terminal-line"><span class="prompt">$</span> <span class="cursor-blink">_</span></p>
+        </div>
+        <div class="window-footer">
+          <span><i class="fa-solid fa-location-dot"></i> <span data-i18n="contact.location">Alfenas, MG — Brasil</span></span>
+          <a href="mailto:alexandregv1999@gmail.com" class="footer-cta" data-i18n-html="contact.lets_work">vamos trabalhar juntos <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span class="logo">AG<span class="accent">.</span></span>
+      <p data-i18n-html="footer.made_with">© 2026 Alexandre Gomes Vieira — feito com <i class="fa-solid fa-heart accent"></i> e muito café</p>
+      <div class="footer-socials">
+        <a href="https://github.com/Alexandregv1080p" target="_blank"><i class="fa-brands fa-github"></i></a>
+        <a href="https://linkedin.com/in/alexandre-gomes-vieira" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+        <a href="mailto:alexandregv1999@gmail.com"><i class="fa-solid fa-envelope"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
