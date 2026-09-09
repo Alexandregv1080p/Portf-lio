@@ -835,3 +835,42 @@ body::before {
   .window { transition: none; }
   .window:hover { transform: none; }
 }
+
+/* =====================================================================
+   ██ V8 — HOVER CRIATIVO: AS DUAS CAMADAS SE MOVEM (parallax 3D) ██
+   O paralelogramo vermelho e o retângulo preto compartilham a animação:
+   sobem/deslizam em direções complementares, com mola e tempos diferentes,
+   tudo em transform (GPU) para ficar bem fluido.
+   ===================================================================== */
+.window {
+  will-change: transform;
+  transform: translate3d(0,0,0) rotate(0deg);
+  transition: transform .5s cubic-bezier(.22, 1.15, .36, 1);
+}
+.win-shell::before {
+  will-change: transform, box-shadow;
+  transform: translate3d(0,0,0);
+  transition: transform .6s cubic-bezier(.22, 1.15, .36, 1) .02s,
+              box-shadow .5s ease, outline-color .5s ease;
+}
+
+/* front red parallelogram: lifts up-left with a tiny tilt */
+.window:hover {
+  transform: translate3d(-7px, -11px, 0) scale(1.015) rotate(-.5deg);
+  filter: none;
+}
+/* black twin: slides the opposite way (down-right) and tilts back, revealing depth */
+.win-shell:hover::before {
+  transform: translate3d(12px, 15px, 0) rotate(.4deg);
+  outline-color: rgba(255,64,64,.85);
+  box-shadow: 0 0 55px rgba(227,6,19,.45), 0 34px 66px rgba(0,0,0,.8);
+}
+
+@media (max-width: 720px) {
+  .window:hover { transform: translate3d(-4px,-7px,0) scale(1.01) rotate(-.4deg); }
+  .win-shell:hover::before { transform: translate3d(7px,9px,0) rotate(.3deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .window, .win-shell::before { transition: none; }
+  .window:hover, .win-shell:hover::before { transform: none; }
+}
