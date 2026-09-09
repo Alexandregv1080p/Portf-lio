@@ -480,6 +480,19 @@
     })();
   </script>
 
+  <!-- Wrap each window in a shell that paints the black rectangle behind it -->
+  <script>
+    (function () {
+      document.querySelectorAll('.window').forEach(function (win) {
+        if (win.parentElement && win.parentElement.classList.contains('win-shell')) return;
+        var shell = document.createElement('div');
+        shell.className = 'win-shell' + (win.classList.contains('hero-window') ? ' win-shell--hero' : '');
+        win.parentNode.insertBefore(shell, win);
+        shell.appendChild(win);
+      });
+    })();
+  </script>
+
   <script src="script.js"></script>
 
   <!-- Sync data-text for the card-name glitch effect (after i18n applies) -->
