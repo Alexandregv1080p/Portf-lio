@@ -802,3 +802,36 @@ body::before {
 
 @media (max-width: 900px) { .window { --lean: 20px; } }
 @media (max-width: 720px) { .window { --lean: 15px; } }
+
+/* =====================================================================
+   ██ V7 — HOVER FLUIDO DAS JANELAS ██
+   Animate only GPU-cheap transform (no filter/background/backdrop-filter
+   churn), with a springy easing, and let the black base glow smoothly.
+   ===================================================================== */
+.window {
+  backdrop-filter: none;                 /* blur was causing per-frame repaint jank */
+  will-change: transform;
+  filter: none;
+  transition: transform .45s cubic-bezier(.34, 1.35, .5, 1);
+}
+.window:hover {
+  transform: translateY(-9px) scale(1.012);
+  filter: none;                          /* no filter animation = smooth */
+}
+.window:hover::after {                   /* cancel the old color snap */
+  background: linear-gradient(160deg, #150609, #0a0203);
+}
+
+/* the black base reacts smoothly (box-shadow / outline transition, not filter) */
+.win-shell::before {
+  transition: box-shadow .45s ease, outline-color .45s ease;
+}
+.win-shell:hover::before {
+  outline-color: rgba(255,64,64,.8);
+  box-shadow: 0 0 50px rgba(227,6,19,.42), 0 32px 60px rgba(0,0,0,.75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .window { transition: none; }
+  .window:hover { transform: none; }
+}
