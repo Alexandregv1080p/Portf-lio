@@ -720,3 +720,45 @@ body::before {
   .window { --lean: 16px; }
   .window::before { transform: translate(6px, 12px); }
 }
+
+/* =====================================================================
+   ██ V5 — SOMBRA PRETA (o "contrário") + HOVER LEVE NAS JANELAS ██
+   The stacked layer becomes a solid black silhouette of the window
+   (its dark opposite) with a faint red rim so it reads on the dark bg.
+   On hover the window lifts and separates from its black twin.
+   ===================================================================== */
+.window { transition: transform .32s cubic-bezier(.22,1,.36,1), filter .32s ease; }
+
+/* the black opposite — a shadow-twin of the window */
+.window::before {
+  background: #000;
+  opacity: 1;
+  transform: translate(13px, 15px);
+  filter: drop-shadow(2px 3px 0 rgba(255,28,28,.38)) drop-shadow(0 14px 24px rgba(0,0,0,.75));
+  transition: transform .32s cubic-bezier(.22,1,.36,1), filter .32s ease;
+}
+.exp-window.featured::before {
+  background: #000;
+  filter: drop-shadow(2px 3px 0 rgba(255,40,40,.5)) drop-shadow(0 16px 28px rgba(0,0,0,.8));
+}
+
+/* hover: the card pops up and its black opposite slides out behind it */
+.window:hover {
+  transform: translate(-4px, -6px);
+  filter: drop-shadow(0 24px 46px rgba(0,0,0,.7)) drop-shadow(0 0 20px var(--glow));
+}
+.window:hover::before {
+  transform: translate(20px, 24px);
+  filter: drop-shadow(3px 4px 0 rgba(255,28,28,.5)) drop-shadow(0 18px 30px rgba(0,0,0,.85));
+}
+
+@media (max-width: 720px) {
+  .window::before { transform: translate(8px, 10px); }
+  .window:hover { transform: translate(-2px, -4px); }
+  .window:hover::before { transform: translate(12px, 16px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .window, .window::before { transition: none; }
+  .window:hover { transform: none; }
+  .window:hover::before { transform: translate(13px, 15px); }
+}
