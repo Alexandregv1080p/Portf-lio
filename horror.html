@@ -489,6 +489,12 @@
         shell.className = 'win-shell' + (win.classList.contains('hero-window') ? ' win-shell--hero' : '');
         win.parentNode.insertBefore(shell, win);
         shell.appendChild(win);
+        ['tribal-tr', 'tribal-bl'].forEach(function (pos) {
+          var o = document.createElement('span');
+          o.className = 'tribal-corner ' + pos;
+          o.setAttribute('aria-hidden', 'true');
+          shell.appendChild(o);
+        });
       });
     })();
   </script>

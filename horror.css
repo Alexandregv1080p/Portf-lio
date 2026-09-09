@@ -874,3 +874,36 @@ body::before {
   .window, .win-shell::before { transition: none; }
   .window:hover, .win-shell:hover::before { transform: none; }
 }
+
+/* =====================================================================
+   ██ V9 — ORNAMENTOS TRIBAIS NOS CANTOS ██
+   Tribal "horns" (SVG blades) grow out of the two sharp corners of each
+   parallelogram (top-right + bottom-left) and animate with the hover.
+   ===================================================================== */
+:root {
+  --tribal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='t' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%237a000c'/%3E%3Cstop offset='.6' stop-color='%23e30613'/%3E%3Cstop offset='1' stop-color='%23ff6a6a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill='url(%23t)'%3E%3Cpath d='M8 93 Q9 40 20 5 Q28 45 31 93 Z'/%3E%3Cpath d='M27 92 Q47 45 69 16 Q54 52 47 93 Z'/%3E%3Cpath d='M45 93 Q73 59 98 43 Q74 67 64 95 Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+.tribal-corner {
+  position: absolute; width: 66px; height: 66px; z-index: 3; pointer-events: none;
+  background: var(--tribal) center / contain no-repeat;
+  filter: drop-shadow(0 0 7px var(--glow));
+  will-change: transform;
+  transition: transform .5s cubic-bezier(.22, 1.15, .36, 1), filter .5s ease;
+}
+.tribal-tr { top: -54px; right: -54px; }                       /* rooted at the sharp top-right corner, points outward */
+.tribal-bl { bottom: -54px; left: -54px; transform: rotate(180deg); }  /* rooted at the sharp bottom-left corner */
+
+/* the horns move with the front parallelogram and flare a bit on hover */
+.win-shell:hover .tribal-tr { transform: translate(-7px, -11px) scale(1.18) rotate(-4deg); filter: drop-shadow(0 0 14px var(--glow)); }
+.win-shell:hover .tribal-bl { transform: translate(-7px, -11px) rotate(184deg) scale(1.18); filter: drop-shadow(0 0 14px var(--glow)); }
+
+@media (max-width: 720px) {
+  .tribal-corner { width: 46px; height: 46px; }
+  .tribal-tr { top: -38px; right: -38px; }
+  .tribal-bl { bottom: -38px; left: -38px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tribal-corner { transition: none; }
+  .win-shell:hover .tribal-tr { transform: none; }
+  .win-shell:hover .tribal-bl { transform: rotate(180deg); }
+}
