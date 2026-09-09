@@ -21,8 +21,8 @@
   <div class="crt-vignette" aria-hidden="true"></div>
   <div class="glitch-flash" aria-hidden="true"></div>
 
-  <!-- RISING PARTICLES (blood embers) -->
-  <div class="rising-particles" id="rising-particles" aria-hidden="true"></div>
+  <!-- FALLING BLOOD -->
+  <div class="blood-fall" id="blood-fall" aria-hidden="true"></div>
 
   <!-- VERSION NAV -->
   <nav class="version-nav" aria-label="Trocar versão">
@@ -495,6 +495,29 @@
       document.querySelectorAll('#lang-switcher .lang-btn').forEach(btn => {
         btn.addEventListener('click', () => setTimeout(syncGlitch, 30));
       });
+    })();
+  </script>
+
+  <!-- Falling blood generator (infinite drips) -->
+  <script>
+    (function () {
+      const layer = document.getElementById('blood-fall');
+      if (!layer) return;
+      const COUNT = 26;
+      for (let i = 0; i < COUNT; i++) {
+        const d = document.createElement('span');
+        d.className = 'bloodrop';
+        const w = 6 + Math.random() * 10;          // 6–16px wide
+        d.style.width = w + 'px';
+        d.style.height = (w * 1.9) + 'px';          // elongated teardrop
+        d.style.left = (Math.random() * 100) + 'vw';
+        d.style.opacity = (0.45 + Math.random() * 0.5).toFixed(2);
+        const dur = 5 + Math.random() * 8;          // 5–13s fall
+        d.style.animationDuration = dur + 's';
+        d.style.animationDelay = (-Math.random() * dur) + 's'; // continuous from the start
+        d.style.filter = 'drop-shadow(0 0 ' + (2 + Math.random() * 4).toFixed(1) + 'px rgba(227,6,19,.6))';
+        layer.appendChild(d);
+      }
     })();
   </script>
 </body>
