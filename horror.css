@@ -1046,3 +1046,25 @@ body::before { content: none; }
 }
 .exp-index { font-family: var(--f-brutal); }
 .footer .logo { font-family: var(--f-display); }
+
+/* =====================================================================
+   ██ V15 — FONTES MENORES AGRESSIVAS + FUNDO BIOMECÂNICO NOS CARDS ██
+   ===================================================================== */
+:root {
+  --f-term: 'Oxanium', 'VT323', monospace;               /* rótulos/chrome — angular cyber */
+  --f-body: 'Chakra Petch', 'Share Tech Mono', monospace; /* corpo — legível e afiado */
+  /* veias/espinhos biomecânicos gerados por ruído (feTurbulence) */
+  --veins: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='v'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.02 0.04' numOctaves='2' seed='9' result='t'/%3E%3CfeColorMatrix in='t' type='matrix' values='0 0 0 0 0.5  0 0 0 0 0.02  0 0 0 0 0.04  0 0 0 26 -14'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.16'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23v)'/%3E%3C/svg%3E");
+}
+.window-bar, .window-footer, .window-title, .win-actions,
+.pill, .exp-date, .exp-company, .proj-card-stack, .proj-card-link, .proj-cat-badge,
+.proj-filter, .lang-btn, .btn-glow, .btn-ghost, .footer-cta, .crumb, .local-time,
+.showcase-tag, .drag-hint, .skill-col h4, .line-num, .terminal-line, .contact-card-item,
+.version-nav a, .live-badge { font-family: var(--f-term); }
+
+/* biomech veins in the card backgrounds (windows + panels) */
+.window::after, .window:hover::after {
+  background: var(--veins) center / cover no-repeat,
+              linear-gradient(160deg, #150609, #0a0203);
+}
+.panel { background: var(--veins) center / cover no-repeat, var(--panel-2); }
