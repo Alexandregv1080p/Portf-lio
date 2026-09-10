@@ -150,6 +150,31 @@ const I18N = {
   'projects.filter_all': { pt: 'TODOS', en: 'ALL' },
   'projects.link_github': { pt: 'Ver no GitHub', en: 'View on GitHub' },
 
+  'projects.devcodex_desc': {
+    pt: 'Plataforma de cursos online: web em Vue 3 + Pinia e app Android em Kotlin, com arquitetura multi-cliente.',
+    en: 'Online course platform: Vue 3 + Pinia web and a Kotlin Android app, with a multi-client architecture.'
+  },
+  'projects.minx_desc': {
+    pt: 'App full stack em monorepo: API NestJS (TypeORM/MySQL), web em Next.js e mobile em React Native (Expo).',
+    en: 'Full-stack monorepo app: NestJS API (TypeORM/MySQL), a Next.js web client and a React Native (Expo) mobile app.'
+  },
+  'projects.fasttrade_desc': {
+    pt: 'Plataforma de trocas: front Angular, API Java/Spring Boot (JPA, Security, JWT, Flyway) e app Android em Kotlin.',
+    en: 'Bartering platform: Angular front-end, a Java/Spring Boot API (JPA, Security, JWT, Flyway) and a Kotlin Android app.'
+  },
+  'projects.pagapi_desc': {
+    pt: 'API de pagamentos com ledger em .NET 8 (ASP.NET Core, JWT), painel em Angular e containerização com Docker.',
+    en: 'Payments API with a ledger in .NET 8 (ASP.NET Core, JWT), an Angular panel and Docker containerization.'
+  },
+  'projects.agenda_desc': {
+    pt: 'Sistema de agenda e atendimentos em Laravel 13 (PHP 8.3), com front em Vite + Tailwind.',
+    en: 'Scheduling and appointments system in Laravel 13 (PHP 8.3), with a Vite + Tailwind front-end.'
+  },
+  'projects.eventus_desc': {
+    pt: 'Plataforma de eventos em Angular + TypeScript, com foco em componentes reutilizáveis.',
+    en: 'Events platform in Angular + TypeScript, focused on reusable components.'
+  },
+
   'contact.title': { pt: 'Vamos trabalhar juntos?', en: 'Shall we work together?' },
   'contact.echo_cmd': {
     pt: 'echo "Estou disponível para novas oportunidades, freelas e parcerias"',
