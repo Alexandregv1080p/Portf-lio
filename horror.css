@@ -994,8 +994,8 @@ body::before { content: none; }
    O card inteiro (paralelogramo + base preta + barbas) levanta como uma
    peça só no hover — assim as bordas/dentes não se soltam do paralelogramo.
    ===================================================================== */
-.blood-top { height: 120px; }
-@media (max-width: 720px) { .blood-top { height: 86px; } }
+.blood-top { height: 150px; }
+@media (max-width: 720px) { .blood-top { height: 112px; } }
 
 .window { transition: none; }
 .window:hover { transform: none; }

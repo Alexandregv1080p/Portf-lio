@@ -22,22 +22,30 @@
   <div class="glitch-flash" aria-hidden="true"></div>
 
   <!-- TOP BLOOD (gooey liquid, animated) -->
-  <svg class="blood-top" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+  <svg class="blood-top" viewBox="0 0 1440 150" preserveAspectRatio="none" aria-hidden="true">
     <defs>
       <linearGradient id="bloodGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#d0000f"/>
-        <stop offset="0.5" stop-color="#8f0009"/>
-        <stop offset="1" stop-color="#490006"/>
+        <stop offset="0" stop-color="#e00010"/>
+        <stop offset="0.32" stop-color="#b30009"/>
+        <stop offset="0.7" stop-color="#6b0007"/>
+        <stop offset="1" stop-color="#6b0007" stop-opacity="0"/>
       </linearGradient>
-      <filter id="goo">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
-        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9" result="goo"/>
-        <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+      <filter id="blood" x="-15%" y="-10%" width="130%" height="160%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="4.5" result="b"/>
+        <feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -11" result="goo"/>
+        <feComposite in="SourceGraphic" in2="goo" operator="atop" result="merged"/>
+        <feTurbulence type="fractalNoise" baseFrequency="0.022 0.04" numOctaves="3" seed="11" result="n"/>
+        <feDisplacementMap in="merged" in2="n" scale="24" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+      <filter id="splat" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.09 0.09" numOctaves="2" seed="4" result="n2"/>
+        <feDisplacementMap in="SourceGraphic" in2="n2" scale="10" xChannelSelector="R" yChannelSelector="G"/>
       </filter>
     </defs>
-    <g class="goo-drips" filter="url(#goo)" fill="url(#bloodGrad)">
-      <rect x="0" y="0" width="1440" height="20"/>
+    <g class="goo-drips" filter="url(#blood)" fill="url(#bloodGrad)">
+      <rect x="0" y="0" width="1440" height="30"/>
     </g>
+    <g class="goo-splat" filter="url(#splat)" fill="url(#bloodGrad)"></g>
   </svg>
 
   <!-- FALLING BLOOD -->
@@ -559,57 +567,40 @@
     })();
   </script>
 
-  <!-- Gooey top blood: living pool with hanging, oozing drips -->
+  <!-- Grunge top blood: irregular drips + splatter, roughened by the displacement filter -->
   <script>
     (function () {
       var g = document.querySelector('.goo-drips');
       if (!g) return;
-      var NS = 'http://www.w3.org/2000/svg', W = 1440, cols = 22;
-      function mk(n){ return document.createElementNS(NS, n); }
+      var NS = 'http://www.w3.org/2000/svg', W = 1440;
       function rnd(a, b){ return a + Math.random() * (b - a); }
-      var SP = '0.3 0 0.2 1;0.5 0 0.5 1', KT = '0;0.55;1';
-      for (var i = 0; i < cols; i++) {
-        var cx = (W / cols) * i + rnd(6, (W / cols) - 6);
-        var rx = rnd(6, 13);
-        var anchor = rnd(6, 12);       // attach point just under the pool
-        var minL = rnd(6, 14);         // resting half-length
-        var maxL = rnd(20, 52);        // stretched half-length
-        var el = mk('ellipse');
-        el.setAttribute('cx', cx.toFixed(1));
-        el.setAttribute('rx', rx.toFixed(1));
-        el.setAttribute('ry', minL.toFixed(1));
-        el.setAttribute('cy', (anchor + minL).toFixed(1));
-        var dur = rnd(4.5, 9).toFixed(2) + 's', beg = (-rnd(0, 8)).toFixed(2) + 's';
-        var aRy = mk('animate');
-        aRy.setAttribute('attributeName', 'ry');
-        aRy.setAttribute('values', minL.toFixed(1) + ';' + maxL.toFixed(1) + ';' + minL.toFixed(1));
-        aRy.setAttribute('dur', dur); aRy.setAttribute('begin', beg); aRy.setAttribute('repeatCount', 'indefinite');
-        aRy.setAttribute('calcMode', 'spline'); aRy.setAttribute('keyTimes', KT); aRy.setAttribute('keySplines', SP);
-        var aCy = mk('animate');
-        aCy.setAttribute('attributeName', 'cy');
-        aCy.setAttribute('values', (anchor + minL).toFixed(1) + ';' + (anchor + maxL).toFixed(1) + ';' + (anchor + minL).toFixed(1));
-        aCy.setAttribute('dur', dur); aCy.setAttribute('begin', beg); aCy.setAttribute('repeatCount', 'indefinite');
-        aCy.setAttribute('calcMode', 'spline'); aCy.setAttribute('keyTimes', KT); aCy.setAttribute('keySplines', SP);
-        el.appendChild(aRy); el.appendChild(aCy);
-        g.appendChild(el);
+      function add(tag, attrs){
+        var e = document.createElementNS(NS, tag);
+        for (var k in attrs) e.setAttribute(k, attrs[k]);
+        g.appendChild(e); return e;
       }
-      // droplets that release from the pool and fall, then reset
-      for (var j = 0; j < 7; j++) {
-        var dur2 = rnd(2.2, 4.2).toFixed(2) + 's', beg2 = (-rnd(0, 5)).toFixed(2) + 's';
-        var d = mk('ellipse');
-        d.setAttribute('cx', rnd(50, W - 50).toFixed(1));
-        d.setAttribute('rx', rnd(5, 8).toFixed(1));
-        d.setAttribute('ry', rnd(7, 11).toFixed(1));
-        d.setAttribute('cy', '16');
-        var ay = mk('animate');
-        ay.setAttribute('attributeName', 'cy'); ay.setAttribute('values', '16;120');
-        ay.setAttribute('dur', dur2); ay.setAttribute('begin', beg2); ay.setAttribute('repeatCount', 'indefinite');
-        ay.setAttribute('calcMode', 'spline'); ay.setAttribute('keyTimes', '0;1'); ay.setAttribute('keySplines', '0.5 0 0.9 0.5');
-        var ao = mk('animate');
-        ao.setAttribute('attributeName', 'opacity'); ao.setAttribute('values', '0;1;1;0');
-        ao.setAttribute('dur', dur2); ao.setAttribute('begin', beg2); ao.setAttribute('repeatCount', 'indefinite');
-        d.appendChild(ay); d.appendChild(ao);
-        g.appendChild(d);
+      // hanging drips — varied width & length (thin threads + fat runs)
+      var n = 22;
+      for (var i = 0; i < n; i++) {
+        var cx = (W / n) * i + rnd(4, (W / n) - 4);
+        var rx = (Math.random() < 0.4) ? rnd(2.5, 5) : rnd(6, 16);   // some threads, some fat
+        var len = rnd(12, 108);
+        var anchor = rnd(1, 10);
+        add('ellipse', { cx: cx.toFixed(1), rx: rx.toFixed(1), ry: (len / 2).toFixed(1), cy: (anchor + len / 2).toFixed(1) });
+      }
+      // a few extra bulbs right under the pool for an uneven edge
+      for (var k = 0; k < 10; k++) {
+        add('ellipse', { cx: rnd(0, W).toFixed(1), cy: rnd(20, 40).toFixed(1), rx: rnd(8, 22).toFixed(1), ry: rnd(6, 16).toFixed(1) });
+      }
+      // splatter specks — own layer (no goo threshold), denser near the top, fading downward
+      var gs = document.querySelector('.goo-splat') || g;
+      function addS(attrs){ var e = document.createElementNS(NS, 'ellipse'); for (var k in attrs) e.setAttribute(k, attrs[k]); gs.appendChild(e); }
+      var m = 120;
+      for (var j = 0; j < m; j++) {
+        var y = rnd(20, 138);
+        var op = Math.max(0.05, (1 - (y - 20) / 122) * 0.9);
+        var r = rnd(0.8, 5.5) * (y < 74 ? 1 : 0.6);
+        addS({ cx: rnd(0, W).toFixed(1), cy: y.toFixed(1), rx: r.toFixed(1), ry: (r * rnd(0.8, 1.8)).toFixed(1), opacity: op.toFixed(2) });
       }
     })();
   </script>
