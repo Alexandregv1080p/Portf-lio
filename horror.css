@@ -1153,3 +1153,46 @@ a, button, .rail-dot, .proj-card, .proj-filter, .lang-btn, .hpal-dot,
   .rec .dot, .audio-toggle.on .wv { animation: none; }
   .glitch-overlay.on { animation: none; }
 }
+
+/* =====================================================================
+   ██ V17 — REC + trocar-versão SEMPRE VISÍVEIS ██
+   O sangue do topo (.blood-top 9993) e a moldura CRT (.crt-bezel 9995)
+   estavam por cima do REC (9994) e da nav de versão (z-index 200),
+   cortando/apagando os dois. Aqui eles sobem acima de TODAS as camadas
+   de overlay e ganham um respaldo escuro para ler sobre o sangue.
+   ===================================================================== */
+
+/* REC acima do bezel/sangue, com chip escuro para contraste */
+.rec {
+  z-index: 10000;
+  top: 16px; left: 20px;
+  padding: 4px 10px;
+  background: rgba(10,2,3,.72);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  backdrop-filter: blur(3px);
+  clip-path: polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+}
+
+/* nav de versão acima de tudo e clicável */
+.version-nav {
+  z-index: 10000;
+  top: 18px; right: 20px;
+  pointer-events: auto;
+}
+.version-nav a {
+  background: rgba(10,2,3,.9);
+  border-color: var(--border-br);
+  color: var(--text);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.6), 0 4px 14px rgba(0,0,0,.55);
+}
+.version-nav a.portal-link { color: var(--accent-2); }
+.version-nav a:hover { color: var(--accent); box-shadow: 0 0 16px var(--glow); }
+
+/* garante que o sangue do topo nunca capture cliques da nav/REC */
+.blood-top, .crt-bezel { pointer-events: none; }
+
+@media (max-width: 720px) {
+  .rec { top: 12px; left: 12px; font-size: 13px; }
+  .version-nav { top: 12px; right: 12px; }
+}
