@@ -151,28 +151,28 @@ const I18N = {
   'projects.link_github': { pt: 'Ver no GitHub', en: 'View on GitHub' },
 
   'projects.devcodex_desc': {
-    pt: 'Plataforma de cursos online: web em Vue 3 + Pinia e app Android em Kotlin, com arquitetura multi-cliente.',
-    en: 'Online course platform: Vue 3 + Pinia web and a Kotlin Android app, with a multi-client architecture.'
+    pt: 'Plataforma de cursos online (estilo Alura/Udemy) com 3 clientes — web em Vue 3, app Android em Kotlin e painel admin. Back-end .NET 8 com EF Core, chat em tempo real via SignalR e auth JWT + refresh; CI/CD no GitHub Actions e infra como código (Terraform + Docker).',
+    en: 'Online course platform (Alura/Udemy-style) with 3 clients — Vue 3 web, a Kotlin Android app and an admin panel. .NET 8 back-end with EF Core, real-time chat via SignalR and JWT + refresh auth; GitHub Actions CI/CD and infrastructure as code (Terraform + Docker).'
   },
   'projects.minx_desc': {
-    pt: 'App full stack em monorepo: API NestJS (TypeORM/MySQL), web em Next.js e mobile em React Native (Expo).',
-    en: 'Full-stack monorepo app: NestJS API (TypeORM/MySQL), a Next.js web client and a React Native (Expo) mobile app.'
+    pt: 'Rede social estilo Twitter (feed, posts, curtidas, replies, follows, timeline). API NestJS modular com MySQL e Redis, fanout assíncrono da timeline via AWS SQS + Lambda e deploy em Kubernetes; web em Next.js.',
+    en: 'Twitter-style social network (feed, posts, likes, replies, follows, timeline). Modular NestJS API with MySQL and Redis, async timeline fanout via AWS SQS + Lambda and Kubernetes deploy; Next.js web client.'
   },
   'projects.fasttrade_desc': {
-    pt: 'Plataforma de trocas: front Angular, API Java/Spring Boot (JPA, Security, JWT, Flyway) e app Android em Kotlin.',
-    en: 'Bartering platform: Angular front-end, a Java/Spring Boot API (JPA, Security, JWT, Flyway) and a Kotlin Android app.'
+    pt: 'Marketplace de compra, venda e troca (monorepo). Back-end Java 21 / Spring Boot 3.2 com JWT e chat em tempo real (WebSocket STOMP), painel Angular 17 com métricas e app Android em Kotlin (Jetpack Compose); deploy com Helm no Kubernetes.',
+    en: 'Buy/sell/trade marketplace (monorepo). Java 21 / Spring Boot 3.2 back-end with JWT and real-time chat (WebSocket STOMP), an Angular 17 admin panel with metrics and a Kotlin Android app (Jetpack Compose); Helm deploy on Kubernetes.'
   },
   'projects.pagapi_desc': {
-    pt: 'API de pagamentos com ledger em .NET 8 (ASP.NET Core, JWT), painel em Angular e containerização com Docker.',
-    en: 'Payments API with a ledger in .NET 8 (ASP.NET Core, JWT), an Angular panel and Docker containerization.'
+    pt: 'Sistema de pagamentos em .NET 8 com API + worker de mensageria: transações e estornos assíncronos via RabbitMQ (consumo idempotente, retry com TTL e DLQ), tempo real por SignalR e front Angular 17 com JWT. Inclui máquina de estados, health check e testes.',
+    en: 'Payments system in .NET 8 with an API + messaging worker: async transactions and refunds over RabbitMQ (idempotent consumption, TTL retry and DLQ), real time via SignalR and an Angular 17 front with JWT. Includes a state machine, health check and tests.'
   },
   'projects.agenda_desc': {
-    pt: 'Sistema de agenda e atendimentos em Laravel 13 (PHP 8.3), com front em Vite + Tailwind.',
-    en: 'Scheduling and appointments system in Laravel 13 (PHP 8.3), with a Vite + Tailwind front-end.'
+    pt: 'Organizador de rotinas semanais em Laravel 13: visão semanal com arrastar-e-soltar, calendário, recorrência de tarefas, anotações em Markdown e notificações (Web Push + e-mail) via Scheduler e filas. Front Blade + jQuery + Bootstrap, tudo por AJAX.',
+    en: 'Weekly-routine organizer in Laravel 13: drag-and-drop weekly board, calendar, recurring tasks, Markdown notes and notifications (Web Push + email) via Scheduler and queues. Blade + jQuery + Bootstrap front, all over AJAX.'
   },
   'projects.eventus_desc': {
-    pt: 'Plataforma de eventos em Angular + TypeScript, com foco em componentes reutilizáveis.',
-    en: 'Events platform in Angular + TypeScript, focused on reusable components.'
+    pt: 'Marketplace e diretório do ecossistema de eventos: SPA em Angular 21 (standalone, zoneless, signals) com Bootstrap 5, múltiplos perfis (admin, organizador, artista, loja…) e API REST desacoplada (mock por interceptor enquanto o back-end não sobe).',
+    en: 'Marketplace and directory for the events ecosystem: an Angular 21 SPA (standalone, zoneless, signals) with Bootstrap 5, multiple roles (admin, organizer, artist, store…) and a decoupled REST API (mocked via interceptor until the back-end is up).'
   },
 
   'contact.title': { pt: 'Vamos trabalhar juntos?', en: 'Shall we work together?' },
