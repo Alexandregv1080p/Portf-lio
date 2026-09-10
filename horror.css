@@ -988,3 +988,26 @@ body::before { content: none; }
 @media (prefers-reduced-motion: reduce) {
   .blood-top .goo-drips * { animation: none; }
 }
+
+/* =====================================================================
+   ██ V12 — sangue mais alto + HOVER UNIFICADO (nada escapa) ██
+   O card inteiro (paralelogramo + base preta + barbas) levanta como uma
+   peça só no hover — assim as bordas/dentes não se soltam do paralelogramo.
+   ===================================================================== */
+.blood-top { height: 120px; }
+@media (max-width: 720px) { .blood-top { height: 86px; } }
+
+.window { transition: none; }
+.window:hover { transform: none; }
+
+.win-shell { will-change: transform; transition: transform .42s cubic-bezier(.22, 1.1, .36, 1); }
+.win-shell:hover { transform: translateY(-8px) scale(1.012); }
+.win-shell:hover::before {
+  transform: none;
+  outline-color: rgba(255,64,64,.85);
+  box-shadow: 0 0 55px rgba(227,6,19,.45), 0 34px 66px rgba(0,0,0,.8);
+}
+@media (prefers-reduced-motion: reduce) {
+  .win-shell { transition: none; }
+  .win-shell:hover { transform: none; }
+}

@@ -22,7 +22,7 @@
   <div class="glitch-flash" aria-hidden="true"></div>
 
   <!-- TOP BLOOD (gooey liquid, animated) -->
-  <svg class="blood-top" viewBox="0 0 1440 96" preserveAspectRatio="none" aria-hidden="true">
+  <svg class="blood-top" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
     <defs>
       <linearGradient id="bloodGrad" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="#d0000f"/>
@@ -30,13 +30,13 @@
         <stop offset="1" stop-color="#490006"/>
       </linearGradient>
       <filter id="goo">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur"/>
+        <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
         <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9" result="goo"/>
         <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
       </filter>
     </defs>
     <g class="goo-drips" filter="url(#goo)" fill="url(#bloodGrad)">
-      <rect x="0" y="0" width="1440" height="16"/>
+      <rect x="0" y="0" width="1440" height="20"/>
     </g>
   </svg>
 
@@ -559,49 +559,55 @@
     })();
   </script>
 
-  <!-- Gooey top blood: living pool that oozes and drips -->
+  <!-- Gooey top blood: living pool with hanging, oozing drips -->
   <script>
     (function () {
       var g = document.querySelector('.goo-drips');
       if (!g) return;
-      var NS = 'http://www.w3.org/2000/svg', W = 1440, cols = 24;
-      function mk(name){ return document.createElementNS(NS, name); }
+      var NS = 'http://www.w3.org/2000/svg', W = 1440, cols = 22;
+      function mk(n){ return document.createElementNS(NS, n); }
+      function rnd(a, b){ return a + Math.random() * (b - a); }
+      var SP = '0.3 0 0.2 1;0.5 0 0.5 1', KT = '0;0.55;1';
       for (var i = 0; i < cols; i++) {
-        var cx = 16 + (W / cols) * i + (Math.random() * 24 - 12);
-        var r = 8 + Math.random() * 10;
-        var base = 12 + Math.random() * 6;
-        var reach = 20 + Math.random() * 44;
-        var c = mk('circle');
-        c.setAttribute('cx', cx.toFixed(1));
-        c.setAttribute('r', r.toFixed(1));
-        c.setAttribute('cy', base.toFixed(1));
-        var a = mk('animate');
-        a.setAttribute('attributeName', 'cy');
-        a.setAttribute('values', base.toFixed(1) + ';' + (base + reach).toFixed(1) + ';' + base.toFixed(1));
-        a.setAttribute('dur', (5 + Math.random() * 6).toFixed(2) + 's');
-        a.setAttribute('begin', (-Math.random() * 6).toFixed(2) + 's');
-        a.setAttribute('repeatCount', 'indefinite');
-        a.setAttribute('calcMode', 'spline');
-        a.setAttribute('keyTimes', '0;0.6;1');
-        a.setAttribute('keySplines', '0.4 0 0.2 1;0.4 0 0.2 1');
-        c.appendChild(a);
-        g.appendChild(c);
+        var cx = (W / cols) * i + rnd(6, (W / cols) - 6);
+        var rx = rnd(6, 13);
+        var anchor = rnd(6, 12);       // attach point just under the pool
+        var minL = rnd(6, 14);         // resting half-length
+        var maxL = rnd(20, 52);        // stretched half-length
+        var el = mk('ellipse');
+        el.setAttribute('cx', cx.toFixed(1));
+        el.setAttribute('rx', rx.toFixed(1));
+        el.setAttribute('ry', minL.toFixed(1));
+        el.setAttribute('cy', (anchor + minL).toFixed(1));
+        var dur = rnd(4.5, 9).toFixed(2) + 's', beg = (-rnd(0, 8)).toFixed(2) + 's';
+        var aRy = mk('animate');
+        aRy.setAttribute('attributeName', 'ry');
+        aRy.setAttribute('values', minL.toFixed(1) + ';' + maxL.toFixed(1) + ';' + minL.toFixed(1));
+        aRy.setAttribute('dur', dur); aRy.setAttribute('begin', beg); aRy.setAttribute('repeatCount', 'indefinite');
+        aRy.setAttribute('calcMode', 'spline'); aRy.setAttribute('keyTimes', KT); aRy.setAttribute('keySplines', SP);
+        var aCy = mk('animate');
+        aCy.setAttribute('attributeName', 'cy');
+        aCy.setAttribute('values', (anchor + minL).toFixed(1) + ';' + (anchor + maxL).toFixed(1) + ';' + (anchor + minL).toFixed(1));
+        aCy.setAttribute('dur', dur); aCy.setAttribute('begin', beg); aCy.setAttribute('repeatCount', 'indefinite');
+        aCy.setAttribute('calcMode', 'spline'); aCy.setAttribute('keyTimes', KT); aCy.setAttribute('keySplines', SP);
+        el.appendChild(aRy); el.appendChild(aCy);
+        g.appendChild(el);
       }
-      // a few droplets that stretch off the pool and fall, then reset
-      for (var j = 0; j < 6; j++) {
-        var dur = (2.4 + Math.random() * 2.4).toFixed(2) + 's';
-        var beg = (-Math.random() * 5).toFixed(2) + 's';
-        var d = mk('circle');
-        d.setAttribute('cx', (60 + Math.random() * (W - 120)).toFixed(1));
-        d.setAttribute('r', (5 + Math.random() * 4).toFixed(1));
-        d.setAttribute('cy', '12');
+      // droplets that release from the pool and fall, then reset
+      for (var j = 0; j < 7; j++) {
+        var dur2 = rnd(2.2, 4.2).toFixed(2) + 's', beg2 = (-rnd(0, 5)).toFixed(2) + 's';
+        var d = mk('ellipse');
+        d.setAttribute('cx', rnd(50, W - 50).toFixed(1));
+        d.setAttribute('rx', rnd(5, 8).toFixed(1));
+        d.setAttribute('ry', rnd(7, 11).toFixed(1));
+        d.setAttribute('cy', '16');
         var ay = mk('animate');
-        ay.setAttribute('attributeName', 'cy'); ay.setAttribute('values', '12;96');
-        ay.setAttribute('dur', dur); ay.setAttribute('begin', beg); ay.setAttribute('repeatCount', 'indefinite');
-        ay.setAttribute('calcMode', 'spline'); ay.setAttribute('keyTimes', '0;1'); ay.setAttribute('keySplines', '0.5 0 0.9 0.4');
+        ay.setAttribute('attributeName', 'cy'); ay.setAttribute('values', '16;120');
+        ay.setAttribute('dur', dur2); ay.setAttribute('begin', beg2); ay.setAttribute('repeatCount', 'indefinite');
+        ay.setAttribute('calcMode', 'spline'); ay.setAttribute('keyTimes', '0;1'); ay.setAttribute('keySplines', '0.5 0 0.9 0.5');
         var ao = mk('animate');
         ao.setAttribute('attributeName', 'opacity'); ao.setAttribute('values', '0;1;1;0');
-        ao.setAttribute('dur', dur); ao.setAttribute('begin', beg); ao.setAttribute('repeatCount', 'indefinite');
+        ao.setAttribute('dur', dur2); ao.setAttribute('begin', beg2); ao.setAttribute('repeatCount', 'indefinite');
         d.appendChild(ay); d.appendChild(ao);
         g.appendChild(d);
       }
