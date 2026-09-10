@@ -1024,3 +1024,25 @@ body::before { content: none; }
 /* bordas ásperas: rasga a borda do preenchimento e da base preta */
 .window::after     { filter: url(#edge); }
 .win-shell::before { filter: url(#edge); }
+
+/* =====================================================================
+   ██ V14 — FONTES MAIS AGRESSIVAS (brutal / metal) ██
+   Títulos de destaque ganham cara de logo de death metal; corpo segue
+   legível (Share Tech Mono / VT323).
+   ===================================================================== */
+:root {
+  --f-display: 'Metal Mania', 'Creepster', cursive;   /* títulos de seção — logo espinhoso */
+  --f-brutal:  'Nosifer', 'Metal Mania', cursive;     /* hero — grossa e sangrenta */
+}
+
+.hero-title {
+  font-family: var(--f-brutal);
+  font-weight: 400; letter-spacing: 1px; line-height: 1.08;
+  font-size: clamp(40px, 7vw, 92px);
+}
+.showcase-title, .proj-statement {
+  font-family: var(--f-display);
+  letter-spacing: 1.5px; font-weight: 400;
+}
+.exp-index { font-family: var(--f-brutal); }
+.footer .logo { font-family: var(--f-display); }
