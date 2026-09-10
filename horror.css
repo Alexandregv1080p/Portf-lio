@@ -907,3 +907,46 @@ body::before {
   .win-shell:hover .tribal-tr { transform: none; }
   .win-shell:hover .tribal-bl { transform: rotate(180deg); }
 }
+
+/* =====================================================================
+   ██ V10 — FAIXA TRIBAL (barra/rodapé) + BARBAS NAS BORDAS ██
+   Faixa: zigue-zague de triângulos alternados na base da barra de título
+   e no topo do rodapé. Barbas: dentes tribais regulares saindo das bordas
+   superior e inferior de cada janela (na moldura preta, sem cortar nada).
+   ===================================================================== */
+:root {
+  --tribal-band: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 10'%3E%3Cg fill='%23e30613'%3E%3Cpath d='M0 10 L5 2 L10 10 Z'/%3E%3Cpath d='M10 0 L15 8 L20 0 Z'/%3E%3C/g%3E%3C/svg%3E");
+  --barb-up:   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 9'%3E%3Cg fill='%23e30613'%3E%3Cpath d='M2 9 L6 1 L10 9 Z'/%3E%3Cpath d='M12 9 L16 1 L20 9 Z'/%3E%3C/g%3E%3C/svg%3E");
+  --barb-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 9'%3E%3Cg fill='%23e30613'%3E%3Cpath d='M2 0 L6 8 L10 0 Z'/%3E%3Cpath d='M12 0 L16 8 L20 0 Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ---- FAIXA TRIBAL: ribbon na base da barra de título ---- */
+.window-bar { position: relative; }
+.window-bar::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 9px;
+  background: var(--tribal-band) repeat-x left bottom / auto 9px;
+  opacity: .5; box-shadow: none; pointer-events: none;
+  filter: drop-shadow(0 0 5px var(--glow));
+}
+/* ---- FAIXA TRIBAL: ribbon no topo do rodapé (espelhada) ---- */
+.window-footer { position: relative; }
+.window-footer::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 9px;
+  background: var(--tribal-band) repeat-x left top / auto 9px;
+  transform: scaleY(-1); opacity: .5; pointer-events: none;
+  filter: drop-shadow(0 0 5px var(--glow));
+}
+
+/* ---- BARBAS: dentes tribais saindo das bordas de cima e de baixo ---- */
+.win-shell::after {
+  content: ""; position: absolute; left: 0; right: 0; top: -8px; bottom: -8px;
+  z-index: 0; pointer-events: none;
+  background: var(--barb-up) repeat-x left top / auto 8px,
+             var(--barb-down) repeat-x left bottom / auto 8px;
+  opacity: .8;
+  filter: drop-shadow(0 0 5px var(--glow));
+}
+
+@media (max-width: 720px) {
+  .win-shell::after { top: -6px; bottom: -6px; background-size: auto 6px, auto 6px; }
+}
