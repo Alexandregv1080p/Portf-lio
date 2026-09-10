@@ -950,3 +950,41 @@ body::before {
 @media (max-width: 720px) {
   .win-shell::after { top: -6px; bottom: -6px; background-size: auto 6px, auto 6px; }
 }
+
+/* =====================================================================
+   ██ V11 — SANGUE GOOEY + BARBAS COERENTES COM O PARALELOGRAMO ██
+   ===================================================================== */
+
+/* new gooey top blood replaces the old flat drip bar */
+body::before { content: none; }
+.blood-top {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 96px; z-index: 9993;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 9px rgba(120,0,10,.55));
+}
+@media (max-width: 720px) { .blood-top { height: 70px; } }
+
+/* remove the old rectangle-spanning barbs; use edge-aligned ones instead */
+.win-shell::after { display: none; }
+
+/* lean shared with the window so barbs sit on the parallelogram's real edges */
+.win-shell { --lean: 26px; }
+@media (max-width: 900px) { .win-shell { --lean: 20px; } }
+@media (max-width: 720px) { .win-shell { --lean: 16px; } }
+
+.barb {
+  position: absolute; height: 8px; z-index: 0; pointer-events: none;
+  opacity: .85; filter: drop-shadow(0 0 5px var(--glow));
+}
+/* top teeth follow the parallelogram's top edge (from x=lean to the right) */
+.barb-top    { top: -8px;    left: var(--lean); right: 0;           background: var(--barb-up)   repeat-x left bottom / auto 8px; }
+/* bottom teeth follow the parallelogram's bottom edge (from left to 100%-lean) */
+.barb-bottom { bottom: -8px; left: 0;           right: var(--lean); background: var(--barb-down) repeat-x left top    / auto 8px; }
+
+@media (max-width: 720px) {
+  .barb { height: 6px; }
+  .barb-top, .barb-bottom { background-size: auto 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .blood-top .goo-drips * { animation: none; }
+}

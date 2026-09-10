@@ -21,6 +21,25 @@
   <div class="crt-vignette" aria-hidden="true"></div>
   <div class="glitch-flash" aria-hidden="true"></div>
 
+  <!-- TOP BLOOD (gooey liquid, animated) -->
+  <svg class="blood-top" viewBox="0 0 1440 96" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="bloodGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#d0000f"/>
+        <stop offset="0.5" stop-color="#8f0009"/>
+        <stop offset="1" stop-color="#490006"/>
+      </linearGradient>
+      <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur"/>
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9" result="goo"/>
+        <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+      </filter>
+    </defs>
+    <g class="goo-drips" filter="url(#goo)" fill="url(#bloodGrad)">
+      <rect x="0" y="0" width="1440" height="16"/>
+    </g>
+  </svg>
+
   <!-- FALLING BLOOD -->
   <div class="blood-fall" id="blood-fall" aria-hidden="true"></div>
 
@@ -489,6 +508,12 @@
         shell.className = 'win-shell' + (win.classList.contains('hero-window') ? ' win-shell--hero' : '');
         win.parentNode.insertBefore(shell, win);
         shell.appendChild(win);
+        ['barb-top', 'barb-bottom'].forEach(function (pos) {
+          var e = document.createElement('span');
+          e.className = 'barb ' + pos;
+          e.setAttribute('aria-hidden', 'true');
+          shell.appendChild(e);
+        });
       });
     })();
   </script>
@@ -530,6 +555,55 @@
         d.style.animationDelay = (-Math.random() * dur) + 's'; // continuous from the start
         d.style.filter = 'drop-shadow(0 0 ' + (2 + Math.random() * 4).toFixed(1) + 'px rgba(227,6,19,.6))';
         layer.appendChild(d);
+      }
+    })();
+  </script>
+
+  <!-- Gooey top blood: living pool that oozes and drips -->
+  <script>
+    (function () {
+      var g = document.querySelector('.goo-drips');
+      if (!g) return;
+      var NS = 'http://www.w3.org/2000/svg', W = 1440, cols = 24;
+      function mk(name){ return document.createElementNS(NS, name); }
+      for (var i = 0; i < cols; i++) {
+        var cx = 16 + (W / cols) * i + (Math.random() * 24 - 12);
+        var r = 8 + Math.random() * 10;
+        var base = 12 + Math.random() * 6;
+        var reach = 20 + Math.random() * 44;
+        var c = mk('circle');
+        c.setAttribute('cx', cx.toFixed(1));
+        c.setAttribute('r', r.toFixed(1));
+        c.setAttribute('cy', base.toFixed(1));
+        var a = mk('animate');
+        a.setAttribute('attributeName', 'cy');
+        a.setAttribute('values', base.toFixed(1) + ';' + (base + reach).toFixed(1) + ';' + base.toFixed(1));
+        a.setAttribute('dur', (5 + Math.random() * 6).toFixed(2) + 's');
+        a.setAttribute('begin', (-Math.random() * 6).toFixed(2) + 's');
+        a.setAttribute('repeatCount', 'indefinite');
+        a.setAttribute('calcMode', 'spline');
+        a.setAttribute('keyTimes', '0;0.6;1');
+        a.setAttribute('keySplines', '0.4 0 0.2 1;0.4 0 0.2 1');
+        c.appendChild(a);
+        g.appendChild(c);
+      }
+      // a few droplets that stretch off the pool and fall, then reset
+      for (var j = 0; j < 6; j++) {
+        var dur = (2.4 + Math.random() * 2.4).toFixed(2) + 's';
+        var beg = (-Math.random() * 5).toFixed(2) + 's';
+        var d = mk('circle');
+        d.setAttribute('cx', (60 + Math.random() * (W - 120)).toFixed(1));
+        d.setAttribute('r', (5 + Math.random() * 4).toFixed(1));
+        d.setAttribute('cy', '12');
+        var ay = mk('animate');
+        ay.setAttribute('attributeName', 'cy'); ay.setAttribute('values', '12;96');
+        ay.setAttribute('dur', dur); ay.setAttribute('begin', beg); ay.setAttribute('repeatCount', 'indefinite');
+        ay.setAttribute('calcMode', 'spline'); ay.setAttribute('keyTimes', '0;1'); ay.setAttribute('keySplines', '0.5 0 0.9 0.4');
+        var ao = mk('animate');
+        ao.setAttribute('attributeName', 'opacity'); ao.setAttribute('values', '0;1;1;0');
+        ao.setAttribute('dur', dur); ao.setAttribute('begin', beg); ao.setAttribute('repeatCount', 'indefinite');
+        d.appendChild(ay); d.appendChild(ao);
+        g.appendChild(d);
       }
     })();
   </script>
