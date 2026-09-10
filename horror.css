@@ -1068,3 +1068,88 @@ body::before { content: none; }
               linear-gradient(160deg, #150609, #0a0203);
 }
 .panel { background: var(--veins) center / cover no-repeat, var(--panel-2); }
+
+/* =====================================================================
+   ██ V16 — IMERSÃO: boot, moldura CRT, glitches, cursor, áudio ██
+   ===================================================================== */
+:root {
+  --cur: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cg fill='none' stroke='%23ff2323' stroke-width='1.4'%3E%3Ccircle cx='12' cy='12' r='7'/%3E%3Cpath d='M12 1v5M12 18v5M1 12h5M18 12h5'/%3E%3C/g%3E%3Ccircle cx='12' cy='12' r='1.6' fill='%23ff2323'/%3E%3C/svg%3E") 12 12;
+}
+html, body { cursor: var(--cur), crosshair; }
+a, button, .rail-dot, .proj-card, .proj-filter, .lang-btn, .hpal-dot,
+.contact-card-item, .audio-toggle, .theme-dot { cursor: var(--cur), pointer; }
+
+/* --- moldura de monitor CRT --- */
+.crt-bezel {
+  position: fixed; inset: 0; z-index: 9995; pointer-events: none; border-radius: 16px;
+  box-shadow: inset 0 0 130px rgba(0,0,0,.85), inset 0 0 26px rgba(0,0,0,.9);
+  border: 2px solid rgba(0,0,0,.55);
+}
+.crt-bezel::before {
+  content: ""; position: absolute; inset: 0; border-radius: 16px;
+  background: radial-gradient(ellipse at center, transparent 58%, rgba(0,0,0,.4) 100%);
+}
+
+/* --- indicador REC --- */
+.rec {
+  position: fixed; top: 15px; left: 18px; z-index: 9994; pointer-events: none;
+  font-family: var(--f-term); font-size: 15px; letter-spacing: 2px; color: var(--accent-2);
+  display: flex; align-items: center; gap: 7px; text-shadow: 0 0 8px var(--glow); opacity: .85;
+}
+.rec .dot { width: 10px; height: 10px; border-radius: 50%; background: #ff2b2b; box-shadow: 0 0 10px #ff2b2b; animation: recBlink 1.4s steps(1) infinite; }
+@keyframes recBlink { 50% { opacity: .12; } }
+
+/* --- overlay de falha de sinal --- */
+.glitch-overlay { position: fixed; inset: 0; z-index: 9996; pointer-events: none; opacity: 0; }
+.glitch-overlay.on {
+  opacity: 1;
+  background:
+    repeating-linear-gradient(to bottom, rgba(255,60,60,.06) 0 2px, transparent 2px 5px),
+    linear-gradient(90deg, rgba(255,42,42,.05), rgba(0,190,255,.05));
+  animation: sigJolt .42s steps(2);
+}
+.glitch-overlay .lost {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  font-family: var(--f-term); font-size: clamp(22px,4vw,40px); letter-spacing: 5px; color: var(--accent);
+  text-shadow: 3px 0 var(--glitch-b), -3px 0 var(--glitch-a); opacity: 0; white-space: nowrap;
+}
+.glitch-overlay.on .lost { opacity: 1; animation: lostShift .42s steps(2); }
+@keyframes sigJolt { 0%{transform:translateX(-7px)}50%{transform:translateX(7px)}100%{transform:translateX(0)} }
+@keyframes lostShift { 0%{transform:translate(-52%,-50%)}50%{transform:translate(-48%,-50%)}100%{transform:translate(-50%,-50%)} }
+
+/* --- tela de boot --- */
+.boot {
+  position: fixed; inset: 0; z-index: 100000; background: #050101;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  font-family: var(--f-term); color: var(--accent);
+  transition: opacity .55s ease;
+}
+.boot.done { opacity: 0; visibility: hidden; }
+.boot-scan { position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(0,0,0,.4) 3px 4px); }
+.boot-inner { width: min(720px, 86vw); font-size: clamp(15px,2vw,21px); line-height: 1.7; text-shadow: 0 0 8px var(--glow); }
+.boot-inner .l { white-space: pre-wrap; }
+.boot-inner .ok { color: var(--term); }
+.boot-inner .err { color: #ff3b3b; }
+
+/* --- botão de áudio --- */
+.audio-toggle {
+  position: fixed; bottom: 15px; right: 16px; z-index: 9997;
+  font-family: var(--f-term); font-size: 14px; letter-spacing: 1px; color: var(--muted);
+  background: rgba(10,2,3,.78); border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px;
+  backdrop-filter: blur(4px); display: inline-flex; align-items: center; gap: 8px;
+}
+.audio-toggle:hover { color: var(--accent); border-color: var(--border-br); box-shadow: 0 0 14px var(--glow); }
+.audio-toggle .wv { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.audio-toggle.on { color: var(--accent); border-color: var(--border-br); }
+.audio-toggle.on .wv { background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: recBlink 1s steps(1) infinite; }
+
+/* --- glitch leve no hover de links --- */
+.footer-cta:hover, .version-nav a:hover, .footer-socials a:hover, .contact-card-item:hover strong {
+  text-shadow: 1.5px 0 var(--glitch-a), -1.5px 0 var(--glitch-b);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rec .dot, .audio-toggle.on .wv { animation: none; }
+  .glitch-overlay.on { animation: none; }
+}

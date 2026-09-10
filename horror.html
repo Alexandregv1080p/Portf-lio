@@ -14,6 +14,13 @@
 
 <body>
 
+  <!-- IMMERSION: boot, CRT bezel, REC, signal-glitch, audio -->
+  <div class="boot" id="boot" aria-hidden="true"><div class="boot-scan"></div><div class="boot-inner"></div></div>
+  <div class="crt-bezel" aria-hidden="true"></div>
+  <div class="rec" aria-hidden="true"><span class="dot"></span> REC</div>
+  <div class="glitch-overlay" id="glitch-overlay" aria-hidden="true"><span class="lost">SINAL PERDIDO</span></div>
+  <button class="audio-toggle" id="audio-toggle" type="button"><span class="wv"></span> <span class="lbl">ÁUDIO: OFF</span></button>
+
   <!-- CRT / VHS OVERLAYS -->
   <div class="crt" aria-hidden="true"></div>
   <div class="crt-roll" aria-hidden="true"></div>
@@ -600,6 +607,108 @@
         var r = rnd(0.8, 5.5) * (y < 74 ? 1 : 0.6);
         addS({ cx: rnd(0, W).toFixed(1), cy: y.toFixed(1), rx: r.toFixed(1), ry: (r * rnd(0.8, 1.8)).toFixed(1), opacity: op.toFixed(2) });
       }
+    })();
+  </script>
+  <!-- IMMERSION LOGIC: boot, decode, ambient glitch, opt-in audio -->
+  <script>
+    (function () {
+      var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function ss(get, key, val){ try { return get ? sessionStorage.getItem(key) : sessionStorage.setItem(key, val); } catch(e){ return null; } }
+
+      /* ---- BOOT ---- */
+      (function () {
+        var boot = document.getElementById('boot');
+        if (!boot) return;
+        if (ss(true, 'horror-booted')) { boot.remove(); start(); return; }
+        var inner = boot.querySelector('.boot-inner');
+        var lines = [
+          ['> INICIALIZANDO SISTEMA...', ''],
+          ['> CARREGANDO alexandre<gomes>.exe', ''],
+          ['> MONTANDO INTERFACE ............ OK', 'ok'],
+          ['> VERIFICANDO INTEGRIDADE ....... FALHA', 'err'],
+          ['> SINAL CORROMPIDO', 'err'],
+          ['☠ ACESSO CONCEDIDO', 'ok']
+        ];
+        var i = 0;
+        (function next(){
+          if (i >= lines.length) { setTimeout(done, 520); return; }
+          var d = document.createElement('div');
+          d.className = 'l ' + (lines[i][1] || '');
+          d.textContent = lines[i][0];
+          inner.appendChild(d); i++;
+          setTimeout(next, reduce ? 60 : (210 + Math.random() * 170));
+        })();
+        function done(){ boot.classList.add('done'); ss(false, 'horror-booted', '1'); setTimeout(function(){ boot.remove(); start(); }, 560); }
+      })();
+
+      function start(){ decodeTitles(); }
+
+      /* ---- DECODE dos títulos de seção ---- */
+      function decodeTitles(){
+        if (reduce) return;
+        var glyphs = '!<>-_\\/[]{}=+*^?#01ABCDEF@%$';
+        var io = new IntersectionObserver(function(es){
+          es.forEach(function(e){ if (e.isIntersecting){ scramble(e.target); io.unobserve(e.target); } });
+        }, { threshold: .35 });
+        document.querySelectorAll('.showcase-title').forEach(function(el){ io.observe(el); });
+        function scramble(el){
+          var final = el.textContent, len = final.length, frame = 0;
+          var id = setInterval(function(){
+            var out = '';
+            for (var k = 0; k < len; k++){
+              if (k < frame - 3) out += final[k];
+              else if (final[k] === ' ') out += ' ';
+              else out += glyphs[Math.floor(Math.random() * glyphs.length)];
+            }
+            el.textContent = out; frame++;
+            if (frame > len + 3){ clearInterval(id); el.textContent = final; }
+          }, 30);
+        }
+      }
+
+      /* ---- GLITCH AMBIENTE (falha de sinal esporádica) ---- */
+      (function(){
+        if (reduce) return;
+        var ov = document.getElementById('glitch-overlay');
+        if (!ov) return;
+        function fire(){ ov.classList.add('on'); setTimeout(function(){ ov.classList.remove('on'); }, 430); schedule(); }
+        function schedule(){ setTimeout(fire, 10000 + Math.random() * 17000); }
+        schedule();
+      })();
+
+      /* ---- ÁUDIO AMBIENTE (opt-in, Web Audio — sem arquivo) ---- */
+      (function(){
+        var btn = document.getElementById('audio-toggle');
+        if (!btn) return;
+        var ctx = null, nodes = [], on = false, lbl = btn.querySelector('.lbl');
+        btn.addEventListener('click', function(){
+          on ? stop() : start();
+        });
+        function start(){
+          try {
+            ctx = new (window.AudioContext || window.webkitAudioContext)();
+            var master = ctx.createGain(); master.gain.value = 0.0; master.connect(ctx.destination);
+            master.gain.setTargetAtTime(0.07, ctx.currentTime, 1.2);
+            var o1 = ctx.createOscillator(); o1.type = 'sawtooth'; o1.frequency.value = 52;
+            var o2 = ctx.createOscillator(); o2.type = 'sine'; o2.frequency.value = 52.6;
+            var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 200;
+            o1.connect(lp); o2.connect(lp); lp.connect(master);
+            var buf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate), dta = buf.getChannelData(0);
+            for (var i = 0; i < dta.length; i++) dta[i] = (Math.random() * 2 - 1);
+            var noise = ctx.createBufferSource(); noise.buffer = buf; noise.loop = true;
+            var bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1100; bp.Q.value = 0.6;
+            var ng = ctx.createGain(); ng.gain.value = 0.04;
+            noise.connect(bp); bp.connect(ng); ng.connect(master);
+            o1.start(); o2.start(); noise.start();
+            nodes = [o1, o2, noise];
+            on = true; btn.classList.add('on'); lbl.textContent = 'ÁUDIO: ON';
+          } catch(e){ lbl.textContent = 'ÁUDIO: N/D'; }
+        }
+        function stop(){
+          try { nodes.forEach(function(n){ try { n.stop(); } catch(e){} }); if (ctx) ctx.close(); } catch(e){}
+          nodes = []; ctx = null; on = false; btn.classList.remove('on'); lbl.textContent = 'ÁUDIO: OFF';
+        }
+      })();
     })();
   </script>
 </body>
