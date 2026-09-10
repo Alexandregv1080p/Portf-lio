@@ -41,6 +41,10 @@
         <feTurbulence type="fractalNoise" baseFrequency="0.09 0.09" numOctaves="2" seed="4" result="n2"/>
         <feDisplacementMap in="SourceGraphic" in2="n2" scale="10" xChannelSelector="R" yChannelSelector="G"/>
       </filter>
+      <filter id="edge" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.04 0.055" numOctaves="2" seed="7" result="ne"/>
+        <feDisplacementMap in="SourceGraphic" in2="ne" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
     </defs>
     <g class="goo-drips" filter="url(#blood)" fill="url(#bloodGrad)">
       <rect x="0" y="0" width="1440" height="30"/>
@@ -516,12 +520,6 @@
         shell.className = 'win-shell' + (win.classList.contains('hero-window') ? ' win-shell--hero' : '');
         win.parentNode.insertBefore(shell, win);
         shell.appendChild(win);
-        ['barb-top', 'barb-bottom'].forEach(function (pos) {
-          var e = document.createElement('span');
-          e.className = 'barb ' + pos;
-          e.setAttribute('aria-hidden', 'true');
-          shell.appendChild(e);
-        });
       });
     })();
   </script>

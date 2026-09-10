@@ -1011,3 +1011,16 @@ body::before { content: none; }
   .win-shell { transition: none; }
   .win-shell:hover { transform: none; }
 }
+
+/* =====================================================================
+   ██ V13 — SEM SERRILHA + BORDAS ÁSPERAS (grunge) ██
+   Remove os elementos tribais serrilhados (faixa + barbas) e rasga as
+   bordas do card com um filtro de deslocamento, dando aspereza.
+   ===================================================================== */
+.window-bar::after   { content: none; }   /* remove a faixa tribal da barra */
+.window-footer::before { content: none; } /* remove a faixa tribal do rodapé */
+.barb { display: none !important; }        /* remove as barbas/dentes */
+
+/* bordas ásperas: rasga a borda do preenchimento e da base preta */
+.window::after     { filter: url(#edge); }
+.win-shell::before { filter: url(#edge); }
