@@ -436,7 +436,7 @@
   <section class="section" id="contato">
     <div class="container">
       <div class="showcase-tag" data-anime>showcase</div>
-      <h2 class="showcase-title" data-anime data-i18n="contact.title">Vamos trabalhar juntos?</h2>
+      <h2 class="showcase-title contact-curse-title" data-anime data-i18n="contact.title">Vamos trabalhar juntos?</h2>
 
       <div class="window contact-window" data-anime>
         <div class="window-bar">
@@ -655,6 +655,128 @@
           }, 30);
         }
       }
+
+      /* ---- CURSE TITLE — embaralhamento infinito + palavras macabras ---- */
+      (function(){
+        if (reduce) return;
+        var el = document.querySelector('.contact-curse-title');
+        if (!el) return;
+
+        var GLYPHS = '!<>-_\\/[]{}=+*^?#01ABCDEF@%$░▒▓█▄▀■▪';
+
+        /* pool de palavras macabras / programação horror */
+        var CURSES = [
+          /* PT/horror */
+          'CORROMPER','SANGRAR','DESTRUIR','INVADIR','MATAR','COLAPSAR','APODRECER',
+          'HACKEAR','EXPLODIR','ENLOUQUECER','DEVORAR','CONDENAR','EXECRARE','MALDIÇÃO',
+          /* prog horror */
+          'SEGFAULT','OVERFLOW','NULL','PANIC','EXPLOIT','MALLOC','ABORT',
+          'FATAL','VOID','CRASH','DAEMON','ZOMBIE','KERNEL','STDERR',
+          'DEADLOCK','CORRUPT','POISON','BLEED','DECAY','SPAWN','KILL','HAUNT',
+          'TOMBSTONE','GHOST','CRYPTED','MEMKILL','EXECVE','SIGKILL','SIGSEGV',
+          'LEAKED','UNDEFINED','BROKEN','BITROT','HEXDEAD','DEADBEEF','CAFEBABE'
+        ];
+
+        var glitching = false;
+        var baseText = null;
+
+        /* Guarda o texto base DEPOIS do decode inicial */
+        function getBase(){
+          if (!baseText) baseText = el.textContent.trim();
+          return baseText;
+        }
+
+        /* Scramble animado de `from` → `to` */
+        function animShuffle(from, to, onDone){
+          var len = Math.max(from.length, to.length);
+          var padTo = to + ' '.repeat(Math.max(0, len - to.length));
+          var padFrom = from + ' '.repeat(Math.max(0, len - from.length));
+          var frame = 0, total = len + 6;
+          var id = setInterval(function(){
+            var out = '';
+            for (var k = 0; k < padTo.length; k++){
+              if (k < frame - 4) out += padTo[k];
+              else if (padFrom[k] === ' ' && padTo[k] === ' ') out += ' ';
+              else if (Math.random() < .15) out += ' ';
+              else out += GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+            }
+            el.textContent = out.trimEnd(); frame++;
+            if (frame > total){ clearInterval(id); el.textContent = to; if (onDone) onDone(); }
+          }, 28);
+        }
+
+        /* Constrói uma frase com 1-2 palavras trocadas por cursedWords */
+        function buildCursed(base){
+          var words = base.replace(/[?!]$/,'').split(/\s+/);
+          /* escolhe 1 ou 2 posições para trocar */
+          var positions = [];
+          words.forEach(function(_,i){ positions.push(i); });
+          /* embaralha posições e pega as primeiras N */
+          positions.sort(function(){ return Math.random() - .5; });
+          var nSwap = Math.random() < .35 ? 2 : 1;
+          var swapSet = {};
+          positions.slice(0, nSwap).forEach(function(i){ swapSet[i] = true; });
+
+          var out = words.map(function(w, i){
+            if (!swapSet[i]) return w;
+            var pick = CURSES[Math.floor(Math.random() * CURSES.length)];
+            /* preserva tamanho de maiúscula do original */
+            if (w[0] === w[0].toUpperCase()) return pick.charAt(0).toUpperCase() + pick.slice(1).toLowerCase();
+            return pick.toLowerCase();
+          }).join(' ');
+
+          /* re-adiciona pontuação final */
+          var lastChar = base[base.length - 1];
+          if ('?!.'.indexOf(lastChar) > -1) out += lastChar;
+          return out;
+        }
+
+        /* Ciclo: scramble → palavra macabra → pausa → restore → pausa → repete */
+        function cycle(){
+          if (glitching) return;
+          glitching = true;
+          var base = getBase();
+          var mode = Math.random();
+
+          if (mode < .55){
+            /* MODO WORD-SWAP: troca palavras por macabras e restaura */
+            var cursed = buildCursed(base);
+            animShuffle(base, cursed, function(){
+              /* fica visível por 800-1800ms */
+              setTimeout(function(){
+                animShuffle(cursed, base, function(){
+                  glitching = false;
+                });
+              }, 800 + Math.random() * 1000);
+            });
+
+          } else {
+            /* MODO CHAR-GLITCH: scramble parcial rápido, sem trocar palavra */
+            var len = base.length, frames = 0, maxF = 10 + Math.floor(Math.random() * 14);
+            var id = setInterval(function(){
+              var out = '';
+              for (var k = 0; k < len; k++){
+                if (base[k] === ' ') out += ' ';
+                else if (Math.random() < .28) out += GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+                else out += base[k];
+              }
+              el.textContent = out; frames++;
+              if (frames >= maxF){ clearInterval(id); el.textContent = base; glitching = false; }
+            }, 38);
+          }
+        }
+
+        /* Agenda próxima ocorrência: 3-7 s */
+        function schedule(){
+          setTimeout(function(){ cycle(); schedule(); }, 3000 + Math.random() * 4000);
+        }
+
+        /* Aguarda o decode inicial antes de começar */
+        setTimeout(function(){
+          baseText = el.textContent.trim();
+          schedule();
+        }, 2200);
+      })();
 
       /* ---- GLITCH AMBIENTE (falha de sinal esporádica) ---- */
       (function(){
