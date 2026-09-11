@@ -651,7 +651,7 @@
               else out += glyphs[Math.floor(Math.random() * glyphs.length)];
             }
             el.textContent = out; frame++;
-            if (frame > len + 3){ clearInterval(id); el.textContent = final; if(window.__curseInit)window.__curseInit(el); }
+            if (frame > len + 3){ clearInterval(id); el.textContent = final; }
           }, 30);
         }
       }
@@ -839,14 +839,12 @@
           setTimeout(autoLoop, autoDelay);
         }
 
-        /* init idempotente: o decode chama ao terminar; fallback garante titulos fora da tela */
-        window.__curseInit = function(el){
-          if(el.__cursed) return; el.__cursed = true;
-          initTitle(el, 200 + Math.random()*500);
-        };
+        /* lanca apos i18n estar pronto */
         setTimeout(function(){
-          document.querySelectorAll('.showcase-title').forEach(function(el){ window.__curseInit(el); });
-        }, reduce ? 700 : 3600);
+          document.querySelectorAll('.showcase-title').forEach(function(el,i){
+            initTitle(el, 800 + i*700);
+          });
+        }, 600);
       })();
 
       /* ---- GLITCH AMBIENTE (falha de sinal esporádica) ---- */
@@ -857,37 +855,6 @@
         function fire(){ ov.classList.add('on'); setTimeout(function(){ ov.classList.remove('on'); }, 430); schedule(); }
         function schedule(){ setTimeout(fire, 10000 + Math.random() * 17000); }
         schedule();
-      })();
-
-      /* ---- TURBULÊNCIA DE SCROLL (velocidade de rolagem = instabilidade do sinal) ---- */
-      (function(){
-        if (reduce) return;
-        var sg = document.createElement('div'); sg.id = 'scroll-glitch';
-        document.body.appendChild(sg);
-        var glitchOv = document.getElementById('glitch-overlay');
-        var lastY = window.pageYOffset, lastT = performance.now();
-        var inten = 0, flashCd = 0;
-        window.addEventListener('scroll', function(){
-          var y = window.pageYOffset, t = performance.now();
-          var dt = Math.max(t - lastT, 8);
-          var v = Math.abs(y - lastY) / dt;      /* px por ms */
-          lastY = y; lastT = t;
-          inten = Math.min(1, inten + Math.min(0.5, v * 0.35));
-        }, { passive: true });
-        (function loop(){
-          inten *= 0.86;
-          if (inten < 0.01) inten = 0;
-          sg.style.opacity = inten.toFixed(3);
-          sg.style.transform = 'translateY(' + ((Math.random() - 0.5) * inten * 8).toFixed(1) + 'px)';
-          document.documentElement.style.setProperty('--sg', inten.toFixed(3));
-          if (inten > 0.7 && flashCd <= 0 && glitchOv){
-            glitchOv.classList.add('on');
-            setTimeout(function(){ glitchOv.classList.remove('on'); }, 200);
-            flashCd = 30;
-          }
-          if (flashCd > 0) flashCd--;
-          requestAnimationFrame(loop);
-        })();
       })();
 
       /* ---- ÁUDIO AMBIENTE (opt-in, Web Audio — sem arquivo) ---- */

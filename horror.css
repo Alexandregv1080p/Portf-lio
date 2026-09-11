@@ -1196,3 +1196,41 @@ a, button, .rail-dot, .proj-card, .proj-filter, .lang-btn, .hpal-dot,
   .rec { top: 12px; left: 12px; font-size: 13px; }
   .version-nav { top: 12px; right: 12px; }
 }
+
+/* =====================================================================
+   ██ V18 — showcase-title: dica visual de interatividade ██
+   O cursor crosshair (definido no JS) já dá uma pista, mas um
+   glow suave no hover confirma que o título responde ao toque.
+   ===================================================================== */
+
+.showcase-title {
+  cursor: crosshair;
+}
+/* caractere individual: corrompe sob o cursor (rastro letra a letra) */
+.showcase-title .ct-ch {
+  display: inline-block;
+  transition: color .1s linear, text-shadow .1s linear, transform .08s linear;
+  will-change: transform;
+}
+
+/* =====================================================================
+   ██ V19 — TURBULÊNCIA DE SCROLL ██
+   Overlay de linhas RGB cuja opacidade sobe com a velocidade de rolagem
+   (controlada por JS via style.opacity + --sg). Rolar rápido = sinal
+   instável; parar = o sinal se acalma.
+   ===================================================================== */
+:root { --sg: 0; }
+#scroll-glitch {
+  position: fixed; inset: -12px 0; z-index: 9990; pointer-events: none;
+  opacity: 0;
+  background:
+    repeating-linear-gradient(0deg, rgba(0,190,255,.10) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(0deg, rgba(255,32,32,.12) 0 2px, transparent 2px 5px);
+  mix-blend-mode: screen;
+  will-change: opacity, transform;
+}
+:root[data-hpal="toxico"] #scroll-glitch {
+  background:
+    repeating-linear-gradient(0deg, rgba(255,0,80,.10) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(0deg, rgba(91,255,26,.12) 0 2px, transparent 2px 5px);
+}

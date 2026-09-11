@@ -2,8 +2,8 @@
 const I18N = {
   'hero.greeting': { pt: 'Olá, eu sou', en: "Hi, I'm" },
   'hero.title': {
-    pt: 'Alexandre, um <span class="accent">full&nbsp;stack</span><br>developer',
-    en: 'Alexandre, a <span class="accent">full&nbsp;stack</span><br>developer'
+    pt: 'Alexandre, <span class="accent">full&nbsp;stack</span><br>developer',
+    en: 'Alexandre, <span class="accent">full&nbsp;stack</span><br>developer'
   },
   'hero.sub': {
     pt: 'Desenvolvo produtos web de ponta a ponta — unindo front-end, back-end e arquitetura de microsserviços com precisão técnica e atenção ao detalhe.',
