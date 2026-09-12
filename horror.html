@@ -136,17 +136,16 @@
         </div>
         <div class="desktop-canvas" id="desktop-canvas">
 
-          <div class="panel" id="panel-about" style="top:30px; left:30px; width:520px;">
+          <div class="panel panel-terminal" id="panel-terminal" style="top:30px; left:30px; width:540px;">
             <div class="panel-bar">
-              <span class="panel-title">about-me</span>
+              <span class="panel-title"><i class="fa-solid fa-terminal"></i> alexandre@portfolio — bash</span>
               <div class="panel-actions"><i class="fa-solid fa-minus"></i><i class="fa-regular fa-square"></i><i class="fa-solid fa-xmark"></i></div>
             </div>
-            <div class="panel-body about-text plain">
-              <p data-i18n-html="about.p1">Olá, sou o <strong class="accent">Alexandre</strong>, desenvolvedor Full Stack baseado em Alfenas, Brasil, trabalhando remotamente com equipes ao redor do mundo.</p>
-              <p data-i18n-html="about.p2">Meu foco está no encontro entre criatividade e proficiência técnica — transformar ideias em interfaces fluidas, bem estruturadas e experiências memoráveis.</p>
-              <p data-i18n-html="about.p3">Atualmente construo a plataforma SaaS de digital signage da <strong class="accent">Spotside</strong> (microsserviços em Node.js, MongoDB, Socket.io, Electron), e desenvolvo projetos Angular/Kotlin na <strong class="accent">CroSoften</strong>.</p>
-              <p data-i18n-html="about.p4">Atuo em toda a stack — React, Next.js e Angular no front-end, Node.js e Java/Spring no back-end — sempre com código limpo, testes e CI/CD em mente.</p>
-              <p data-i18n-html="about.p5">Formação em Ciências da Computação, com certificações em Java, .NET, Spring Boot e React. Objetivo: evoluir para Full Stack Sênior.</p>
+            <div class="panel-body term-body" id="ht-out">
+              <!-- fallback sem JS: conteúdo do "sobre" -->
+              <noscript>
+                <p>Olá, sou o Alexandre, desenvolvedor Full Stack em Alfenas, Brasil. Atuo em toda a stack — React, Next.js, Angular no front; Node.js e Java/Spring no back. Construo a plataforma SaaS da Spotside e projetos Angular/Kotlin na CroSoften. Formação em Ciências da Computação.</p>
+              </noscript>
             </div>
           </div>
 
@@ -363,9 +362,30 @@
           <button class="proj-filter" data-filter="fullstack">FULLSTACK</button>
           <button class="proj-filter" data-filter="web">WEB</button>
           <button class="proj-filter" data-filter="api">API</button>
+          <button class="proj-filter" data-filter="systems" data-i18n="projects.filter_systems">SYSTEMS</button>
         </div>
 
         <div class="proj-grid" id="proj-grid">
+
+          <a class="proj-card proj-card-featured" href="https://github.com/Alexandregv1080p" target="_blank" rel="noopener" data-category="systems">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name glitch">Browser Engine</h3>
+              <span class="proj-cat-badge">SYSTEMS</span>
+            </div>
+            <p class="proj-card-stack">C++ · HTML/CSS parser · layout · rendering</p>
+            <p class="proj-card-desc" data-i18n="projects.browser_desc">Navegador construído do zero em C++ — parser de HTML/CSS, árvore de layout e motor de renderização próprios.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+          </a>
+
+          <a class="proj-card proj-card-featured" href="https://github.com/Alexandregv1080p" target="_blank" rel="noopener" data-category="systems">
+            <div class="proj-card-top">
+              <h3 class="proj-card-name glitch">SO · Raspberry Pi</h3>
+              <span class="proj-cat-badge">SYSTEMS</span>
+            </div>
+            <p class="proj-card-stack">C · Assembly · bare-metal · boot / memória / I/O</p>
+            <p class="proj-card-desc" data-i18n="projects.os_desc">Sistema operacional bare-metal do zero para Raspberry Pi, em C e Assembly.</p>
+            <span class="proj-card-link"><span data-i18n="projects.link_github">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+          </a>
 
           <a class="proj-card" href="https://github.com/Alexandregv1080p/Dev-Codex" target="_blank" data-category="fullstack">
             <div class="proj-card-top">
@@ -857,6 +877,150 @@
         function fire(){ ov.classList.add('on'); setTimeout(function(){ ov.classList.remove('on'); }, 430); schedule(); }
         function schedule(){ setTimeout(fire, 10000 + Math.random() * 17000); }
         schedule();
+      })();
+
+      /* ---- TERMINAL INTERATIVO (seção Sobre) ---- */
+      (function(){
+        var out = document.getElementById('ht-out');
+        if (!out) return;
+        out.innerHTML = '';
+        var PROMPT = '<span class="prompt">visitante@alexandre</span>:<span class="path">~</span>$ ';
+        var engaged = false, activeInput = null;
+
+        var PROJETOS = {
+          'dev-codex':{nome:'Dev Codex',cat:'Full-stack · destaque',stack:'Vue 3, .NET 8, SignalR, Terraform',
+            linhas:['Plataforma SaaS de cursos com 3 clientes (web Vue 3, Android/Kotlin, admin).',
+              'Back-end .NET 8 + EF Core, chat em tempo real via SignalR, auth JWT+refresh.',
+              'CI/CD com GitHub Actions e infra como código (Terraform + Docker).',
+              'repo: https://github.com/Alexandregv1080p/Dev-Codex']},
+          'sistema-pedidos':{nome:'Sistema de Pedidos',cat:'Back-end · mensageria',stack:'.NET / C#, RabbitMQ, PostgreSQL',
+            linhas:['Sistema de pedidos orientado a eventos.',
+              'Problema: acoplamento entre criar o pedido e processar/pagar.',
+              'Decisão: RabbitMQ desacopla o fluxo — o pedido publica, os',
+              'consumidores processam de forma assíncrona e resiliente.',
+              'Resultado: picos não derrubam o processamento; retries isolados.']},
+          'browser-engine':{nome:'Browser Engine',cat:'Systems · C++ (raro!)',stack:'C++',
+            linhas:['Um navegador do ZERO — parser de HTML/CSS, árvore de layout',
+              'e renderização própria. Para entender o que roda por baixo do front.',
+              'Poucos devs constroem isto: é o meu maior diferencial técnico.']},
+          'so-raspberry':{nome:'SO para Raspberry Pi',cat:'Systems · C + Assembly (raro!)',stack:'C, Assembly',
+            linhas:['Sistema operacional bare-metal do zero para Raspberry Pi.',
+              'Boot, gerência de memória e I/O escritos à mão.',
+              'O nível mais baixo do stack — do transistor ao pixel.']},
+          'fast-trade':{nome:'Fast Trade',cat:'Full-stack · marketplace',stack:'Java 21/Spring, Angular 17, Kotlin, K8s',
+            linhas:['Marketplace de compra/venda/troca (monorepo). Back Java/Spring com',
+              'JWT e chat em tempo real (WebSocket STOMP), admin Angular e app Android.',
+              'repo: https://github.com/Alexandregv1080p/Fast-Trade']}
+        };
+        var SKILLS = [
+          'front-end   Angular · React/Next · Vue 3 · TypeScript',
+          'back-end    Node.js · Java/Spring · .NET/C# · Kotlin',
+          'dados       PostgreSQL · MongoDB',
+          'infra       Docker · mensageria (RabbitMQ) · CI/CD',
+          'systems     C++ · C · Assembly'
+        ];
+        var BANNER = [
+          ' █████╗ ██╗     ███████╗██╗  ██╗',
+          '██╔══██╗██║     ██╔════╝╚██╗██╔╝',
+          '███████║██║     █████╗   ╚███╔╝ ',
+          '██╔══██║██║     ██╔══╝   ██╔██╗ ',
+          '██║  ██║███████╗███████╗██╔╝ ██╗',
+          '╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝'
+        ];
+
+        function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+        function linkify(s){ return s.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>'); }
+        function print(html, cls){ var d=document.createElement('div'); d.className='line'+(cls?' '+cls:''); d.innerHTML=html; out.appendChild(d); out.scrollTop=out.scrollHeight; }
+
+        var CMDS = {
+          help:function(){
+            print('<span class="ac">comandos:</span>');
+            var L=[['whoami','quem é o Alexandre'],['ls','seções / projetos'],['cat &lt;projeto&gt;','estudo de caso (ex: cat sistema-pedidos)'],
+              ['skills','stack técnica'],['curriculo','baixar o CV'],['contato','como falar comigo'],['neofetch','ficha do sistema'],['clear','limpa a tela']];
+            L.forEach(function(c){ var pad=Math.max(1,18-c[0].replace(/&[a-z]+;/g,'x').length); print('  <span class="tb">'+c[0]+'</span>'+Array(pad).join(' ')+'<span class="mut">'+c[1]+'</span>'); });
+            print('  <span class="mut">há comandos escondidos… ☠</span>');
+          },
+          whoami:function(){
+            print('<span class="user">Alexandre Gomes Vieira</span> — Full Stack Developer');
+            print('<span class="mut">Alfenas, Minas Gerais, Brasil · remoto pra qualquer lugar</span>');
+            print('Construo a plataforma SaaS da <span class="ac">Spotside</span> (Node.js, MongoDB, Socket.io, Electron)');
+            print('e projetos Angular/Kotlin na <span class="ac">CroSoften</span>. Formação em Ciências da Computação.');
+            print('De CRUD a <span class="ac">navegador</span> e <span class="ac">sistema operacional</span> do zero.');
+          },
+          ls:function(arg){
+            if(arg==='projetos'||arg==='projects'){ Object.keys(PROJETOS).forEach(function(k){ print('  <span class="tb">'+k+'</span>  <span class="mut">'+PROJETOS[k].cat+'</span>'); }); return; }
+            print('<span class="path">seções/</span>  sobre  experiencia  <span class="tb">projetos/</span>  skills  contato');
+            print('<span class="mut">→ tente: ls projetos</span>');
+          },
+          cat:function(arg){
+            if(!arg){ print('<span class="er">uso: cat &lt;projeto&gt; — veja "ls projetos"</span>'); return; }
+            var p=PROJETOS[arg]; if(!p){ print('<span class="er">cat: '+esc(arg)+': não encontrado.</span> <span class="mut">(ls projetos)</span>'); return; }
+            print('<span class="ac">■ '+p.nome+'</span>  <span class="mut">'+p.cat+'</span>');
+            print('<span class="mut">stack:</span> '+p.stack);
+            p.linhas.forEach(function(l){ print('  '+linkify(esc(l))); });
+          },
+          skills:function(){ SKILLS.forEach(function(s){ print('  '+s); }); },
+          stack:function(){ CMDS.skills(); },
+          curriculo:function(){ print('abrindo currículo… <a href="curriculo/alexandre-gomes-vieira-cv.pdf" target="_blank" rel="noopener">alexandre-gomes-vieira-cv.pdf ↗</a>'); },
+          cv:function(){ CMDS.curriculo(); },
+          contato:function(){
+            print('<span class="ac">contato:</span>');
+            print('  email     <a href="mailto:alexandregv1999@gmail.com">alexandregv1999@gmail.com</a>');
+            print('  github    <a href="https://github.com/Alexandregv1080p" target="_blank" rel="noopener">github.com/Alexandregv1080p</a>');
+            print('  linkedin  <a href="https://www.linkedin.com/in/alexandre-gomes-vieira-9625b31b5/" target="_blank" rel="noopener">in/alexandre-gomes-vieira</a>');
+          },
+          contact:function(){ CMDS.contato(); },
+          neofetch:function(){
+            var info=['<span class="ac">visitante@alexandre</span>','-------------------','<span class="tb">host</span>: portfolio.exe','<span class="tb">shell</span>: bash-horror 6.6.6','<span class="tb">stack</span>: full-stack + systems','<span class="tb">uptime</span>: sempre codando','<span class="tb">café</span>: ██████████ 100%'];
+            BANNER.forEach(function(b,i){ print('<span class="ac">'+esc(b)+'</span>   '+(info[i]||'')); });
+          },
+          clear:function(){ out.innerHTML=''; },
+          sudo:function(){ print('<span class="er">visitante não está no sudoers. Este incidente será reportado. ☠</span>'); },
+          rm:function(arg,raw){
+            if(/-rf?\s*\//.test(raw)){ print('<span class="er">deletando /...</span>'); var f=['█','▓','▒','░'],i=0;
+              var t=setInterval(function(){ if(i>8){clearInterval(t);print('<span class="ok">brincadeira. seus arquivos estão a salvo. 🩸</span>');return;} print('<span class="er">'+Array(20).join(f[i%4])+'</span>'); i++; },80); return; }
+            print('<span class="er">rm: falta operando</span>');
+          },
+          exit:function(){ print('<span class="mut">não há saída. você já está dentro do sistema.</span>'); }
+        };
+
+        var history=[], hpos=-1;
+        function newInput(){
+          var wrap=document.createElement('div'); wrap.className='line input-line';
+          wrap.innerHTML=PROMPT+'<input class="cmd" autocomplete="off" autocapitalize="off" spellcheck="false">';
+          out.appendChild(wrap); out.scrollTop=out.scrollHeight;
+          activeInput=wrap.querySelector('input.cmd');
+          if(engaged) activeInput.focus({preventScroll:true});
+          activeInput.addEventListener('keydown',function(e){
+            if(e.key==='Enter'){ run(activeInput); }
+            else if(e.key==='ArrowUp'){ e.preventDefault(); if(history.length){ hpos=Math.max(0,hpos-1); activeInput.value=history[hpos]||''; } }
+            else if(e.key==='ArrowDown'){ e.preventDefault(); if(hpos>=0){ hpos=Math.min(history.length,hpos+1); activeInput.value=history[hpos]||''; } }
+            else if(e.key==='Tab'){ e.preventDefault(); autocomplete(activeInput); }
+          });
+        }
+        function autocomplete(inp){
+          var v=inp.value.trim(); if(!v)return; var parts=v.split(/\s+/);
+          if(parts.length===1){ var pool=Object.keys(CMDS); var m=pool.filter(function(k){return k.indexOf(parts[0])===0;}); if(m.length===1) inp.value=m[0]+' '; }
+          else if(parts[0]==='cat'){ var m2=Object.keys(PROJETOS).filter(function(k){return k.indexOf(parts[1]||'')===0;}); if(m2.length===1) inp.value='cat '+m2[0]; }
+        }
+        function run(inp){
+          var raw=inp.value, v=raw.trim();
+          var frozen=document.createElement('span'); frozen.textContent=v; inp.parentNode.replaceChild(frozen,inp);
+          if(v){ history.push(v); hpos=history.length; }
+          var parts=v.split(/\s+/), cmd=parts[0].toLowerCase(), arg=(parts[1]||'').toLowerCase();
+          if(v!==''){ if(typeof CMDS[cmd]==='function'){ CMDS[cmd](arg,raw); } else { print('<span class="er">comando não encontrado: '+esc(cmd)+'</span> <span class="mut">— digite help</span>'); } }
+          newInput();
+        }
+
+        /* clique engaja e foca (sem auto-scroll no load) */
+        document.getElementById('panel-terminal').addEventListener('mousedown',function(e){
+          if(e.target.closest('.panel-bar')) return; /* deixa o drag agir */
+          engaged=true; if(activeInput) setTimeout(function(){activeInput.focus({preventScroll:true});},0);
+        });
+
+        /* boot: mostra ficha e prompt (sem foco automático) */
+        CMDS.neofetch(); print(''); print('<span class="mut">bem-vindo. digite </span><span class="tb">help</span><span class="mut">.</span>'); print('');
+        newInput();
       })();
 
       /* ---- TURBULÊNCIA DE SCROLL (velocidade de rolagem = instabilidade do sinal) ---- */

@@ -175,6 +175,16 @@ const I18N = {
     en: 'Marketplace and directory for the events ecosystem: an Angular 21 SPA (standalone, zoneless, signals) with Bootstrap 5, multiple roles (admin, organizer, artist, store…) and a decoupled REST API (mocked via interceptor until the back-end is up).'
   },
 
+  'projects.filter_systems': { pt: 'SYSTEMS', en: 'SYSTEMS' },
+  'projects.browser_desc': {
+    pt: 'Navegador construído do zero em C++ — parser de HTML/CSS, árvore de layout e motor de renderização próprios. Um mergulho no que roda por baixo de todo front-end; pouquíssimos desenvolvedores constroem um.',
+    en: 'A browser built from scratch in C++ — its own HTML/CSS parser, layout tree and rendering engine. A deep dive into what runs beneath every front-end; very few developers build one.'
+  },
+  'projects.os_desc': {
+    pt: 'Sistema operacional bare-metal do zero para Raspberry Pi, em C e Assembly: rotina de boot, gerência de memória e I/O escritos à mão. O nível mais baixo do stack — do transistor ao pixel.',
+    en: 'A bare-metal operating system from scratch for the Raspberry Pi, in C and Assembly: boot routine, memory management and I/O written by hand. The lowest level of the stack — from transistor to pixel.'
+  },
+
   'contact.title': { pt: 'Vamos trabalhar juntos?', en: 'Shall we work together?' },
   'contact.echo_cmd': {
     pt: 'echo "Estou disponível para novas oportunidades, freelas e parcerias"',

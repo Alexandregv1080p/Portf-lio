@@ -1234,3 +1234,54 @@ a, button, .rail-dot, .proj-card, .proj-filter, .lang-btn, .hpal-dot,
     repeating-linear-gradient(0deg, rgba(255,0,80,.10) 0 1px, transparent 1px 3px),
     repeating-linear-gradient(0deg, rgba(91,255,26,.12) 0 2px, transparent 2px 5px);
 }
+
+/* =====================================================================
+   ██ V20 — TERMINAL INTERATIVO (seção Sobre) ██
+   O painel "about-me" virou um terminal navegável por comandos.
+   Reaproveita a moldura .panel; só o corpo (.term-body) é novo.
+   ===================================================================== */
+.panel-terminal .panel-title i { color: var(--term); }
+.term-body {
+  height: 372px;
+  overflow-y: auto;
+  padding: 14px 14px 8px;
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.5;
+  background: rgba(3,1,1,.55);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  cursor: text;
+}
+.term-body::-webkit-scrollbar { width: 8px; }
+.term-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.term-body .line { white-space: pre-wrap; word-break: break-word; }
+.term-body .prompt { color: var(--term); }
+.term-body .user   { color: var(--accent-2); }
+.term-body .path   { color: #7fb0ff; }
+.term-body .ac     { color: var(--accent); }
+.term-body .mut    { color: var(--muted); }
+.term-body .tb     { color: var(--term); }
+.term-body .ok     { color: #27c93f; }
+.term-body .er     { color: var(--accent); }
+.term-body a       { color: var(--accent-2); border-bottom: 1px dotted var(--border-br); text-decoration: none; }
+.term-body a:hover { color: var(--accent); }
+.term-body .input-line { display: flex; align-items: center; gap: 8px; }
+.term-body .input-line .prompt { flex: none; }
+.term-body input.cmd {
+  flex: 1; background: transparent; border: 0; outline: 0;
+  color: var(--text); font-family: inherit; font-size: 16px; caret-color: var(--term);
+}
+@media (max-width: 720px) {
+  .term-body { height: 300px; font-size: 15px; }
+}
+
+/* destaque dos projetos "systems" (raros: browser engine, SO) */
+.proj-card-featured {
+  border-color: var(--border-br);
+  box-shadow: 0 0 0 1px rgba(255,42,42,.18), 0 0 30px rgba(227,6,19,.12);
+}
+.proj-card-featured .proj-cat-badge {
+  color: var(--accent);
+  border-color: var(--border-br);
+}
