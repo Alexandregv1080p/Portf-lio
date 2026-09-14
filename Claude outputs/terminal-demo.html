@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>alexandre@portfolio — terminal interativo (protótipo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#050101; --bg2:#0a0203; --panel:rgba(17,4,6,.86);
+    --border:rgba(227,6,19,.30); --border-br:rgba(255,42,42,.60);
+    --text:#ece0e0; --muted:#ab8f8f; --accent:#ff2020; --accent-2:#ff5a5a;
+    --term:#35ff8f; --glow:rgba(227,6,19,.55);
+    --f-term:'VT323','Share Tech Mono',monospace;
+    --f-body:'Share Tech Mono','VT323',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:radial-gradient(120% 120% at 50% 0%, #0a0203 0%, #050101 60%, #000 100%);
+    color:var(--text); font-family:var(--f-body); min-height:100vh;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  /* leve textura CRT */
+  body::after{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply; opacity:.5;
+  }
+  .term{
+    width:min(880px,100%); background:var(--panel);
+    border:1px solid var(--border); border-radius:10px; overflow:hidden;
+    box-shadow:0 0 0 1px rgba(0,0,0,.6), 0 20px 60px rgba(0,0,0,.6), 0 0 60px rgba(227,6,19,.12);
+    backdrop-filter:blur(3px);
+  }
+  .term-bar{
+    display:flex; align-items:center; gap:8px; padding:10px 14px;
+    background:var(--bg2); border-bottom:1px solid var(--border);
+    font-family:var(--f-term); letter-spacing:1px;
+  }
+  .dot{width:11px;height:11px;border-radius:50%}
+  .dot.r{background:#ff5f56}.dot.y{background:#ffbd2e}.dot.g{background:#27c93f}
+  .term-title{margin-left:10px; color:var(--muted); font-size:18px}
+  .term-title .rec{color:var(--accent)}
+  .term-body{
+    padding:18px 18px 8px; height:440px; overflow-y:auto;
+    font-size:18px; line-height:1.5; scrollbar-width:thin;
+    scrollbar-color:var(--border) transparent;
+  }
+  .term-body::-webkit-scrollbar{width:8px}
+  .term-body::-webkit-scrollbar-thumb{background:var(--border); border-radius:4px}
+  .line{white-space:pre-wrap; word-break:break-word}
+  .prompt{color:var(--term)}
+  .user{color:var(--accent-2)}
+  .path{color:#7fb0ff}
+  .accent{color:var(--accent)}
+  .muted{color:var(--muted)}
+  .term-b{color:var(--term)}
+  .ok{color:#27c93f}.err{color:var(--accent)}
+  a{color:var(--accent-2); text-decoration:none; border-bottom:1px dotted var(--border-br)}
+  a:hover{color:var(--accent)}
+  .input-line{display:flex; align-items:center; gap:8px}
+  .input-line .prompt{flex:none}
+  #cmd{
+    flex:1; background:transparent; border:0; outline:0;
+    color:var(--text); font-family:inherit; font-size:18px; caret-color:var(--term);
+  }
+  .cursor{display:inline-block; width:9px; height:18px; background:var(--term);
+    animation:blink 1s steps(1) infinite; vertical-align:-3px}
+  @keyframes blink{50%{opacity:0}}
+  .hint{color:var(--muted); font-size:15px; margin-top:10px; text-align:center; font-family:var(--f-term); letter-spacing:1px}
+  .kbd{border:1px solid var(--border); border-radius:4px; padding:1px 6px; color:var(--accent-2)}
+  @media(max-width:600px){ .term-body{font-size:16px; height:60vh} }
+</style>
+</head>
+<body>
+  <div>
+    <div class="term" id="term">
+      <div class="term-bar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="term-title"><span class="rec">●</span> alexandre@portfolio: ~ — <span id="clock"></span></span>
+      </div>
+      <div class="term-body" id="out"></div>
+    </div>
+    <p class="hint">clique no terminal e digite <span class="kbd">help</span> · use <span class="kbd">↑</span><span class="kbd">↓</span> pro histórico · <span class="kbd">Tab</span> autocompleta</p>
+  </div>
+
+<script>
+(function(){
+  var out = document.getElementById('out');
+  var PROMPT = '<span class="prompt">visitante@alexandre</span>:<span class="path">~</span>$ ';
+
+  /* ---------- dados ---------- */
+  var PROJETOS = {
+    'dev-codex': {
+      nome:'Dev Codex', cat:'Full-stack · projeto de destaque',
+      stack:'Angular, Node.js, MongoDB, Docker',
+      linhas:[
+        'Plataforma full-stack de cursos de programação.',
+        'Problema: centralizar trilhas, progresso e conteúdo em um só lugar.',
+        'Decisão: SPA em Angular + API Node desacoplada, deploy em containers.',
+        'repo: https://github.com/Alexandregv1080p/Dev-Codex'
+      ]
+    },
+    'sistema-pedidos':{
+      nome:'Sistema de Pedidos', cat:'Back-end · mensageria',
+      stack:'.NET / C#, RabbitMQ, PostgreSQL',
+      linhas:[
+        'Sistema de pedidos orientado a eventos.',
+        'Problema: acoplamento entre criar pedido e processar/pagar.',
+        'Decisão: RabbitMQ desacopla o fluxo — o pedido publica, os',
+        'consumidores processam de forma assíncrona e resiliente.',
+        'Resultado: picos não derrubam o processamento; retries isolados.'
+      ]
+    },
+    'browser-engine':{
+      nome:'Browser Engine', cat:'Systems · C++ (raro!)',
+      stack:'C++',
+      linhas:[
+        'Um navegador construído do ZERO — parser de HTML/CSS,',
+        'árvore de layout e renderização própria.',
+        'Por quê: entender o que roda por baixo de todo front-end.',
+        'Poucos devs constroem isto. É o meu maior diferencial técnico.'
+      ]
+    },
+    'so-raspberry':{
+      nome:'SO para Raspberry Pi', cat:'Systems · C + Assembly (raro!)',
+      stack:'C, Assembly',
+      linhas:[
+        'Sistema operacional bare-metal do zero pra Raspberry Pi.',
+        'Boot, gerência de memória e I/O escritos à mão.',
+        'Nível mais baixo do stack — do transistor ao pixel.'
+      ]
+    },
+    'minx':{
+      nome:'MinX', cat:'Projeto', stack:'—',
+      linhas:['repo: https://github.com/Alexandregv1080p/MinX']
+    }
+  };
+
+  var SKILLS = [
+    'front-end   Angular · React/Next · Vue 3 · TypeScript',
+    'back-end    Node.js · Java/Spring · .NET/C# · Kotlin',
+    'dados       PostgreSQL · MongoDB',
+    'infra       Docker · mensageria (RabbitMQ)',
+    'systems     C++ · C · Assembly'
+  ];
+
+  var BANNER = [
+    ' █████╗ ██╗     ███████╗██╗  ██╗',
+    '██╔══██╗██║     ██╔════╝╚██╗██╔╝',
+    '███████║██║     █████╗   ╚███╔╝ ',
+    '██╔══██║██║     ██╔══╝   ██╔██╗ ',
+    '██║  ██║███████╗███████╗██╔╝ ██╗',
+    '╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝'
+  ];
+
+  /* ---------- util ---------- */
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function linkify(s){ return s.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>'); }
+  function print(html, cls){
+    var d=document.createElement('div'); d.className='line'+(cls?' '+cls:'');
+    d.innerHTML=html; out.appendChild(d); scroll();
+  }
+  function scroll(){ out.scrollTop=out.scrollHeight; }
+
+  /* ---------- comandos ---------- */
+  var CMDS = {
+    help:function(){
+      print('<span class="accent">comandos disponíveis:</span>');
+      var list=[
+        ['whoami','quem é o Alexandre'],
+        ['ls','lista as seções / projetos'],
+        ['cat &lt;projeto&gt;','abre um estudo de caso (ex: cat sistema-pedidos)'],
+        ['skills','stack técnica'],
+        ['contato','como falar comigo'],
+        ['neofetch','ficha do sistema'],
+        ['banner','o logo'],
+        ['clear','limpa a tela'],
+        ['help','esta lista']
+      ];
+      list.forEach(function(c){ print('  <span class="term-b">'+c[0]+'</span>'+' '.repeat(Math.max(1,20-c[0].replace(/&[a-z]+;/g,'x').length))+'<span class="muted">'+c[1]+'</span>'); });
+      print('  <span class="muted">dica: existem alguns comandos escondidos… ☠</span>');
+    },
+    whoami:function(){
+      print('<span class="user">Alexandre Gomes Vieira</span> — Full Stack Developer');
+      print('<span class="muted">Alfenas, Minas Gerais, Brasil</span>');
+      print('Do banco de dados ao pixel, do transistor ao deploy.');
+      print('Constrói de CRUD a <span class="accent">navegador</span> e <span class="accent">sistema operacional</span> do zero.');
+    },
+    ls:function(arg){
+      if(arg==='projetos'||arg==='projects'){
+        Object.keys(PROJETOS).forEach(function(k){
+          print('  <span class="term-b">'+k+'</span>  <span class="muted">'+PROJETOS[k].cat+'</span>');
+        });
+        return;
+      }
+      print('<span class="path">seções/</span>  sobre  experiencia  <span class="term-b">projetos/</span>  skills  contato');
+      print('<span class="muted">→ tente: ls projetos</span>');
+    },
+    cat:function(arg){
+      if(!arg){ print('<span class="err">uso: cat &lt;projeto&gt; — veja "ls projetos"</span>'); return; }
+      var p=PROJETOS[arg];
+      if(!p){ print('<span class="err">cat: '+esc(arg)+': projeto não encontrado.</span> <span class="muted">(ls projetos)</span>'); return; }
+      print('<span class="accent">■ '+p.nome+'</span>  <span class="muted">'+p.cat+'</span>');
+      print('<span class="muted">stack:</span> '+p.stack);
+      p.linhas.forEach(function(l){ print('  '+linkify(esc(l))); });
+    },
+    skills:function(){ SKILLS.forEach(function(s){ print('  '+s); }); },
+    stack:function(){ CMDS.skills(); },
+    contato:function(){
+      print('<span class="accent">contato:</span>');
+      print('  email     <a href="mailto:alexandregv1999@gmail.com">alexandregv1999@gmail.com</a>');
+      print('  github    <a href="https://github.com/Alexandregv1080p" target="_blank" rel="noopener">github.com/Alexandregv1080p</a>');
+      print('  linkedin  <a href="https://www.linkedin.com/in/alexandre-gomes-vieira-9625b31b5/" target="_blank" rel="noopener">in/alexandre-gomes-vieira</a>');
+    },
+    contact:function(){ CMDS.contato(); },
+    neofetch:function(){
+      var info=[
+        '<span class="accent">visitante@alexandre</span>',
+        '-------------------',
+        '<span class="term-b">host</span>: portfolio.exe',
+        '<span class="term-b">shell</span>: bash-horror 6.6.6',
+        '<span class="term-b">uptime</span>: sempre codando',
+        '<span class="term-b">stack</span>: full-stack + systems',
+        '<span class="term-b">humor</span>: café ██████████ 100%'
+      ];
+      BANNER.forEach(function(b,i){
+        print('<span class="accent">'+esc(b)+'</span>   '+(info[i]||''));
+      });
+    },
+    banner:function(){ BANNER.forEach(function(b){ print('<span class="accent">'+esc(b)+'</span>'); }); },
+    clear:function(){ out.innerHTML=''; },
+    /* ---- easter eggs ---- */
+    sudo:function(){ print('<span class="err">visitante não está no arquivo sudoers. Este incidente será reportado. ☠</span>'); },
+    'rm':function(arg,raw){
+      if(/-rf?\s*\//.test(raw)){
+        print('<span class="err">deletando /...</span>');
+        var frames=['█','▓','▒','░'],i=0;
+        var t=setInterval(function(){
+          if(i>10){ clearInterval(t); print('<span class="ok">brincadeira. seus arquivos estão a salvo. 🩸</span>'); return; }
+          print('<span class="err">'+frames[i%4].repeat(20)+'</span>'); i++;
+        },90);
+        return;
+      }
+      print('<span class="err">rm: falta operando</span>');
+    },
+    exit:function(){ print('<span class="muted">não há saída. você já está dentro do sistema.</span>'); },
+    help_hidden:true
+  };
+
+  /* ---------- boot ---------- */
+  function boot(){
+    CMDS.neofetch();
+    print('');
+    print('<span class="muted">bem-vindo. digite </span><span class="term-b">help</span><span class="muted"> pra começar.</span>');
+    print('');
+    newInput();
+  }
+
+  /* ---------- input ---------- */
+  var history=[], hpos=-1;
+  function newInput(){
+    var wrap=document.createElement('div'); wrap.className='line input-line';
+    wrap.innerHTML=PROMPT+'<input id="cmd" autocomplete="off" autocapitalize="off" spellcheck="false">';
+    out.appendChild(wrap); scroll();
+    var inp=wrap.querySelector('#cmd'); inp.focus();
+    inp.addEventListener('keydown',function(e){
+      if(e.key==='Enter'){ run(inp); }
+      else if(e.key==='ArrowUp'){ e.preventDefault(); if(history.length){ hpos=Math.max(0,hpos-1); inp.value=history[hpos]||''; setTimeout(function(){inp.setSelectionRange(999,999);},0);} }
+      else if(e.key==='ArrowDown'){ e.preventDefault(); if(hpos>=0){ hpos=Math.min(history.length,hpos+1); inp.value=history[hpos]||''; } }
+      else if(e.key==='Tab'){ e.preventDefault(); autocomplete(inp); }
+    });
+  }
+  function autocomplete(inp){
+    var v=inp.value.trim(); if(!v)return;
+    var parts=v.split(/\s+/);
+    if(parts.length===1){
+      var pool=Object.keys(CMDS).filter(function(k){return k!=='help_hidden'&&typeof CMDS[k]==='function'&&k.charAt(0)!=='_';});
+      var m=pool.filter(function(k){return k.indexOf(parts[0])===0;});
+      if(m.length===1) inp.value=m[0]+' ';
+    } else if(parts[0]==='cat'){
+      var m2=Object.keys(PROJETOS).filter(function(k){return k.indexOf(parts[1]||'')===0;});
+      if(m2.length===1) inp.value='cat '+m2[0];
+    }
+  }
+  function run(inp){
+    var raw=inp.value; var v=raw.trim();
+    inp.removeAttribute('id'); inp.disabled=true;
+    // congela a linha: troca input pelo texto digitado
+    var frozen=document.createElement('span'); frozen.textContent=v; inp.parentNode.replaceChild(frozen,inp);
+    if(v){ history.push(v); hpos=history.length; }
+    var parts=v.split(/\s+/); var cmd=parts[0].toLowerCase(); var arg=(parts[1]||'').toLowerCase();
+    if(v!==''){
+      if(cmd==='clear'){ CMDS.clear(); }
+      else if(typeof CMDS[cmd]==='function' && cmd!=='help_hidden' && cmd.charAt(0)!=='_'){ CMDS[cmd](arg,raw); }
+      else { print('<span class="err">comando não encontrado: '+esc(cmd)+'</span> <span class="muted">— digite help</span>'); }
+    }
+    newInput();
+  }
+
+  /* clique em qualquer lugar foca o input */
+  document.getElementById('term').addEventListener('click',function(){
+    var i=document.getElementById('cmd'); if(i)i.focus();
+  });
+
+  /* relógio */
+  function tick(){ var d=new Date(); document.getElementById('clock').textContent=d.toLocaleTimeString('pt-BR'); }
+  tick(); setInterval(tick,1000);
+
+  boot();
+})();
+</script>
+</body>
+</html>

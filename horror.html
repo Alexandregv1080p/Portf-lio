@@ -149,6 +149,18 @@
             </div>
           </div>
 
+          <div class="panel" id="panel-about" style="top:470px; left:30px; width:540px;">
+            <div class="panel-bar">
+              <span class="panel-title">about-me.txt</span>
+              <div class="panel-actions"><i class="fa-solid fa-minus"></i><i class="fa-regular fa-square"></i><i class="fa-solid fa-xmark"></i></div>
+            </div>
+            <div class="panel-body about-text plain">
+              <p data-i18n-html="about.p1">Olá, sou o <strong class="accent">Alexandre</strong>, desenvolvedor Full Stack baseado em Alfenas, Brasil, trabalhando remotamente com equipes ao redor do mundo.</p>
+              <p data-i18n-html="about.p3">Atualmente construo a plataforma SaaS de digital signage da <strong class="accent">Spotside</strong> (microsserviços em Node.js, MongoDB, Socket.io, Electron), e desenvolvo projetos Angular/Kotlin na <strong class="accent">CroSoften</strong>.</p>
+              <p data-i18n-html="about.p5">Formação em Ciências da Computação, com certificações em Java, .NET, Spring Boot e React. Objetivo: evoluir para Full Stack Sênior. <span style="opacity:.55">(psst: o terminal acima aceita comandos)</span></p>
+            </div>
+          </div>
+
           <div class="panel panel-portrait" id="panel-portrait" style="top:60px; left:430px; width:220px;">
             <div class="panel-bar">
               <span class="panel-title">portrait</span>
@@ -981,8 +993,57 @@
               var t=setInterval(function(){ if(i>8){clearInterval(t);print('<span class="ok">brincadeira. seus arquivos estão a salvo. 🩸</span>');return;} print('<span class="er">'+Array(20).join(f[i%4])+'</span>'); i++; },80); return; }
             print('<span class="er">rm: falta operando</span>');
           },
-          exit:function(){ print('<span class="mut">não há saída. você já está dentro do sistema.</span>'); }
+          exit:function(){ print('<span class="mut">não há saída. você já está dentro do sistema.</span>'); },
+          hack:function(){
+            var seq=['acessando mainframe...','bypass do firewall .......... OK','quebrando SHA-256 ..... 0xC0FFEE','injetando payload ....... ☠','ELEVANDO PRIVILÉGIOS .... ROOT'];
+            var i=0; (function step(){ if(i<seq.length){ print('<span class="'+(i===seq.length-1?'ok':'er')+'">'+seq[i]+'</span>'); i++; setTimeout(step,320);} else { setTimeout(function(){ print('<span class="mut">…brincadeira. o único sistema invadido aqui foi a sua curiosidade. 🩸</span>'); },300);} })();
+          },
+          snake:function(){ startSnake(); }
         };
+
+        /* ---- minigame: cobrinha ASCII no terminal ---- */
+        var gameActive=false;
+        function startSnake(){
+          if(gameActive) return; gameActive=true;
+          var W=24,H=12;
+          var pre=document.createElement('pre'); pre.className='snake-board'; out.appendChild(pre);
+          var info=document.createElement('div'); info.className='line mut'; info.innerHTML='setas movem · <span class="tb">Q</span> ou ESC sai · coma <span class="ac">*</span>';
+          out.appendChild(info);
+          var snake=[{x:6,y:6},{x:5,y:6},{x:4,y:6}], dir={x:1,y:0}, nextDir={x:1,y:0}, score=0;
+          function placeFood(){ var f; do{ f={x:1+Math.floor(Math.random()*(W-2)),y:1+Math.floor(Math.random()*(H-2))}; }while(snake.some(function(s){return s.x===f.x&&s.y===f.y;})); return f; }
+          var food=placeFood();
+          function render(){
+            var g=[]; for(var y=0;y<H;y++){ var row=[]; for(var x=0;x<W;x++){ row.push((x===0||x===W-1||y===0||y===H-1)?'#':' '); } g.push(row); }
+            g[food.y][food.x]='*';
+            snake.forEach(function(s,i){ if(s.x>0&&s.x<W-1&&s.y>0&&s.y<H-1) g[s.y][s.x]= i===0?'@':'o'; });
+            pre.textContent=g.map(function(r){return r.join('');}).join('\n')+'\nscore: '+score;
+            out.scrollTop=out.scrollHeight;
+          }
+          function stop(msg){
+            gameActive=false; clearInterval(tid); document.removeEventListener('keydown',key,true);
+            print('<span class="er">'+msg+'</span> <span class="mut">score final: '+score+'</span>');
+            out.scrollTop=out.scrollHeight;
+          }
+          function tick(){
+            dir=nextDir;
+            var head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+            if(head.x<=0||head.x>=W-1||head.y<=0||head.y>=H-1||snake.some(function(s){return s.x===head.x&&s.y===head.y;})){ render(); stop('GAME OVER ☠'); return; }
+            snake.unshift(head);
+            if(head.x===food.x&&head.y===food.y){ score+=10; food=placeFood(); } else { snake.pop(); }
+            render();
+          }
+          function key(e){
+            var k=e.key;
+            if(k==='ArrowUp'&&dir.y===0){ nextDir={x:0,y:-1}; e.preventDefault(); }
+            else if(k==='ArrowDown'&&dir.y===0){ nextDir={x:0,y:1}; e.preventDefault(); }
+            else if(k==='ArrowLeft'&&dir.x===0){ nextDir={x:-1,y:0}; e.preventDefault(); }
+            else if(k==='ArrowRight'&&dir.x===0){ nextDir={x:1,y:0}; e.preventDefault(); }
+            else if(k==='q'||k==='Q'||k==='Escape'){ render(); stop('você fugiu do sistema.'); }
+          }
+          document.addEventListener('keydown',key,true);
+          render();
+          var tid=setInterval(tick, reduce?180:130);
+        }
 
         var history=[], hpos=-1;
         function newInput(){
@@ -1018,9 +1079,22 @@
           engaged=true; if(activeInput) setTimeout(function(){activeInput.focus({preventScroll:true});},0);
         });
 
-        /* boot: mostra ficha e prompt (sem foco automático) */
+        /* digita um comando sozinho e o executa (efeito de digitação) */
+        function autoType(text){
+          if(!activeInput) return;
+          if(reduce){ activeInput.value=text; run(activeInput); return; }
+          var i=0;
+          (function step(){
+            if(!activeInput) return;
+            if(i<=text.length){ activeInput.value=text.slice(0,i); i++; setTimeout(step, 55); }
+            else { setTimeout(function(){ run(activeInput); }, 260); }
+          })();
+        }
+
+        /* boot: ficha + roda whoami sozinho pra bio aparecer sem digitar */
         CMDS.neofetch(); print(''); print('<span class="mut">bem-vindo. digite </span><span class="tb">help</span><span class="mut">.</span>'); print('');
         newInput();
+        setTimeout(function(){ autoType('whoami'); }, 800);
       })();
 
       /* ---- TURBULÊNCIA DE SCROLL (velocidade de rolagem = instabilidade do sinal) ---- */
@@ -1030,16 +1104,18 @@
         document.body.appendChild(sg);
         var glitchOv = document.getElementById('glitch-overlay');
         var lastY = window.pageYOffset, lastT = performance.now();
-        var inten = 0, flashCd = 0;
+        var inten = 0, flashCd = 0, rafId = null;
+        var coarse = matchMedia('(pointer: coarse)').matches;
         window.addEventListener('scroll', function(){
           var y = window.pageYOffset, t = performance.now();
           var dt = Math.max(t - lastT, 8);
           var v = Math.abs(y - lastY) / dt;      /* px por ms */
           lastY = y; lastT = t;
           inten = Math.min(1, inten + Math.min(0.5, v * 0.35));
+          kick();                                /* religa o loop se estava parado */
         }, { passive: true });
-        (function loop(){
-          inten *= 0.86;
+        function loop(){
+          inten *= coarse ? 0.78 : 0.86;         /* decai mais rápido no mobile */
           if (inten < 0.01) inten = 0;
           sg.style.opacity = inten.toFixed(3);
           sg.style.transform = 'translateY(' + ((Math.random() - 0.5) * inten * 8).toFixed(1) + 'px)';
@@ -1050,8 +1126,14 @@
             flashCd = 30;
           }
           if (flashCd > 0) flashCd--;
-          requestAnimationFrame(loop);
-        })();
+          if (inten <= 0 && flashCd <= 0){ rafId = null; return; }   /* ocioso: suspende */
+          rafId = requestAnimationFrame(loop);
+        }
+        function kick(){ if (rafId == null && !document.hidden) rafId = requestAnimationFrame(loop); }
+        document.addEventListener('visibilitychange', function(){
+          if (document.hidden){ if (rafId){ cancelAnimationFrame(rafId); rafId = null; } }
+          else kick();
+        });
       })();
 
       /* ---- ÁUDIO AMBIENTE (opt-in, Web Audio — sem arquivo) ---- */
@@ -1086,6 +1168,435 @@
           try { nodes.forEach(function(n){ try { n.stop(); } catch(e){} }); if (ctx) ctx.close(); } catch(e){}
           nodes = []; ctx = null; on = false; btn.classList.remove('on'); lbl.textContent = 'ÁUDIO: OFF';
         }
+      })();
+
+      /* ===== SKILLS — hover revela onde a skill foi usada ===== */
+      (function(){
+        var INFO = {
+          'Angular / TypeScript':'Spotside, CroSoften, Fast Trade, A2W · +4 anos de front',
+          'React / Next.js':'Postaqui, Play2Sell, MinX · SSR e SPA',
+          'Vue 3 / Pinia':'Dev Codex (web) · componentes e stores',
+          'HTML5 / CSS3 / Tailwind':'todos os fronts · responsivo e design system',
+          'Node.js / NestJS / Express':'Spotside (microsserviços), MinX, Pagamentos API',
+          'Java / Spring Boot':'Fast Trade, Sistema de Pedidos · APIs REST, JWT, WebSocket',
+          '.NET / C#':'Dev Codex, Pagamentos API · EF Core, SignalR, mensageria',
+          'PHP / Laravel':'Agenda Atenta · filas, scheduler, web push',
+          'Kotlin / Android':'CroSoften, Dev Codex, Fast Trade · apps nativos',
+          'React Native / Expo':'apps multiplataforma',
+          'PostgreSQL / MySQL / MongoDB':'relacional e NoSQL em praticamente todo projeto',
+          'Docker / Git / CI-CD':'containers, GitHub Actions e GitLab CI/CD'
+        };
+        document.querySelectorAll('.skbar').forEach(function(sk){
+          var label = sk.querySelector('span'); if(!label) return;
+          var info = INFO[label.textContent.trim()]; if(!info) return;
+          var det = document.createElement('div'); det.className='sk-detail'; det.textContent='↳ '+info;
+          sk.appendChild(det);
+        });
+      })();
+
+      /* ===== EXPERIÊNCIA — accordion + cross-highlight de tech ===== */
+      (function(){
+        var wins = document.querySelectorAll('.exp-window');
+        wins.forEach(function(win, idx){
+          var body = win.querySelector('.exp-body'); if(!body) return;
+          var detail = document.createElement('div'); detail.className='exp-detail';
+          var bullets = body.querySelector('.exp-bullets');
+          var pills = body.querySelector('.pill-row');
+          if(bullets) detail.appendChild(bullets);
+          if(pills) detail.appendChild(pills);
+          body.appendChild(detail);
+          win.classList.add('exp-accordion');
+          var bar = win.querySelector('.window-bar');
+          if(bar){ var ch=document.createElement('span'); ch.className='exp-chevron'; ch.textContent='▸'; bar.appendChild(ch); }
+          if(idx===0) win.classList.add('exp-open');
+          win.addEventListener('click', function(e){
+            if(e.target.closest('a, .pill')) return;
+            win.classList.toggle('exp-open');
+          });
+        });
+        function norm(t){ return t.trim().toLowerCase(); }
+        var allPills = document.querySelectorAll('.pill');
+        allPills.forEach(function(p){
+          p.addEventListener('mouseenter', function(){
+            var k=norm(p.textContent);
+            allPills.forEach(function(q){ if(norm(q.textContent)===k) q.classList.add('tech-hot'); });
+          });
+          p.addEventListener('mouseleave', function(){
+            allPills.forEach(function(q){ q.classList.remove('tech-hot'); });
+          });
+        });
+      })();
+
+      /* ===== CONTATO — mini-terminal self-contained (mailto) + copiar ===== */
+      (function(){
+        var body = document.querySelector('.contact-body'); if(!body) return;
+        var EMAIL='alexandregv1999@gmail.com';
+
+        /* copiar ao clicar no e-mail/telefone (mantém o link, adiciona feedback) */
+        body.querySelectorAll('.contact-card-item').forEach(function(card){
+          var href=card.getAttribute('href')||'';
+          if(!/^mailto:|^tel:/.test(href)) return;
+          card.addEventListener('click', function(e){
+            var val = href.replace(/^mailto:|^tel:/,'');
+            try{ navigator.clipboard.writeText(val); }catch(err){}
+            var old = card.querySelector('.copy-tag'); if(old) old.remove();
+            var tag=document.createElement('span'); tag.className='copy-tag'; tag.textContent='copiado ☠';
+            card.appendChild(tag); setTimeout(function(){ tag.remove(); }, 1500);
+          });
+        });
+
+        /* substitui a linha "$ _" por um input real */
+        var lines = body.querySelectorAll('.terminal-line');
+        var lastLine = lines[lines.length-1];
+        if(!lastLine) return;
+        lastLine.classList.add('contact-input-line');
+        lastLine.innerHTML='<span class="prompt">$</span> <input class="cmd" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="digite help e tecle Enter">';
+        var input = lastLine.querySelector('input.cmd');
+
+        function printLine(html, cls){
+          var d=document.createElement('p'); d.className='terminal-line out'+(cls?' '+cls:''); d.innerHTML=html;
+          body.insertBefore(d, lastLine);
+        }
+        function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+        var state='idle', draft={nome:'',email:'',msg:''};
+        function reset(){ state='idle'; draft={nome:'',email:'',msg:''}; input.placeholder='digite help e tecle Enter'; }
+
+        function handle(v){
+          if(state==='idle'){
+            var cmd=v.toLowerCase();
+            if(cmd==='help'){
+              printLine('<span class="hint-cmd"><b>send</b> — escrever uma mensagem · <b>copy</b> — copiar e-mail · <b>links</b> — redes · <b>clear</b></span>');
+            } else if(cmd==='send'){
+              state='ask_nome'; printLine('<span class="ac">></span> qual é o seu nome?'); input.placeholder='seu nome…';
+            } else if(cmd==='copy'||cmd==='email'){
+              try{ navigator.clipboard.writeText(EMAIL); }catch(e){}
+              printLine('<span class="tb">'+EMAIL+'</span> copiado ☠');
+            } else if(cmd==='links'){
+              printLine('github: <a href="https://github.com/Alexandregv1080p" target="_blank" rel="noopener">/Alexandregv1080p</a> · linkedin: <a href="https://www.linkedin.com/in/alexandre-gomes-vieira-9625b31b5/" target="_blank" rel="noopener">/in/alexandre-gomes-vieira</a>');
+            } else if(cmd==='clear'){
+              body.querySelectorAll('.terminal-line.out').forEach(function(n){ if(n!==lastLine) n.remove(); });
+            } else if(cmd!==''){
+              printLine('<span class="ac">comando não encontrado:</span> '+esc(v)+' — digite <b>help</b>');
+            }
+          } else if(state==='ask_nome'){
+            draft.nome=v; state='ask_email'; printLine('<span class="ac">></span> seu e-mail para retorno?'); input.placeholder='voce@email.com…';
+          } else if(state==='ask_email'){
+            draft.email=v; state='ask_msg'; printLine('<span class="ac">></span> sua mensagem?'); input.placeholder='escreva sua mensagem…';
+          } else if(state==='ask_msg'){
+            draft.msg=v;
+            var subject='Contato via portfólio — '+(draft.nome||'sem nome');
+            var bodyTxt=(draft.msg||'')+'\n\n— '+(draft.nome||'')+(draft.email?' <'+draft.email+'>':'');
+            var mail='mailto:'+EMAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(bodyTxt);
+            printLine('<span class="tb">✓</span> abrindo seu cliente de e-mail…');
+            reset();
+            setTimeout(function(){ window.location.href=mail; }, 300);
+          }
+        }
+
+        input.addEventListener('keydown', function(e){
+          if(e.key!=='Enter') return;
+          var v=input.value.trim();
+          printLine('<span class="prompt">$</span> '+esc(input.value));
+          input.value='';
+          handle(v);
+          body.scrollTop=body.scrollHeight;
+        });
+        /* foca só ao clicar (evita auto-scroll no load) */
+        body.addEventListener('click', function(e){ if(e.target.closest('a'))return; input.focus({preventScroll:true}); });
+      })();
+
+      /* ===== IMERSÃO — corrupção + lanterna + inatividade ===== */
+      (function(){
+        var root=document.documentElement, docBody=document.body;
+        var fine = matchMedia('(pointer: fine)').matches;
+
+        /* ---- MEDIDOR DE CORRUPÇÃO (estado global --corr) ---- */
+        var corr=0, interactions=0, maxDepth=0, maxHit=false, craf=null;
+        function depth(){ var h=root.scrollHeight-window.innerHeight; return h>0?Math.min(1,window.pageYOffset/h):0; }
+        function bump(n){ interactions+=n||1; kickC(); }
+        document.addEventListener('click', function(){ bump(1); }, true);
+        document.addEventListener('mouseover', function(e){ if(e.target.closest('.pill,.skbar,.proj-card,.contact-card-item,.showcase-title,.exp-window')) bump(0.4); }, true);
+        window.addEventListener('scroll', function(){ kickC(); }, { passive: true });
+        var veil=document.createElement('div'); veil.id='corruption-veil'; docBody.appendChild(veil);
+        function onMax(){
+          if(maxHit) return; maxHit=true; docBody.classList.add('corr-max');
+          var cb=document.querySelector('.contact-body');
+          if(cb){ var lines=cb.querySelectorAll('.terminal-line'); var anchor=lines[lines.length-1];
+            var p=document.createElement('p'); p.className='terminal-line out'; p.innerHTML='<span class="er">></span> o sistema apodreceu. <span class="ac">mande uma mensagem antes que ele te leve.</span>';
+            if(anchor) cb.insertBefore(p, anchor); }
+        }
+        function loop(){
+          maxDepth=Math.max(maxDepth, depth());
+          var target=Math.min(1, maxDepth*0.72 + Math.min(interactions/45,0.28));
+          corr += (target-corr)*0.08; if(corr<0.001)corr=0;
+          root.style.setProperty('--corr', corr.toFixed(3));
+          docBody.setAttribute('data-corr', corr>0.75?3:corr>0.45?2:corr>0.18?1:0);
+          if(corr>0.8) onMax();
+          if(Math.abs(target-corr) < 0.002){ craf=null; return; }   /* assentou: suspende */
+          craf=requestAnimationFrame(loop);
+        }
+        function kickC(){ if(craf==null && !reduce && !document.hidden) craf=requestAnimationFrame(loop); }
+        document.addEventListener('visibilitychange', function(){
+          if(document.hidden){ if(craf){ cancelAnimationFrame(craf); craf=null; } }
+          else kickC();
+        });
+        if(!reduce) kickC();
+
+        /* ---- LANTERNA (desktop; toggle lembrado) ---- */
+        if(fine && !reduce){
+          var lantern=document.createElement('div'); lantern.id='lantern'; docBody.appendChild(lantern);
+          var KEY='horror-lantern', saved=null;
+          try{ saved=localStorage.getItem(KEY); }catch(e){}
+          var lampOn = saved===null ? true : saved==='1';
+          function applyLamp(){ docBody.classList.toggle('lantern-on', lampOn); if(tgl) tgl.classList.toggle('off', !lampOn); }
+          document.addEventListener('mousemove', function(e){
+            root.style.setProperty('--lx', e.clientX+'px'); root.style.setProperty('--ly', e.clientY+'px');
+          });
+          var tgl=document.createElement('button'); tgl.id='lantern-toggle'; tgl.type='button';
+          tgl.title='Modo lanterna (imersivo)'; tgl.innerHTML='<i class="fa-solid fa-lightbulb"></i>';
+          tgl.addEventListener('click', function(){ lampOn=!lampOn; try{localStorage.setItem(KEY, lampOn?'1':'0');}catch(e){} applyLamp(); });
+          docBody.appendChild(tgl);
+          applyLamp();
+        }
+
+        /* ---- REAÇÃO À INATIVIDADE ---- */
+        if(!reduce){
+          var idleT=null, fired=false, logBox=null;
+          var CALLS=['> sujeito imóvel detectado...','> ainda aí?','> o sistema sente sua presença','> não fique parado no escuro','> role. explore. ou seja consumido.'];
+          function showLog(msg){
+            if(!logBox){ logBox=document.createElement('div'); logBox.id='idle-log'; docBody.appendChild(logBox); }
+            logBox.textContent=msg; logBox.classList.add('show');
+            setTimeout(function(){ if(logBox) logBox.classList.remove('show'); }, 4200);
+          }
+          function idle(){
+            fired=true; docBody.classList.add('idle');
+            var ts=document.querySelectorAll('.showcase-title');
+            if(ts.length){ var t=ts[Math.floor(Math.random()*ts.length)]; if(t.click) t.click(); }
+            showLog(CALLS[Math.floor(Math.random()*CALLS.length)]);
+            idleT=setTimeout(idle, 9000);
+          }
+          function reset(){ clearTimeout(idleT); if(fired){ fired=false; docBody.classList.remove('idle'); } idleT=setTimeout(idle, 18000); }
+          ['mousemove','scroll','keydown','click','touchstart'].forEach(function(ev){ window.addEventListener(ev, reset, {passive:true}); });
+          reset();
+        }
+      })();
+
+      /* ===== COMMAND PALETTE (Ctrl+K / /) ===== */
+      (function(){
+        function go(id){ var el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
+        function theme(p){ var d=document.querySelector('.hpal-dot[data-hpal="'+p+'"]'); if(d) d.click(); }
+        var CMDS=[
+          {ic:'fa-user',lbl:'Ir para Sobre',kw:'sobre about whoami',act:function(){go('sobre');}},
+          {ic:'fa-briefcase',lbl:'Ir para Experiência',kw:'experiencia trajetoria carreira',act:function(){go('experiencia');}},
+          {ic:'fa-code',lbl:'Ir para Projetos',kw:'projetos work portfolio',act:function(){go('projetos');}},
+          {ic:'fa-layer-group',lbl:'Ir para Skills',kw:'skills stack habilidades ferramentas',act:function(){go('habilidades');}},
+          {ic:'fa-envelope',lbl:'Ir para Contato',kw:'contato contact email',act:function(){go('contato');}},
+          {ic:'fa-file-lines',lbl:'Abrir currículo (CV)',kw:'cv curriculo resume pdf',act:function(){window.open('curriculo/alexandre-gomes-vieira-cv.pdf','_blank');}},
+          {ic:'fa-droplet',lbl:'Tema: sangue',kw:'theme tema sangue vermelho red',act:function(){theme('sangue');}},
+          {ic:'fa-droplet',lbl:'Tema: VHS',kw:'theme tema vhs rosa pink',act:function(){theme('vhs');}},
+          {ic:'fa-droplet',lbl:'Tema: tóxico',kw:'theme tema toxico verde green',act:function(){theme('toxico');}},
+          {ic:'fa-lightbulb',lbl:'Lanterna (liga/desliga)',kw:'lanterna lantern escuro dark',act:function(){var b=document.getElementById('lantern-toggle'); if(b)b.click();}},
+          {ic:'fa-brands fa-github',lbl:'GitHub',kw:'github repo codigo',act:function(){window.open('https://github.com/Alexandregv1080p','_blank');}},
+          {ic:'fa-brands fa-linkedin',lbl:'LinkedIn',kw:'linkedin rede',act:function(){window.open('https://www.linkedin.com/in/alexandre-gomes-vieira-9625b31b5/','_blank');}}
+        ];
+        var ov=document.createElement('div'); ov.id='cmdk-overlay';
+        ov.innerHTML='<div id="cmdk"><input id="cmdk-input" autocomplete="off" spellcheck="false" placeholder="digite um comando…  (ex: projetos, tema toxico, cv)"><div class="cmdk-list" id="cmdk-list"></div></div>';
+        document.body.appendChild(ov);
+        var input=ov.querySelector('#cmdk-input'), list=ov.querySelector('#cmdk-list');
+        var filtered=CMDS.slice(), sel=0, open=false;
+        function render(){
+          list.innerHTML='';
+          if(!filtered.length){ list.innerHTML='<div class="cmdk-empty">nenhum comando…</div>'; return; }
+          filtered.forEach(function(c,i){
+            var d=document.createElement('div'); d.className='cmdk-item'+(i===sel?' sel':'');
+            d.innerHTML='<i class="ic fa-solid '+c.ic+'"></i><span class="lbl">'+c.lbl+'</span>';
+            d.addEventListener('click', function(){ run(c); });
+            d.addEventListener('mousemove', function(){ sel=i; paint(); });
+            list.appendChild(d);
+          });
+        }
+        function paint(){ list.querySelectorAll('.cmdk-item').forEach(function(el,i){ el.classList.toggle('sel', i===sel); }); }
+        function filter(q){
+          q=q.trim().toLowerCase();
+          filtered = !q ? CMDS.slice() : CMDS.filter(function(c){ return (c.lbl+' '+c.kw).toLowerCase().indexOf(q)>=0; });
+          sel=0; render();
+        }
+        function openK(){ open=true; ov.classList.add('open'); input.value=''; filter(''); setTimeout(function(){input.focus();},0); }
+        function closeK(){ open=false; ov.classList.remove('open'); }
+        function run(c){ closeK(); setTimeout(function(){ c.act(); }, 60); }
+        input.addEventListener('input', function(){ filter(input.value); });
+        input.addEventListener('keydown', function(e){
+          if(e.key==='ArrowDown'){ e.preventDefault(); sel=Math.min(filtered.length-1,sel+1); paint(); ensureVis(); }
+          else if(e.key==='ArrowUp'){ e.preventDefault(); sel=Math.max(0,sel-1); paint(); ensureVis(); }
+          else if(e.key==='Enter'){ e.preventDefault(); if(filtered[sel]) run(filtered[sel]); }
+          else if(e.key==='Escape'){ closeK(); }
+        });
+        function ensureVis(){ var el=list.querySelectorAll('.cmdk-item')[sel]; if(el) el.scrollIntoView({block:'nearest'}); }
+        ov.addEventListener('mousedown', function(e){ if(e.target===ov) closeK(); });
+        document.addEventListener('keydown', function(e){
+          if((e.ctrlKey||e.metaKey) && (e.key==='k'||e.key==='K')){ e.preventDefault(); open?closeK():openK(); return; }
+          if(e.key==='/' && !open){
+            var a=document.activeElement, tag=a&&a.tagName;
+            if(tag==='INPUT'||tag==='TEXTAREA'||(a&&a.isContentEditable)) return;
+            e.preventDefault(); openK();
+          }
+        });
+        var launch=document.createElement('button'); launch.id='cmdk-launch'; launch.type='button';
+        launch.innerHTML='<i class="fa-solid fa-terminal"></i> <kbd>Ctrl K</kbd>';
+        launch.addEventListener('click', openK);
+        document.body.appendChild(launch);
+      })();
+
+      /* ===== KONAMI — modo hacker ===== */
+      (function(){
+        var seq=[38,38,40,40,37,39,37,39,66,65], pos=0, unlocked=false;
+        document.addEventListener('keydown', function(e){
+          var k=e.keyCode;
+          pos = (k===seq[pos]) ? pos+1 : (k===seq[0]?1:0);
+          if(pos===seq.length){ pos=0; if(!unlocked){ unlocked=true; hacker(); } }
+        });
+        function banner(txt){
+          var b=document.createElement('div'); b.id='hacker-banner'; b.textContent=txt;
+          document.body.appendChild(b); b.offsetWidth; b.classList.add('show');
+          setTimeout(function(){ b.remove(); }, 2500);
+        }
+        function hacker(){
+          document.body.classList.add('hacker-mode');
+          var d=document.querySelector('.hpal-dot[data-hpal="toxico"]'); if(d) d.click();
+          banner('MODO HACKER ☠');
+          startMatrix();
+        }
+        function startMatrix(){
+          if(reduce) return;
+          var c=document.createElement('canvas'); c.id='matrix-rain'; document.body.appendChild(c);
+          var ctx=c.getContext('2d'), cols, drops, fs=14;
+          function size(){ c.width=innerWidth; c.height=innerHeight; cols=Math.floor(c.width/fs); drops=[]; for(var i=0;i<cols;i++)drops[i]=Math.random()*c.height/fs; }
+          size(); addEventListener('resize', size);
+          var G='01<>[]{}=+*#ABCDEF@%$';
+          (function draw(){
+            if(!document.body.classList.contains('hacker-mode')) return;
+            ctx.fillStyle='rgba(3,6,1,.12)'; ctx.fillRect(0,0,c.width,c.height);
+            ctx.fillStyle='#5bff1a'; ctx.font=fs+'px monospace';
+            for(var i=0;i<cols;i++){ var t=G[Math.floor(Math.random()*G.length)]; ctx.fillText(t, i*fs, drops[i]*fs);
+              if(drops[i]*fs>c.height && Math.random()>0.975) drops[i]=0; drops[i]++; }
+            requestAnimationFrame(draw);
+          })();
+        }
+      })();
+
+      /* ===== FLIP dos cards de projeto (frente ↔ arquitetura) ===== */
+      (function(){
+        var ARCH={
+          'Dev Codex':{flow:'Vue 3 SPA · Android (Kotlin) · admin<br>↓<br><span class="node">API .NET 8 · EF Core</span> → PostgreSQL<br>SignalR realtime · JWT+refresh · Docker · CI',note:'Monorepo multi-cliente.'},
+          'MinX':{flow:'Next.js → <span class="node">API NestJS</span> → MySQL + Redis<br>timeline: SQS → Lambda (fanout) · K8s',note:'Rede social, escala por filas.'},
+          'Fast Trade':{flow:'Angular 17 · Android → <span class="node">Spring Boot (Java 21)</span> → PostgreSQL<br>chat: WebSocket STOMP · deploy Helm/K8s',note:'Marketplace monorepo.'},
+          'Pagamentos API':{flow:'Angular → <span class="node">API .NET 8</span> → worker RabbitMQ → Cosmos DB<br>idempotência · retry TTL + DLQ · SignalR',note:'Mensageria resiliente.'},
+          'Browser Engine':{flow:'HTML/CSS parser → DOM → <span class="node">árvore de layout</span> → pintura',note:'Tudo em C++, do zero.'},
+          'SO · Raspberry Pi':{flow:'boot (Assembly) → <span class="node">kernel C</span> → memória → I/O',note:'Bare-metal, sem SO por baixo.'},
+          'Agenda Atenta':{flow:'Blade + jQuery (AJAX) → <span class="node">Laravel 13</span> → MySQL<br>Scheduler + filas · Web Push + e-mail',note:'Organizador de rotina.'}
+        };
+        document.querySelectorAll('.proj-card').forEach(function(card){
+          var nameEl=card.querySelector('.proj-card-name'); if(!nameEl) return;
+          var name=nameEl.textContent.trim();
+          var stack=(card.querySelector('.proj-card-stack')||{}).textContent||'';
+          var href=card.getAttribute('href')||'#';
+          var inner=document.createElement('div'); inner.className='proj-card-inner';
+          var front=document.createElement('div'); front.className='card-face card-front';
+          while(card.firstChild){ front.appendChild(card.firstChild); }
+          inner.appendChild(front);
+          var info=ARCH[name]||{flow:stack.replace(/·/g,'→'),note:'Arquitetura em camadas.'};
+          var back=document.createElement('div'); back.className='card-face card-back';
+          back.innerHTML='<div class="arch-title">// arquitetura</div>'+
+            '<div class="arch-flow">'+info.flow+'</div>'+
+            (info.note?'<div class="arch-note">'+info.note+'</div>':'')+
+            '<span class="back-link">Ver no GitHub ↗</span>';
+          inner.appendChild(back);
+          card.appendChild(inner);
+          card.classList.add('flippable');
+          var hint=document.createElement('span'); hint.className='flip-hint'; hint.textContent='virar ⇋'; card.appendChild(hint);
+          card.addEventListener('click', function(e){
+            if(e.target.closest('.back-link')){ e.preventDefault(); window.open(href,'_blank','noopener'); return; }
+            e.preventDefault(); card.classList.toggle('flipped');
+          });
+        });
+      })();
+
+      /* ===== TIMELINE SCRUBBER (experiência) ===== */
+      (function(){
+        var expList=document.querySelector('.exp-list'); if(!expList) return;
+        var cards=expList.querySelectorAll('.exp-window'); if(!cards.length) return;
+        var YEAR={2022:4,2023:3,2024:3,2025:0,2026:1};
+        var tl=document.createElement('div'); tl.className='exp-timeline';
+        tl.innerHTML='<span class="tl-label">percorra os anos →</span>'+
+          '<div class="tl-track"><input type="range" min="2022" max="2026" step="1" value="2026" aria-label="linha do tempo">'+
+          '<div class="tl-years"><span>2022</span><span>2023</span><span>2024</span><span>2025</span><span class="on">2026</span></div></div>';
+        expList.parentNode.insertBefore(tl, expList);
+        var range=tl.querySelector('input'), ys=tl.querySelectorAll('.tl-years span');
+        function mark(y){
+          var idx=YEAR[y]; var card=cards[idx]; if(!card) return card;
+          cards.forEach(function(c){ c.classList.remove('tl-focus'); });
+          card.classList.add('tl-focus');
+          if(card.classList.contains('exp-accordion') && !card.classList.contains('exp-open')) card.classList.add('exp-open');
+          ys.forEach(function(s,i){ s.classList.toggle('on', (2022+i)===y); });
+          return card;
+        }
+        range.addEventListener('input', function(){ mark(parseInt(range.value,10)); });
+        range.addEventListener('change', function(){ var card=mark(parseInt(range.value,10)); if(card) card.scrollIntoView({behavior:'smooth',block:'center'}); });
+      })();
+
+      /* ===== RASTREADOR DE DESCOBERTAS ===== */
+      (function(){
+        var DISC=[
+          {k:'terminal', n:'Rodar um comando no terminal', h:'digite no bash'},
+          {k:'palette',  n:'Paleta de comandos',           h:'Ctrl+K'},
+          {k:'flip',     n:'Virar um card de projeto',     h:'clique num projeto'},
+          {k:'lantern',  n:'Modo lanterna',                h:'o botão da lâmpada'},
+          {k:'timeline', n:'Linha do tempo',               h:'arraste os anos'},
+          {k:'snake',    n:'Minigame secreto',             h:'um comando escondido'},
+          {k:'hacker',   n:'Modo hacker',                  h:'↑↑↓↓…'}
+        ];
+        var KEY='horror-discoveries', found={};
+        try{ found=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){}
+        function count(){ var c=0; DISC.forEach(function(d){ if(found[d.k])c++; }); return c; }
+
+        var chip=document.createElement('button'); chip.id='disc-chip'; chip.type='button';
+        chip.innerHTML='<i class="fa-solid fa-skull"></i> explorado <span class="cnt"></span>';
+        chip.title='descobertas';
+        document.body.appendChild(chip);
+        var toast=document.createElement('div'); toast.id='disc-toast'; document.body.appendChild(toast);
+        var pop=document.createElement('div'); pop.id='disc-pop'; document.body.appendChild(pop);
+
+        function paintChip(){ chip.querySelector('.cnt').textContent=count()+'/'+DISC.length; }
+        function paintPop(){
+          var all=count()===DISC.length;
+          pop.innerHTML='<h5>// descobertas</h5>'+DISC.map(function(d){
+            return '<div class="di '+(found[d.k]?'got':'')+'"><span class="dot"></span>'+
+              (found[d.k]? d.n : '<span class="h">??? — '+d.h+'</span>')+'</div>';
+          }).join('')+(all?'<div class="all">☠ sistema 100% explorado. você é dos meus.</div>':'');
+        }
+        function showToast(msg){ toast.textContent=msg; toast.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(function(){toast.classList.remove('show');}, 3200); }
+        function got(k){
+          if(found[k]) return; var d=null; DISC.forEach(function(x){ if(x.k===k)d=x; }); if(!d) return;
+          found[k]=1; try{ localStorage.setItem(KEY, JSON.stringify(found)); }catch(e){}
+          paintChip(); paintPop();
+          chip.classList.remove('flash'); void chip.offsetWidth; chip.classList.add('flash');
+          showToast('☠ descoberta: '+d.n+'  ('+count()+'/'+DISC.length+')');
+        }
+        chip.addEventListener('click', function(e){ e.stopPropagation(); pop.classList.toggle('open'); });
+        document.addEventListener('click', function(e){ if(!pop.contains(e.target) && e.target!==chip) pop.classList.remove('open'); });
+        paintChip(); paintPop();
+
+        /* --- detecção por observação (não altera as features) --- */
+        var ov=document.getElementById('cmdk-overlay');
+        if(ov){ new MutationObserver(function(){ if(ov.classList.contains('open')) got('palette'); }).observe(ov,{attributes:true,attributeFilter:['class']}); }
+        new MutationObserver(function(){ if(document.body.classList.contains('hacker-mode')) got('hacker'); }).observe(document.body,{attributes:true,attributeFilter:['class']});
+        document.addEventListener('click', function(e){ var c=e.target.closest('.proj-card'); if(c) setTimeout(function(){ if(c.classList.contains('flipped')) got('flip'); },0); }, true);
+        document.addEventListener('click', function(e){ if(e.target.closest('#lantern-toggle')) got('lantern'); }, true);
+        document.addEventListener('input', function(e){ if(e.target.closest('.exp-timeline')) got('timeline'); }, true);
+        document.addEventListener('keydown', function(e){ if(e.key==='Enter'){ var t=e.target; if(t&&t.classList&&t.classList.contains('cmd')&&t.closest&&t.closest('#ht-out')&&t.value.trim()) got('terminal'); } }, true);
+        var htout=document.getElementById('ht-out');
+        if(htout){ new MutationObserver(function(muts){ muts.forEach(function(m){ [].forEach.call(m.addedNodes,function(n){ if(n.classList&&n.classList.contains('snake-board')) got('snake'); }); }); }).observe(htout,{childList:true}); }
       })();
     })();
   </script>

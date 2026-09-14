@@ -452,8 +452,12 @@ img { max-width: 100%; display: block; }
 @media (max-width: 720px) {
   .side-rail { display: none; }
   .section { padding: 60px 16px; }
-  .hero { padding: 80px 16px 50px; }
+  /* hero: layout em bloco no mobile p/ a janela não crescer pelo conteúdo */
+  .hero { display: block; padding: 80px 16px 50px; }
+  .hero-window, .win-shell--hero { width: 100%; max-width: 100%; }
   .hero-body { padding: 32px 22px 40px; }
+  .hero-title { font-size: clamp(34px, 11vw, 60px); word-break: break-word; }
+  .hero-sub { max-width: 100%; }
   .skills-body { grid-template-columns: 1fr; }
   .proj-grid { grid-template-columns: 1fr; }
   .contact-cards { grid-template-columns: 1fr; }
@@ -464,6 +468,10 @@ img { max-width: 100%; display: block; }
   .desktop-canvas { height: auto; display: flex; flex-direction: column; gap: 14px; }
   .desktop-canvas .panel { position: relative !important; top: auto !important; left: auto !important; width: 100% !important; }
   .panel-bar { cursor: default; }
+  /* controles que só fazem sentido com teclado/mouse: fora no mobile */
+  #cmdk-launch { display: none; }
+  .drag-hint { display: none; }
+  #disc-chip { bottom: 16px; left: 16px; }
 }
 
 /* =====================================================================
@@ -1284,4 +1292,311 @@ a, button, .rail-dot, .proj-card, .proj-filter, .lang-btn, .hpal-dot,
 .proj-card-featured .proj-cat-badge {
   color: var(--accent);
   border-color: var(--border-br);
+}
+
+/* =====================================================================
+   ██ V21 — INTERATIVIDADE: skills, experiência, contato ██
+   Foco: recompensar exploração (hover revela, clique expande),
+   tudo self-contained (sem serviço externo).
+   ===================================================================== */
+
+/* --- SKILLS: hover revela contexto + glitch na barra --- */
+.skbar { cursor: help; }
+.sk-detail {
+  max-height: 0; overflow: hidden; opacity: 0;
+  font-family: var(--f-term); font-size: 13.5px; color: var(--muted);
+  border-left: 2px solid var(--border-br); padding-left: 0; margin-top: 0;
+  transition: max-height .3s ease, opacity .25s ease, padding-left .3s ease, margin-top .3s ease;
+}
+.skbar:hover .sk-detail {
+  max-height: 60px; opacity: 1; padding-left: 8px; margin-top: 6px;
+}
+.skbar:hover > span { color: var(--accent-2); text-shadow: 0 0 8px var(--glow); }
+.skbar:hover .fill { box-shadow: 0 0 20px var(--glow); }
+@media (prefers-reduced-motion: no-preference) {
+  .skbar:hover .fill { animation: skGlitch .5s steps(3) 1; }
+}
+@keyframes skGlitch {
+  0%,100% { transform: translateX(0); }
+  33% { transform: translateX(-2px); }
+  66% { transform: translateX(2px); }
+}
+
+/* --- EXPERIÊNCIA: accordion + cross-highlight de tech --- */
+.exp-accordion { cursor: pointer; }
+.exp-accordion .window-bar { display: flex; align-items: center; }
+.exp-chevron {
+  margin-left: auto; color: var(--muted); font-size: 14px;
+  transition: transform .3s ease, color .3s ease; padding-left: 10px;
+}
+.exp-open .exp-chevron { transform: rotate(90deg); color: var(--accent); }
+.exp-detail {
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height .45s ease, opacity .35s ease, margin-top .35s ease;
+  margin-top: 0;
+}
+.exp-open .exp-detail { max-height: 480px; opacity: 1; margin-top: 14px; }
+.exp-accordion:not(.exp-open):hover { box-shadow: 0 0 0 1px var(--border-br), 0 0 26px rgba(227,6,19,.14); }
+
+/* pill acesa via cross-highlight (hover em uma acende todas iguais) */
+.pill.tech-hot {
+  background: var(--accent); color: #0a0203; border-color: var(--accent);
+  text-shadow: none; box-shadow: 0 0 16px var(--glow); font-weight: 700;
+}
+
+/* --- CONTATO: mini-terminal self-contained --- */
+.contact-input-line { display: flex; align-items: center; gap: 8px; }
+.contact-input-line .prompt { color: var(--term); flex: none; }
+.contact-body input.cmd {
+  flex: 1; background: transparent; border: 0; outline: 0;
+  color: var(--text); font-family: var(--f-body); font-size: 1rem; caret-color: var(--term);
+}
+.contact-body .out.typed { color: var(--muted); }
+.contact-body .out .ac { color: var(--accent); }
+.contact-body .out .tb { color: var(--term); }
+.copy-tag {
+  margin-left: 10px; font-family: var(--f-term); font-size: 13px;
+  color: var(--term); text-shadow: 0 0 8px rgba(53,255,143,.5);
+  animation: copyPop .25s ease;
+}
+@keyframes copyPop { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.contact-body .hint-cmd { color: var(--muted); font-size: 14px; }
+.contact-body .hint-cmd b { color: var(--accent-2); }
+
+/* =====================================================================
+   ██ V22 — IMERSÃO: lanterna, corrupção, inatividade, minigame ██
+   Os quatro se amarram no estado --corr (0..1): rolar/interagir
+   "apodrece" o sistema, aperta a lanterna e faz o contato implorar.
+   ===================================================================== */
+
+/* --- LANTERNA: página escura, o mouse é a luz (desktop only, toggle) --- */
+#lantern {
+  position: fixed; inset: 0; z-index: 9985; pointer-events: none; opacity: 0;
+  transition: opacity .5s ease;
+  --lamp-r: calc(260px - var(--corr,0) * 90px);
+  background:
+    /* facho: miolo limpo, borda com queda nítida, entorno preto */
+    radial-gradient(
+      circle var(--lamp-r) at var(--lx,50%) var(--ly,50%),
+      rgba(0,0,0,0) 0%,
+      rgba(0,0,0,0) 46%,
+      rgba(0,0,0,.35) 60%,
+      rgba(0,0,0,.82) 82%,
+      rgba(0,0,0,.965) 100%),
+    /* leve halo quente na beirada do facho */
+    radial-gradient(
+      circle calc(var(--lamp-r) * 1.15) at var(--lx,50%) var(--ly,50%),
+      rgba(227,6,19,.10) 40%,
+      rgba(0,0,0,0) 72%);
+}
+body.lantern-on #lantern { opacity: 1; }
+#lantern-toggle {
+  position: fixed; left: 20px; bottom: 20px; z-index: 10001;
+  width: 38px; height: 38px; border-radius: 8px; cursor: pointer;
+  background: rgba(10,2,3,.85); border: 1px solid var(--border-br); color: var(--accent);
+  box-shadow: 0 0 14px var(--glow); font-size: 15px;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: color .2s, box-shadow .2s, opacity .2s;
+}
+#lantern-toggle.off { color: var(--muted); box-shadow: none; opacity: .6; }
+#lantern-toggle:hover { color: var(--accent-2); box-shadow: 0 0 20px var(--glow); }
+
+/* --- CORRUPÇÃO: véu que esquenta conforme --corr sobe --- */
+#corruption-veil {
+  position: fixed; inset: 0; z-index: 9984; pointer-events: none;
+  opacity: calc(var(--corr,0) * .4);
+  background: radial-gradient(130% 100% at 50% 120%, rgba(227,6,19,.45), transparent 62%);
+  mix-blend-mode: screen; transition: opacity .6s ease;
+}
+:root[data-hpal="toxico"] #corruption-veil { background: radial-gradient(130% 100% at 50% 120%, rgba(91,255,26,.4), transparent 62%); }
+:root[data-hpal="vhs"] #corruption-veil { background: radial-gradient(130% 100% at 50% 120%, rgba(255,46,136,.4), transparent 62%); }
+
+/* --- INATIVIDADE: o sistema "acorda" --- */
+#idle-log {
+  position: fixed; left: 20px; bottom: 68px; z-index: 10001;
+  font-family: var(--f-term); font-size: 16px; color: var(--accent);
+  background: rgba(10,2,3,.88); border: 1px solid var(--border-br);
+  padding: 6px 12px; border-radius: 6px; text-shadow: 0 0 8px var(--glow);
+  opacity: 0; transform: translateY(8px); transition: opacity .3s, transform .3s;
+  pointer-events: none; max-width: 70vw;
+}
+#idle-log.show { opacity: 1; transform: none; }
+body.idle .rec { animation: recAlarm .45s steps(1) infinite; border-color: var(--accent); }
+@keyframes recAlarm { 50% { background: rgba(227,6,19,.35); box-shadow: 0 0 18px var(--glow); } }
+
+/* --- CONTATO implora quando a corrupção estoura --- */
+body.corr-max .footer-cta { animation: pleaPulse 1.1s ease-in-out infinite; }
+body.corr-max .contact-curse-title { text-shadow: 3px 0 var(--glitch-a), -3px 0 var(--glitch-b), 0 0 40px var(--glow); }
+@keyframes pleaPulse {
+  0%,100% { text-shadow: 0 0 6px var(--glow); }
+  50% { text-shadow: 0 0 18px var(--accent), 0 0 34px var(--glow); transform: translateX(2px); }
+}
+
+/* --- MINIGAME: cobrinha ASCII --- */
+.snake-board {
+  font-family: var(--f-term); font-size: 15px; line-height: 1.05; letter-spacing: 2px;
+  color: var(--term); background: rgba(0,0,0,.45); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px 10px; margin: 6px 0; white-space: pre; overflow-x: auto;
+}
+
+/* =====================================================================
+   ██ V23 — COMANDO GLOBAL · KONAMI · FLIP · TIMELINE ██
+   ===================================================================== */
+
+/* --- COMMAND PALETTE (Ctrl+K / /) --- */
+#cmdk-overlay {
+  position: fixed; inset: 0; z-index: 12000; display: none;
+  background: rgba(0,0,0,.62); backdrop-filter: blur(3px);
+}
+#cmdk-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+#cmdk {
+  margin-top: 12vh; width: min(560px, 92vw);
+  background: var(--panel-2); border: 1px solid var(--border-br); border-radius: 10px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.6), 0 24px 70px rgba(0,0,0,.7), 0 0 44px var(--glow);
+  overflow: hidden; animation: cmdkIn .16s ease;
+}
+@keyframes cmdkIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+#cmdk-input {
+  width: 100%; background: transparent; border: 0; border-bottom: 1px solid var(--border);
+  outline: 0; color: var(--text); font-family: var(--f-body); font-size: 18px;
+  padding: 15px 18px; caret-color: var(--term);
+}
+#cmdk-input::placeholder { color: var(--muted); }
+.cmdk-list { max-height: 340px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+.cmdk-item {
+  display: flex; align-items: center; gap: 12px; padding: 11px 18px; cursor: pointer;
+  color: var(--text); font-size: 15px; border-left: 2px solid transparent;
+}
+.cmdk-item .ic { color: var(--accent); width: 18px; text-align: center; }
+.cmdk-item .lbl { font-family: var(--f-term); letter-spacing: .5px; }
+.cmdk-item .d { color: var(--muted); margin-left: auto; font-size: 13px; font-family: var(--f-term); }
+.cmdk-item.sel, .cmdk-item:hover { background: rgba(227,6,19,.15); border-left-color: var(--accent); }
+.cmdk-empty { padding: 18px; color: var(--muted); font-family: var(--f-term); }
+#cmdk-launch {
+  position: fixed; left: 20px; bottom: 66px; z-index: 10001;
+  height: 38px; padding: 0 12px; border-radius: 8px; cursor: pointer;
+  background: rgba(10,2,3,.85); border: 1px solid var(--border-br); color: var(--accent-2);
+  font-family: var(--f-term); font-size: 14px; letter-spacing: 1px;
+  display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 0 14px var(--glow);
+  transition: color .2s, box-shadow .2s;
+}
+#cmdk-launch:hover { color: var(--accent); box-shadow: 0 0 20px var(--glow); }
+#cmdk-launch kbd { border: 1px solid var(--border-br); border-radius: 4px; padding: 1px 5px; font-size: 12px; }
+
+/* --- MODO HACKER (konami) --- */
+body.hacker-mode #corruption-veil { opacity: .5 !important; }
+#hacker-banner {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(.9);
+  z-index: 12001; font-family: var(--f-display); font-size: clamp(28px,7vw,72px);
+  color: var(--accent); text-shadow: 3px 0 var(--glitch-a), -3px 0 var(--glitch-b), 0 0 40px var(--glow);
+  opacity: 0; pointer-events: none; letter-spacing: 3px; text-align: center; white-space: nowrap;
+}
+#hacker-banner.show { animation: hbShow 2.4s ease forwards; }
+@keyframes hbShow {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(.6); }
+  15%,75% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.1); }
+}
+#matrix-rain { position: fixed; inset: 0; z-index: 9983; pointer-events: none; opacity: 0; transition: opacity .6s; }
+body.hacker-mode #matrix-rain { opacity: .22; }
+
+/* --- FLIP dos cards de projeto --- */
+.proj-card.flippable { perspective: 1200px; }
+.proj-card .proj-card-inner {
+  position: relative; transition: transform .6s cubic-bezier(.22,1,.36,1); transform-style: preserve-3d;
+}
+.proj-card.flipped .proj-card-inner { transform: rotateY(180deg); }
+.proj-card .card-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.proj-card .card-back {
+  position: absolute; inset: 0; transform: rotateY(180deg);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.card-back .arch-title { font-family: var(--f-term); color: var(--accent); font-size: 14px; letter-spacing: 1px; }
+.card-back .arch-flow { font-family: var(--f-term); font-size: 13.5px; color: var(--term); line-height: 1.7; }
+.card-back .arch-flow .node { color: var(--text); }
+.card-back .arch-note { color: var(--muted); font-size: 13px; }
+.card-back .back-link { margin-top: auto; color: var(--accent-2); font-family: var(--f-term); font-size: 14px; }
+.card-back .back-link:hover { color: var(--accent); }
+.proj-card .flip-hint {
+  position: absolute; top: 10px; right: 12px; color: var(--muted); font-size: 12px;
+  font-family: var(--f-term); opacity: .6; pointer-events: none;
+}
+.proj-card.flipped .flip-hint { display: none; }
+
+/* --- TIMELINE SCRUBBER (experiência) --- */
+.exp-timeline {
+  display: flex; align-items: center; gap: 14px; margin: 0 0 26px;
+  padding: 14px 18px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+}
+.exp-timeline .tl-label { font-family: var(--f-term); color: var(--muted); font-size: 13px; letter-spacing: 1px; white-space: nowrap; }
+.exp-timeline .tl-track { position: relative; flex: 1; height: 34px; display: flex; align-items: center; }
+.exp-timeline input[type="range"] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 3px;
+  background: linear-gradient(to right, var(--accent), var(--border-br)); outline: none; cursor: pointer;
+}
+.exp-timeline input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--accent); border: 2px solid #0a0203; box-shadow: 0 0 12px var(--glow); cursor: grab;
+}
+.exp-timeline input[type="range"]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 2px solid #0a0203;
+  box-shadow: 0 0 12px var(--glow); cursor: grab;
+}
+.exp-timeline .tl-years { position: absolute; inset: 0; display: flex; justify-content: space-between; pointer-events: none; top: 22px; }
+.exp-timeline .tl-years span { font-family: var(--f-term); font-size: 12px; color: var(--muted); }
+.exp-timeline .tl-years span.on { color: var(--accent); text-shadow: 0 0 8px var(--glow); }
+.exp-window.tl-focus { box-shadow: 0 0 0 1px var(--accent), 0 0 30px var(--glow); }
+@media (max-width: 640px) { .exp-timeline { flex-direction: column; align-items: stretch; gap: 8px; } }
+
+/* =====================================================================
+   ██ V24 — RASTREADOR DE DESCOBERTAS ██
+   Conta segredos achados (comandos, konami, flip, lanterna, snake…).
+   Amarra tudo num objetivo só. Persistido em localStorage.
+   ===================================================================== */
+#disc-chip {
+  position: fixed; left: 20px; bottom: 112px; z-index: 10001;
+  height: 38px; padding: 0 12px; border-radius: 8px; cursor: pointer;
+  background: rgba(10,2,3,.85); border: 1px solid var(--border-br); color: var(--accent-2);
+  font-family: var(--f-term); font-size: 14px; letter-spacing: 1px;
+  display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 0 14px var(--glow);
+  transition: color .2s, box-shadow .2s;
+}
+#disc-chip:hover { color: var(--accent); box-shadow: 0 0 20px var(--glow); }
+#disc-chip .cnt { color: var(--term); }
+#disc-chip.flash { animation: discFlash .6s ease; }
+@keyframes discFlash { 0%,100% { transform: none; } 30% { transform: scale(1.14); box-shadow: 0 0 28px var(--accent); } }
+#disc-toast {
+  position: fixed; left: 20px; bottom: 158px; z-index: 10001;
+  background: rgba(10,2,3,.92); border: 1px solid var(--border-br); color: var(--accent);
+  font-family: var(--f-term); font-size: 14px; padding: 7px 12px; border-radius: 6px;
+  text-shadow: 0 0 8px var(--glow); opacity: 0; transform: translateY(8px);
+  transition: opacity .3s, transform .3s; pointer-events: none; max-width: 78vw;
+}
+#disc-toast.show { opacity: 1; transform: none; }
+#disc-pop {
+  position: fixed; left: 20px; bottom: 158px; z-index: 10002; width: min(310px, 82vw);
+  background: var(--panel-2); border: 1px solid var(--border-br); border-radius: 10px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.6), 0 16px 44px rgba(0,0,0,.6), 0 0 30px var(--glow);
+  padding: 12px 14px; display: none;
+}
+#disc-pop.open { display: block; }
+#disc-pop h5 { font-family: var(--f-term); color: var(--accent); font-size: 14px; letter-spacing: 1px; margin-bottom: 8px; }
+#disc-pop .di { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-family: var(--f-body); font-size: 14px; color: var(--muted); }
+#disc-pop .di.got { color: var(--text); }
+#disc-pop .di .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+#disc-pop .di.got .dot { background: var(--term); box-shadow: 0 0 8px var(--term); }
+#disc-pop .di .h { color: var(--muted); font-family: var(--f-term); font-size: 12px; }
+#disc-pop .all { margin-top: 10px; color: var(--accent); font-family: var(--f-term); font-size: 13px; text-shadow: 0 0 8px var(--glow); }
+
+/* trava de segurança: nunca rolar horizontalmente (mobile) */
+html, body { max-width: 100%; overflow-x: hidden; }
+
+/* =====================================================================
+   ██ V25 — OVERRIDES MOBILE (no fim p/ vencer ordem de cascata) ██
+   ===================================================================== */
+@media (max-width: 720px) {
+  #cmdk-launch { display: none !important; }   /* Ctrl+K é só teclado */
+  .drag-hint { display: none !important; }     /* painéis não arrastam no mobile */
+  #disc-chip { bottom: 16px !important; left: 16px !important; }
+  #disc-pop, #disc-toast { bottom: 62px !important; left: 16px !important; }
 }

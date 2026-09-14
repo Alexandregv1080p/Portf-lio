@@ -973,3 +973,82 @@ body {
   box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.35);
 }
 .theme-switcher { margin-left: 0.6rem; }
+
+/* =====================================================================
+   INTERATIVIDADE (paridade com horror, em estilo sóbrio)
+   Command palette · flip dos cards · skills hover · exp accordion+timeline · contato CLI
+   ===================================================================== */
+
+/* --- SKILLS: hover revela onde a skill foi usada --- */
+.skbar { cursor: help; }
+.sk-detail {
+  max-height: 0; overflow: hidden; opacity: 0;
+  font-family: var(--font-mono); font-size: 12.5px; color: var(--text-muted);
+  border-left: 2px solid var(--accent); padding-left: 0; margin-top: 0;
+  transition: max-height .3s ease, opacity .25s ease, padding-left .3s ease, margin-top .3s ease;
+}
+.skbar:hover .sk-detail { max-height: 60px; opacity: 1; padding-left: 8px; margin-top: 6px; }
+.skbar:hover > span { color: var(--accent); }
+
+/* --- EXPERIÊNCIA: accordion + cross-highlight --- */
+.exp-accordion { cursor: pointer; }
+.exp-accordion .window-bar { display: flex; align-items: center; }
+.exp-chevron { margin-left: auto; color: var(--text-dim); font-size: 13px; transition: transform .3s, color .3s; padding-left: 10px; }
+.exp-open .exp-chevron { transform: rotate(90deg); color: var(--accent); }
+.exp-detail { max-height: 0; overflow: hidden; opacity: 0; transition: max-height .45s ease, opacity .35s ease, margin-top .35s ease; margin-top: 0; }
+.exp-open .exp-detail { max-height: 480px; opacity: 1; margin-top: 14px; }
+.exp-accordion:not(.exp-open):hover { box-shadow: 0 0 0 1px var(--accent-dim); }
+.pill.tech-hot { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+
+/* --- TIMELINE SCRUBBER --- */
+.exp-timeline { display: flex; align-items: center; gap: 14px; margin: 0 0 26px; padding: 14px 18px; background: var(--bg-window); border: 1px solid var(--border); border-radius: var(--radius); }
+.exp-timeline .tl-label { font-family: var(--font-mono); color: var(--text-muted); font-size: 13px; white-space: nowrap; }
+.exp-timeline .tl-track { position: relative; flex: 1; height: 34px; display: flex; align-items: center; }
+.exp-timeline input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 3px; background: var(--accent-dim); outline: none; cursor: pointer; }
+.exp-timeline input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 10px var(--accent-glow); cursor: grab; }
+.exp-timeline input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); cursor: grab; }
+.exp-timeline .tl-years { position: absolute; inset: 0; top: 22px; display: flex; justify-content: space-between; pointer-events: none; }
+.exp-timeline .tl-years span { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
+.exp-timeline .tl-years span.on { color: var(--accent); }
+.exp-window.tl-focus { box-shadow: 0 0 0 1px var(--accent); }
+@media (max-width: 640px) { .exp-timeline { flex-direction: column; align-items: stretch; gap: 8px; } }
+
+/* --- FLIP dos cards de projeto --- */
+.proj-card.flippable { perspective: 1200px; }
+.proj-card .proj-card-inner { position: relative; transition: transform .6s cubic-bezier(.22,1,.36,1); transform-style: preserve-3d; }
+.proj-card.flipped .proj-card-inner { transform: rotateY(180deg); }
+.proj-card .card-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.proj-card .card-back { position: absolute; inset: 0; transform: rotateY(180deg); display: flex; flex-direction: column; gap: 8px; }
+.card-back .arch-title { font-family: var(--font-mono); color: var(--accent); font-size: 13px; }
+.card-back .arch-flow { font-family: var(--font-mono); font-size: 13px; color: var(--text); line-height: 1.7; }
+.card-back .arch-flow .node { color: var(--accent); }
+.card-back .arch-note { color: var(--text-muted); font-size: 12.5px; }
+.card-back .back-link { margin-top: auto; color: var(--accent); font-family: var(--font-mono); font-size: 13px; }
+.proj-card .flip-hint { position: absolute; top: 10px; right: 12px; color: var(--text-dim); font-size: 11px; font-family: var(--font-mono); pointer-events: none; }
+.proj-card.flipped .flip-hint { display: none; }
+
+/* --- CONTATO: mini-terminal --- */
+.contact-input-line { display: flex; align-items: center; gap: 8px; }
+.contact-input-line .prompt { color: var(--accent); flex: none; }
+.contact-body input.cmd { flex: 1; background: transparent; border: 0; outline: 0; color: var(--text); font-family: var(--font-mono); font-size: 14px; caret-color: var(--accent); }
+.contact-body .out .ac { color: var(--accent); }
+.contact-body .out .tb { color: var(--accent); }
+.copy-tag { margin-left: 10px; font-family: var(--font-mono); font-size: 12px; color: var(--accent); }
+.contact-body .hint-cmd { color: var(--text-muted); font-size: 13px; }
+.contact-body .hint-cmd b { color: var(--accent); }
+
+/* --- COMMAND PALETTE --- */
+#cmdk-overlay { position: fixed; inset: 0; z-index: 12000; display: none; background: rgba(0,0,0,.55); backdrop-filter: blur(3px); }
+#cmdk-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+#cmdk { margin-top: 12vh; width: min(560px, 92vw); background: var(--bg-window); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 24px 70px rgba(0,0,0,.6); overflow: hidden; }
+#cmdk-input { width: 100%; background: transparent; border: 0; border-bottom: 1px solid var(--border); outline: 0; color: var(--text); font-family: var(--font); font-size: 17px; padding: 15px 18px; caret-color: var(--accent); }
+#cmdk-input::placeholder { color: var(--text-dim); }
+.cmdk-list { max-height: 340px; overflow-y: auto; }
+.cmdk-item { display: flex; align-items: center; gap: 12px; padding: 11px 18px; cursor: pointer; color: var(--text); font-size: 15px; border-left: 2px solid transparent; }
+.cmdk-item .ic { color: var(--accent); width: 18px; text-align: center; }
+.cmdk-item.sel, .cmdk-item:hover { background: var(--accent-dim); border-left-color: var(--accent); }
+.cmdk-empty { padding: 18px; color: var(--text-muted); font-family: var(--font-mono); }
+#cmdk-launch { position: fixed; left: 20px; bottom: 20px; z-index: 10001; height: 38px; padding: 0 12px; border-radius: 10px; cursor: pointer; background: var(--bg-window); border: 1px solid var(--border); color: var(--text-muted); font-family: var(--font-mono); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; transition: color .2s, border-color .2s; }
+#cmdk-launch:hover { color: var(--accent); border-color: var(--accent); }
+#cmdk-launch kbd { border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 12px; }
+@media (max-width: 720px) { #cmdk-launch { display: none; } }

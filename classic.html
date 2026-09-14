@@ -476,5 +476,168 @@
   </footer>
 
   <script src="script.js"></script>
+  <script>
+  /* ===== INTERAÇÕES (paridade sóbria com o horror) ===== */
+  (function(){
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* --- SKILLS: hover revela contexto --- */
+    (function(){
+      var INFO={
+        'Angular / TypeScript':'Spotside, CroSoften, Fast Trade, A2W · +4 anos de front',
+        'React / Next.js':'Postaqui, Play2Sell, MinX · SSR e SPA',
+        'Vue 3 / Pinia':'Dev Codex (web) · componentes e stores',
+        'HTML5 / CSS3 / Tailwind':'todos os fronts · responsivo e design system',
+        'Node.js / NestJS / Express':'Spotside (microsserviços), MinX, Pagamentos API',
+        'Java / Spring Boot':'Fast Trade, Sistema de Pedidos · APIs REST, JWT, WebSocket',
+        '.NET / C#':'Dev Codex, Pagamentos API · EF Core, SignalR, mensageria',
+        'PHP / Laravel':'Agenda Atenta · filas, scheduler, web push',
+        'Kotlin / Android':'CroSoften, Dev Codex, Fast Trade · apps nativos',
+        'React Native / Expo':'apps multiplataforma',
+        'PostgreSQL / MySQL / MongoDB':'relacional e NoSQL em praticamente todo projeto',
+        'Docker / Git / CI-CD':'containers, GitHub Actions e GitLab CI/CD'
+      };
+      document.querySelectorAll('.skbar').forEach(function(sk){
+        var label=sk.querySelector('span'); if(!label)return;
+        var info=INFO[label.textContent.trim()]; if(!info)return;
+        var det=document.createElement('div'); det.className='sk-detail'; det.textContent='↳ '+info; sk.appendChild(det);
+      });
+    })();
+
+    /* --- EXPERIÊNCIA: accordion + cross-highlight de tech --- */
+    (function(){
+      var wins=document.querySelectorAll('.exp-window');
+      wins.forEach(function(win,idx){
+        var body=win.querySelector('.exp-body'); if(!body)return;
+        var detail=document.createElement('div'); detail.className='exp-detail';
+        var bullets=body.querySelector('.exp-bullets'), pills=body.querySelector('.pill-row');
+        if(bullets)detail.appendChild(bullets); if(pills)detail.appendChild(pills);
+        body.appendChild(detail);
+        win.classList.add('exp-accordion');
+        var bar=win.querySelector('.window-bar'); if(bar){ var ch=document.createElement('span'); ch.className='exp-chevron'; ch.textContent='▸'; bar.appendChild(ch); }
+        if(idx===0)win.classList.add('exp-open');
+        win.addEventListener('click',function(e){ if(e.target.closest('a, .pill'))return; win.classList.toggle('exp-open'); });
+      });
+      function norm(t){ return t.trim().toLowerCase(); }
+      var all=document.querySelectorAll('.pill');
+      all.forEach(function(p){
+        p.addEventListener('mouseenter',function(){ var k=norm(p.textContent); all.forEach(function(q){ if(norm(q.textContent)===k)q.classList.add('tech-hot'); }); });
+        p.addEventListener('mouseleave',function(){ all.forEach(function(q){ q.classList.remove('tech-hot'); }); });
+      });
+    })();
+
+    /* --- TIMELINE SCRUBBER --- */
+    (function(){
+      var expList=document.querySelector('.exp-list'); if(!expList)return;
+      var cards=expList.querySelectorAll('.exp-window'); if(!cards.length)return;
+      var YEAR={2022:4,2023:3,2024:3,2025:0,2026:1};
+      var tl=document.createElement('div'); tl.className='exp-timeline';
+      tl.innerHTML='<span class="tl-label">percorra os anos →</span><div class="tl-track"><input type="range" min="2022" max="2026" step="1" value="2026" aria-label="linha do tempo"><div class="tl-years"><span>2022</span><span>2023</span><span>2024</span><span>2025</span><span class="on">2026</span></div></div>';
+      expList.parentNode.insertBefore(tl, expList);
+      var range=tl.querySelector('input'), ys=tl.querySelectorAll('.tl-years span');
+      function mark(y){ var c=cards[YEAR[y]]; if(!c)return c; cards.forEach(function(x){x.classList.remove('tl-focus');}); c.classList.add('tl-focus'); if(c.classList.contains('exp-accordion')&&!c.classList.contains('exp-open'))c.classList.add('exp-open'); ys.forEach(function(s,i){ s.classList.toggle('on',(2022+i)===y); }); return c; }
+      range.addEventListener('input',function(){ mark(parseInt(range.value,10)); });
+      range.addEventListener('change',function(){ var c=mark(parseInt(range.value,10)); if(c)c.scrollIntoView({behavior:'smooth',block:'center'}); });
+    })();
+
+    /* --- FLIP dos cards de projeto --- */
+    (function(){
+      var ARCH={
+        'Dev Codex':{flow:'Vue 3 SPA · Android (Kotlin) · admin<br>↓<br><span class="node">API .NET 8 · EF Core</span> → PostgreSQL<br>SignalR realtime · JWT+refresh · Docker · CI',note:'Monorepo multi-cliente.'},
+        'MinX':{flow:'Next.js → <span class="node">API NestJS</span> → MySQL + Redis<br>timeline: SQS → Lambda (fanout) · K8s',note:'Rede social, escala por filas.'},
+        'Fast Trade':{flow:'Angular 17 · Android → <span class="node">Spring Boot (Java 21)</span> → PostgreSQL<br>chat: WebSocket STOMP · deploy Helm/K8s',note:'Marketplace monorepo.'},
+        'Pagamentos API':{flow:'Angular → <span class="node">API .NET 8</span> → worker RabbitMQ → Cosmos DB<br>idempotência · retry TTL + DLQ · SignalR',note:'Mensageria resiliente.'},
+        'Browser Engine':{flow:'HTML/CSS parser → DOM → <span class="node">árvore de layout</span> → pintura',note:'Tudo em C++, do zero.'},
+        'SO · Raspberry Pi':{flow:'boot (Assembly) → <span class="node">kernel C</span> → memória → I/O',note:'Bare-metal, sem SO por baixo.'},
+        'Agenda Atenta':{flow:'Blade + jQuery (AJAX) → <span class="node">Laravel 13</span> → MySQL<br>Scheduler + filas · Web Push + e-mail',note:'Organizador de rotina.'}
+      };
+      document.querySelectorAll('.proj-card').forEach(function(card){
+        var nameEl=card.querySelector('.proj-card-name'); if(!nameEl)return;
+        var name=nameEl.textContent.trim();
+        var stack=(card.querySelector('.proj-card-stack')||{}).textContent||'';
+        var href=card.getAttribute('href')||'#';
+        var inner=document.createElement('div'); inner.className='proj-card-inner';
+        var front=document.createElement('div'); front.className='card-face card-front';
+        while(card.firstChild){ front.appendChild(card.firstChild); }
+        inner.appendChild(front);
+        var info=ARCH[name]||{flow:stack.replace(/·/g,'→'),note:'Arquitetura em camadas.'};
+        var back=document.createElement('div'); back.className='card-face card-back';
+        back.innerHTML='<div class="arch-title">// arquitetura</div><div class="arch-flow">'+info.flow+'</div>'+(info.note?'<div class="arch-note">'+info.note+'</div>':'')+'<span class="back-link">Ver no GitHub ↗</span>';
+        inner.appendChild(back); card.appendChild(inner); card.classList.add('flippable');
+        var hint=document.createElement('span'); hint.className='flip-hint'; hint.textContent='virar ⇋'; card.appendChild(hint);
+        card.addEventListener('click',function(e){ if(e.target.closest('.back-link')){ e.preventDefault(); window.open(href,'_blank','noopener'); return; } e.preventDefault(); card.classList.toggle('flipped'); });
+      });
+    })();
+
+    /* --- CONTATO: mini-terminal (mailto self-contained) + copiar --- */
+    (function(){
+      var body=document.querySelector('.contact-body'); if(!body)return;
+      var EMAIL='alexandregv1999@gmail.com';
+      body.querySelectorAll('.contact-card-item').forEach(function(card){
+        var href=card.getAttribute('href')||''; if(!/^mailto:|^tel:/.test(href))return;
+        card.addEventListener('click',function(){ var val=href.replace(/^mailto:|^tel:/,''); try{navigator.clipboard.writeText(val);}catch(e){} var old=card.querySelector('.copy-tag'); if(old)old.remove(); var tag=document.createElement('span'); tag.className='copy-tag'; tag.textContent='copiado ✓'; card.appendChild(tag); setTimeout(function(){tag.remove();},1500); });
+      });
+      var lines=body.querySelectorAll('.terminal-line'); var last=lines[lines.length-1]; if(!last)return;
+      last.classList.add('contact-input-line');
+      last.innerHTML='<span class="prompt">$</span> <input class="cmd" autocomplete="off" spellcheck="false" placeholder="digite help e tecle Enter">';
+      var input=last.querySelector('input.cmd');
+      function print(html){ var d=document.createElement('p'); d.className='terminal-line out'; d.innerHTML=html; body.insertBefore(d,last); }
+      function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+      var state='idle', d={nome:'',email:'',msg:''};
+      function reset(){ state='idle'; d={nome:'',email:'',msg:''}; input.placeholder='digite help e tecle Enter'; }
+      function handle(v){
+        if(state==='idle'){ var c=v.toLowerCase();
+          if(c==='help') print('<span class="hint-cmd"><b>send</b> — escrever · <b>copy</b> — copiar e-mail · <b>links</b> — redes · <b>clear</b></span>');
+          else if(c==='send'){ state='ask_nome'; print('<span class="ac">></span> qual é o seu nome?'); input.placeholder='seu nome…'; }
+          else if(c==='copy'||c==='email'){ try{navigator.clipboard.writeText(EMAIL);}catch(e){} print('<span class="tb">'+EMAIL+'</span> copiado ✓'); }
+          else if(c==='links') print('github: <a href="https://github.com/Alexandregv1080p" target="_blank" rel="noopener">/Alexandregv1080p</a> · linkedin: <a href="https://www.linkedin.com/in/alexandre-gomes-vieira-9625b31b5/" target="_blank" rel="noopener">/in/alexandre-gomes-vieira</a>');
+          else if(c==='clear') body.querySelectorAll('.terminal-line.out').forEach(function(n){ if(n!==last)n.remove(); });
+          else if(c!=='') print('<span class="ac">comando não encontrado:</span> '+esc(v)+' — digite <b>help</b>');
+        } else if(state==='ask_nome'){ d.nome=v; state='ask_email'; print('<span class="ac">></span> seu e-mail para retorno?'); input.placeholder='voce@email.com…'; }
+        else if(state==='ask_email'){ d.email=v; state='ask_msg'; print('<span class="ac">></span> sua mensagem?'); input.placeholder='escreva sua mensagem…'; }
+        else if(state==='ask_msg'){ d.msg=v; var subj='Contato via portfólio — '+(d.nome||'sem nome'); var bt=(d.msg||'')+'\n\n— '+(d.nome||'')+(d.email?' <'+d.email+'>':''); var mail='mailto:'+EMAIL+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(bt); print('<span class="tb">✓</span> abrindo seu cliente de e-mail…'); reset(); setTimeout(function(){ window.location.href=mail; },300); }
+      }
+      input.addEventListener('keydown',function(e){ if(e.key!=='Enter')return; var v=input.value.trim(); print('<span class="prompt">$</span> '+esc(input.value)); input.value=''; handle(v); body.scrollTop=body.scrollHeight; });
+      body.addEventListener('click',function(e){ if(e.target.closest('a'))return; input.focus({preventScroll:true}); });
+    })();
+
+    /* --- COMMAND PALETTE (Ctrl+K / /) --- */
+    (function(){
+      function go(id){ var el=document.getElementById(id); if(el)el.scrollIntoView({behavior:'smooth',block:'start'}); }
+      function theme(t){ var d=document.querySelector('.theme-dot[data-theme="'+t+'"]'); if(d)d.click(); }
+      var CMDS=[
+        {ic:'fa-user',lbl:'Ir para Sobre',kw:'sobre about',act:function(){go('sobre');}},
+        {ic:'fa-briefcase',lbl:'Ir para Experiência',kw:'experiencia trajetoria',act:function(){go('experiencia');}},
+        {ic:'fa-code',lbl:'Ir para Projetos',kw:'projetos work',act:function(){go('projetos');}},
+        {ic:'fa-layer-group',lbl:'Ir para Skills',kw:'skills stack habilidades',act:function(){go('habilidades');}},
+        {ic:'fa-envelope',lbl:'Ir para Contato',kw:'contato contact',act:function(){go('contato');}},
+        {ic:'fa-file-lines',lbl:'Abrir currículo (CV)',kw:'cv curriculo resume',act:function(){window.open('curriculo/alexandre-gomes-vieira-cv.pdf','_blank');}},
+        {ic:'fa-palette',lbl:'Tema: verde',kw:'theme tema verde green',act:function(){theme('green');}},
+        {ic:'fa-palette',lbl:'Tema: azul',kw:'theme tema azul blue',act:function(){theme('blue');}},
+        {ic:'fa-palette',lbl:'Tema: violeta',kw:'theme tema violeta violet',act:function(){theme('violet');}},
+        {ic:'fa-palette',lbl:'Tema: âmbar',kw:'theme tema ambar amber',act:function(){theme('amber');}},
+        {ic:'fa-palette',lbl:'Tema: rosa',kw:'theme tema rosa rose',act:function(){theme('rose');}},
+        {ic:'fa-brands fa-github',lbl:'GitHub',kw:'github',act:function(){window.open('https://github.com/Alexandregv1080p','_blank');}},
+        {ic:'fa-brands fa-linkedin',lbl:'LinkedIn',kw:'linkedin',act:function(){window.open('https://www.linkedin.com/in/alexandre-gomes-vieira-9625b31b5/','_blank');}}
+      ];
+      var ov=document.createElement('div'); ov.id='cmdk-overlay';
+      ov.innerHTML='<div id="cmdk"><input id="cmdk-input" autocomplete="off" spellcheck="false" placeholder="digite um comando…  (ex: projetos, tema azul, cv)"><div class="cmdk-list" id="cmdk-list"></div></div>';
+      document.body.appendChild(ov);
+      var input=ov.querySelector('#cmdk-input'), list=ov.querySelector('#cmdk-list');
+      var filtered=CMDS.slice(), sel=0, open=false;
+      function render(){ list.innerHTML=''; if(!filtered.length){ list.innerHTML='<div class="cmdk-empty">nenhum comando…</div>'; return; } filtered.forEach(function(c,i){ var d=document.createElement('div'); d.className='cmdk-item'+(i===sel?' sel':''); d.innerHTML='<i class="ic fa-solid '+c.ic+'"></i><span class="lbl">'+c.lbl+'</span>'; d.addEventListener('click',function(){ run(c); }); d.addEventListener('mousemove',function(){ sel=i; paint(); }); list.appendChild(d); }); }
+      function paint(){ list.querySelectorAll('.cmdk-item').forEach(function(el,i){ el.classList.toggle('sel',i===sel); }); }
+      function filter(q){ q=q.trim().toLowerCase(); filtered=!q?CMDS.slice():CMDS.filter(function(c){ return (c.lbl+' '+c.kw).toLowerCase().indexOf(q)>=0; }); sel=0; render(); }
+      function openK(){ open=true; ov.classList.add('open'); input.value=''; filter(''); setTimeout(function(){input.focus();},0); }
+      function closeK(){ open=false; ov.classList.remove('open'); }
+      function run(c){ closeK(); setTimeout(function(){ c.act(); },60); }
+      input.addEventListener('input',function(){ filter(input.value); });
+      input.addEventListener('keydown',function(e){ if(e.key==='ArrowDown'){ e.preventDefault(); sel=Math.min(filtered.length-1,sel+1); paint(); } else if(e.key==='ArrowUp'){ e.preventDefault(); sel=Math.max(0,sel-1); paint(); } else if(e.key==='Enter'){ e.preventDefault(); if(filtered[sel])run(filtered[sel]); } else if(e.key==='Escape'){ closeK(); } });
+      ov.addEventListener('mousedown',function(e){ if(e.target===ov)closeK(); });
+      document.addEventListener('keydown',function(e){ if((e.ctrlKey||e.metaKey)&&(e.key==='k'||e.key==='K')){ e.preventDefault(); open?closeK():openK(); return; } if(e.key==='/'&&!open){ var a=document.activeElement,tag=a&&a.tagName; if(tag==='INPUT'||tag==='TEXTAREA'||(a&&a.isContentEditable))return; e.preventDefault(); openK(); } });
+      var launch=document.createElement('button'); launch.id='cmdk-launch'; launch.type='button'; launch.innerHTML='<i class="fa-solid fa-terminal"></i> <kbd>Ctrl K</kbd>'; launch.addEventListener('click',openK); document.body.appendChild(launch);
+    })();
+  })();
+  </script>
 </body>
 </html>
