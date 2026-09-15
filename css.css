@@ -1052,3 +1052,25 @@ body {
 #cmdk-launch:hover { color: var(--accent); border-color: var(--accent); }
 #cmdk-launch kbd { border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 12px; }
 @media (max-width: 720px) { #cmdk-launch { display: none; } }
+
+/* ===== Acessibilidade mobile: alvos de toque ≥ ~30px ===== */
+@media (max-width: 720px) {
+  .theme-dot { position: relative; }
+  .theme-dot::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; }
+  .window-bar .lang-btn { min-height: 34px; padding: 6px 11px; }
+  .footer-socials a { padding: 8px; display: inline-flex; }
+  .live-badge { white-space: nowrap; }
+}
+@media (max-width: 720px) { .footer-cta { padding: 8px 0; } }
+/* hero: barra quebra linha no mobile p/ tema/idioma não cortarem */
+@media (max-width: 720px) {
+  .hero-window .window-bar { flex-wrap: wrap; height: auto; row-gap: 8px; padding-top: 10px; padding-bottom: 10px; }
+}
+
+/* nav de versão: mais opaca e tocável no mobile (sobreposição limpa ao rolar) */
+@media (max-width: 720px) {
+  nav[aria-label="Trocar versão"] a {
+    background: rgba(8, 10, 14, .94) !important;
+    padding: 9px 13px !important;
+  }
+}

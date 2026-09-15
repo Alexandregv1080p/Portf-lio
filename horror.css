@@ -1600,3 +1600,40 @@ html, body { max-width: 100%; overflow-x: hidden; }
   #disc-chip { bottom: 16px !important; left: 16px !important; }
   #disc-pop, #disc-toast { bottom: 62px !important; left: 16px !important; }
 }
+
+/* =====================================================================
+   ██ V26 — ACESSIBILIDADE MOBILE: alvos de toque ≥ ~30px ██
+   ===================================================================== */
+@media (max-width: 720px) {
+  .live-badge { white-space: nowrap; }
+  /* bolinhas de paleta: mantém o visual, amplia a área de toque */
+  .hpal-dot { position: relative; }
+  .hpal-dot::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; }
+  .window-bar .lang-btn { min-height: 34px; padding: 6px 11px; }
+  .version-nav a { padding: 9px 13px; }
+  .footer-socials a { padding: 8px; display: inline-flex; }
+}
+@media (max-width: 720px) { .footer-cta { padding: 8px 0; } }
+/* hero: barra quebra linha no mobile p/ paleta/idioma não cortarem */
+@media (max-width: 720px) {
+  .hero-window .window-bar { flex-wrap: wrap; height: auto; row-gap: 8px; padding-top: 10px; padding-bottom: 10px; }
+  .hero-window .window-bar .hpal-switcher { margin-left: auto; }
+}
+
+/* =====================================================================
+   ██ V27 — CURSOR TEMÁTICO (mira de horror; só com mouse) ██
+   ===================================================================== */
+@media (pointer: fine) {
+  html, body { cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2724%27%20height%3D%2724%27%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%2712%27%20r%3D%277%27%20fill%3D%27none%27%20stroke%3D%27%23ff3b3b%27%20stroke-width%3D%271.5%27%2F%3E%3Cpath%20d%3D%27M12%201V5M12%2019V23M1%2012H5M19%2012H23%27%20stroke%3D%27%23ff3b3b%27%20stroke-width%3D%271.5%27%2F%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%2712%27%20r%3D%271.4%27%20fill%3D%27%23ff3b3b%27%2F%3E%3C%2Fsvg%3E") 12 12, auto; }
+  a, button, [role="button"], label, summary,
+  .proj-card, .proj-filter, .contact-card-item, .exp-window, .showcase-title,
+  .hpal-dot, .cmdk-item, #cmdk-launch, #disc-chip, #lantern-toggle,
+  .audio-toggle, .back-link, .version-nav a, .footer-cta, .flip-hint,
+  .panel-actions i, .traffic .t-dot {
+    cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2728%27%20height%3D%2728%27%3E%3Ccircle%20cx%3D%2714%27%20cy%3D%2714%27%20r%3D%279%27%20fill%3D%27rgba%28255%2C32%2C32%2C0.12%29%27%20stroke%3D%27%23ff5a5a%27%20stroke-width%3D%272%27%2F%3E%3Cpath%20d%3D%27M14%201V6M14%2022V27M1%2014H6M22%2014H27%27%20stroke%3D%27%23ff5a5a%27%20stroke-width%3D%272%27%2F%3E%3Ccircle%20cx%3D%2714%27%20cy%3D%2714%27%20r%3D%273%27%20fill%3D%27%23ff2020%27%2F%3E%3C%2Fsvg%3E") 14 14, pointer;
+  }
+  input, textarea, .term-body, .contact-body, .term-body input, .contact-body input {
+    cursor: text;
+  }
+  .exp-timeline input[type="range"] { cursor: grab; }
+}
