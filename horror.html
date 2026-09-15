@@ -1168,6 +1168,14 @@
           try { nodes.forEach(function(n){ try { n.stop(); } catch(e){} }); if (ctx) ctx.close(); } catch(e){}
           nodes = []; ctx = null; on = false; btn.classList.remove('on'); lbl.textContent = 'ÁUDIO: OFF';
         }
+        /* corta o chiado ao sair da página (navegação p/ classic, back/forward, fechar) */
+        window.addEventListener('pagehide', function(){ if (on) stop(); });
+        window.addEventListener('beforeunload', function(){ if (on) stop(); });
+        /* suspende ao trocar de aba, retoma ao voltar (se estava ligado) */
+        document.addEventListener('visibilitychange', function(){
+          if (!ctx) return;
+          try { document.hidden ? ctx.suspend() : (on && ctx.resume()); } catch(e){}
+        });
       })();
 
       /* ===== SKILLS — hover revela onde a skill foi usada ===== */
@@ -1319,6 +1327,16 @@
         document.addEventListener('mouseover', function(e){ if(e.target.closest('.pill,.skbar,.proj-card,.contact-card-item,.showcase-title,.exp-window')) bump(0.4); }, true);
         window.addEventListener('scroll', function(){ kickC(); }, { passive: true });
         var veil=document.createElement('div'); veil.id='corruption-veil'; docBody.appendChild(veil);
+
+        /* ---- HUD: corrupção em % (telemetria) ---- */
+        var meterVal=null, meterBar=null;
+        if(!reduce){
+          var meter=document.createElement('div'); meter.id='corr-meter';
+          meter.innerHTML='<span class="cm-lbl">CORRUPÇÃO</span><span class="cm-val">0%</span><div class="cm-bar"><i></i></div>';
+          docBody.appendChild(meter);
+          meterVal=meter.querySelector('.cm-val'); meterBar=meter.querySelector('.cm-bar > i');
+        }
+
         function onMax(){
           if(maxHit) return; maxHit=true; docBody.classList.add('corr-max');
           var cb=document.querySelector('.contact-body');
@@ -1328,11 +1346,12 @@
         }
         function loop(){
           maxDepth=Math.max(maxDepth, depth());
-          var target=Math.min(1, maxDepth*0.72 + Math.min(interactions/45,0.28));
+          var target=Math.min(1, maxDepth*0.9 + Math.min(interactions/60,0.12));
           corr += (target-corr)*0.08; if(corr<0.001)corr=0;
           root.style.setProperty('--corr', corr.toFixed(3));
-          docBody.setAttribute('data-corr', corr>0.75?3:corr>0.45?2:corr>0.18?1:0);
-          if(corr>0.8) onMax();
+          docBody.setAttribute('data-corr', corr>0.7?3:corr>0.42?2:corr>0.15?1:0);
+          if(meterVal){ var pct=Math.round(corr*100); meterVal.textContent=pct+'%'; meterBar.style.width=pct+'%'; }
+          if(corr>0.72) onMax();
           if(Math.abs(target-corr) < 0.002){ craf=null; return; }   /* assentou: suspende */
           craf=requestAnimationFrame(loop);
         }

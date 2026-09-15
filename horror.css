@@ -1404,8 +1404,8 @@ body.lantern-on #lantern { opacity: 1; }
 /* --- CORRUPÇÃO: véu que esquenta conforme --corr sobe --- */
 #corruption-veil {
   position: fixed; inset: 0; z-index: 9984; pointer-events: none;
-  opacity: calc(var(--corr,0) * .4);
-  background: radial-gradient(130% 100% at 50% 120%, rgba(227,6,19,.45), transparent 62%);
+  opacity: calc(var(--corr,0) * .6);
+  background: radial-gradient(130% 100% at 50% 120%, rgba(227,6,19,.55), transparent 62%);
   mix-blend-mode: screen; transition: opacity .6s ease;
 }
 :root[data-hpal="toxico"] #corruption-veil { background: radial-gradient(130% 100% at 50% 120%, rgba(91,255,26,.4), transparent 62%); }
@@ -1636,4 +1636,43 @@ html, body { max-width: 100%; overflow-x: hidden; }
     cursor: text;
   }
   .exp-timeline input[type="range"] { cursor: grab; }
+}
+
+/* =====================================================================
+   ██ V28 — HUD: MEDIDOR DE CORRUPÇÃO EM % ██
+   Telemetria no canto: sobe ao vivo conforme o sistema apodrece.
+   ===================================================================== */
+#corr-meter {
+  position: fixed; top: 58px; left: 20px; z-index: 10000;
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--f-term); font-size: 13px; letter-spacing: 1px;
+  color: var(--muted); background: rgba(10,2,3,.72);
+  border: 1px solid var(--border); border-radius: 6px; padding: 4px 9px;
+  backdrop-filter: blur(3px); pointer-events: none;
+  transition: border-color .4s, box-shadow .4s;
+}
+#corr-meter .cm-lbl { opacity: .8; }
+#corr-meter .cm-val {
+  min-width: 34px; text-align: right; font-weight: 700;
+  color: var(--accent);
+  text-shadow: 0 0 calc(var(--corr,0) * 12px) var(--glow);
+}
+#corr-meter .cm-bar {
+  width: 54px; height: 5px; border-radius: 3px; overflow: hidden;
+  background: rgba(255,255,255,.08); border: 1px solid var(--border);
+}
+#corr-meter .cm-bar > i {
+  display: block; height: 100%; width: 0;
+  background: linear-gradient(to right, #7a000c, var(--accent));
+  box-shadow: 0 0 8px var(--glow);
+}
+/* corrupção alta: o medidor "pulsa" em alerta */
+body[data-corr="3"] #corr-meter {
+  border-color: var(--border-br); box-shadow: 0 0 16px var(--glow);
+  animation: cmAlarm 1s steps(1) infinite;
+}
+@keyframes cmAlarm { 50% { background: rgba(227,6,19,.28); } }
+@media (max-width: 720px) {
+  #corr-meter { top: 54px; left: 12px; font-size: 12px; padding: 3px 7px; }
+  #corr-meter .cm-bar { width: 42px; }
 }
