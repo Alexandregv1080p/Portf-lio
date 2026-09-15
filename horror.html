@@ -1344,14 +1344,48 @@
             var p=document.createElement('p'); p.className='terminal-line out'; p.innerHTML='<span class="er">></span> o sistema apodreceu. <span class="ac">mande uma mensagem antes que ele te leve.</span>';
             if(anchor) cb.insertBefore(p, anchor); }
         }
+        /* CLÍMAX: 100% — o sistema é consumido (uma vez por sessão) */
+        var consumedHit=false;
+        function onConsumed(){
+          if(consumedHit) return; consumedHit=true;
+          docBody.classList.add('consumed');
+          if(meterVal){ meterVal.textContent='100% ☠'; if(meterVal.closest('#corr-meter')) meterVal.closest('#corr-meter').classList.add('dead'); if(meterBar) meterBar.style.width='100%'; }
+          /* glitch forte + tremor */
+          var ov=document.getElementById('glitch-overlay');
+          if(ov && !reduce){ ov.classList.add('on'); setTimeout(function(){ ov.classList.remove('on'); }, 1000); }
+          if(!reduce){ docBody.classList.add('consumed-shudder'); setTimeout(function(){ docBody.classList.remove('consumed-shudder'); }, 700); }
+          /* banner do clímax */
+          var ban=document.createElement('div'); ban.id='consumed-banner'; ban.textContent='SISTEMA CONSUMIDO ☠';
+          docBody.appendChild(ban); ban.offsetWidth; ban.classList.add('show');
+          setTimeout(function(){ if(ban.parentNode) ban.remove(); }, 2800);
+          /* funil pro contato */
+          var cb=document.querySelector('.contact-body');
+          if(cb){ var lines=cb.querySelectorAll('.terminal-line'); var anchor=lines[lines.length-1];
+            var p=document.createElement('p'); p.className='terminal-line out'; p.innerHTML='<span class="er">☠</span> não há mais sistema. resta uma saída: <a href="mailto:alexandregv1999@gmail.com">fale comigo</a>.';
+            if(anchor) cb.insertBefore(p, anchor); }
+          /* depois do clímax + glitch: o ciclo renasce do zero */
+          setTimeout(resetCorr, 1400);
+        }
+        /* zera a corrupção após o clímax e reinicia o ciclo */
+        function resetCorr(){
+          corr=0; maxDepth=depth(); interactions=0; maxHit=false; consumedHit=false;
+          root.style.setProperty('--corr','0');
+          docBody.setAttribute('data-corr','0');
+          docBody.classList.remove('consumed','corr-max','consumed-shudder');
+          if(meterVal){ meterVal.textContent='0%'; }
+          if(meterBar){ meterBar.style.width='0%'; }
+          var m=document.getElementById('corr-meter'); if(m) m.classList.remove('dead');
+          kickC();
+        }
         function loop(){
           maxDepth=Math.max(maxDepth, depth());
           var target=Math.min(1, maxDepth*0.9 + Math.min(interactions/60,0.12));
           corr += (target-corr)*0.08; if(corr<0.001)corr=0;
           root.style.setProperty('--corr', corr.toFixed(3));
           docBody.setAttribute('data-corr', corr>0.7?3:corr>0.42?2:corr>0.15?1:0);
-          if(meterVal){ var pct=Math.round(corr*100); meterVal.textContent=pct+'%'; meterBar.style.width=pct+'%'; }
+          if(meterVal && !consumedHit){ var pct=Math.round(corr*100); meterVal.textContent=pct+'%'; meterBar.style.width=pct+'%'; }
           if(corr>0.72) onMax();
+          if(corr>0.985) onConsumed();
           if(Math.abs(target-corr) < 0.002){ craf=null; return; }   /* assentou: suspende */
           craf=requestAnimationFrame(loop);
         }

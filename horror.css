@@ -1676,3 +1676,35 @@ body[data-corr="3"] #corr-meter {
   #corr-meter { top: 54px; left: 12px; font-size: 12px; padding: 3px 7px; }
   #corr-meter .cm-bar { width: 42px; }
 }
+
+/* =====================================================================
+   ██ V29 — CLÍMAX 100%: SISTEMA CONSUMIDO ██
+   ===================================================================== */
+#consumed-banner {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(.8);
+  z-index: 12002; font-family: var(--f-display); font-size: clamp(30px,8vw,84px);
+  color: var(--accent); text-shadow: 4px 0 var(--glitch-a), -4px 0 var(--glitch-b), 0 0 50px var(--glow);
+  opacity: 0; pointer-events: none; letter-spacing: 3px; text-align: center; white-space: nowrap;
+}
+#consumed-banner.show { animation: consumedShow 2.7s ease forwards; }
+@keyframes consumedShow {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(.5); filter: blur(6px); }
+  12%,70% { opacity: 1; transform: translate(-50%,-50%) scale(1); filter: blur(0); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.15); filter: blur(3px); }
+}
+/* tremor da tela no momento do consumo */
+body.consumed-shudder { animation: shudder .6s steps(2) 3; }
+@keyframes shudder {
+  0%,100% { transform: translate(0,0); }
+  25% { transform: translate(-3px,2px); }
+  50% { transform: translate(3px,-2px); }
+  75% { transform: translate(-2px,-3px); }
+}
+/* medidor "morto" — trava em 100% ☠ e pisca em alarme */
+#corr-meter.dead { border-color: var(--border-br); box-shadow: 0 0 22px var(--glow); }
+#corr-meter.dead .cm-val { color: var(--accent); animation: deadBlink .7s steps(1) infinite; }
+#corr-meter.dead .cm-bar > i { background: var(--accent); box-shadow: 0 0 14px var(--accent); }
+@keyframes deadBlink { 50% { opacity: .35; } }
+/* consumido: o CTA do contato implora mais forte */
+body.consumed .footer-cta { animation: pleaPulse .8s ease-in-out infinite; }
+body.consumed .contact-curse-title { text-shadow: 4px 0 var(--glitch-a), -4px 0 var(--glitch-b), 0 0 50px var(--accent); }
