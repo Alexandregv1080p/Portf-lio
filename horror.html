@@ -1141,14 +1141,43 @@
         var btn = document.getElementById('audio-toggle');
         if (!btn) return;
         var ctx = null, nodes = [], on = false, lbl = btn.querySelector('.lbl');
+        var master = null, lanternActive = false, hbGain = null, hbTimer = null;
         btn.addEventListener('click', function(){
           on ? stop() : start();
         });
+        /* ---- CORAÇÃO (só no modo lanterna, junto do chiado) ---- */
+        function oneThump(t, freq, peak){
+          var o = ctx.createOscillator(); o.type = 'sine';
+          o.frequency.setValueAtTime(freq, t);
+          o.frequency.exponentialRampToValueAtTime(freq*0.6, t + 0.16);
+          var g = ctx.createGain();
+          g.gain.setValueAtTime(0.0001, t);
+          g.gain.exponentialRampToValueAtTime(peak, t + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+          o.connect(g); g.connect(hbGain);
+          o.start(t); o.stop(t + 0.24);
+        }
+        function scheduleBeat(){
+          if (!ctx || !on || !lanternActive) { hbTimer = null; return; }
+          var t = ctx.currentTime + 0.02;
+          oneThump(t, 58, 0.95);              /* lub */
+          oneThump(t + 0.15, 46, 0.62);       /* dub */
+          var next = 900 + Math.random()*260; /* ~55–66 bpm, levemente irregular */
+          hbTimer = setTimeout(scheduleBeat, next);
+        }
+        function startHeart(){ if (hbTimer == null && ctx && on && lanternActive) scheduleBeat(); }
+        function stopHeart(){ if (hbTimer != null) { clearTimeout(hbTimer); hbTimer = null; } }
+        /* ponte com a lanterna (módulo separado) */
+        window.__horrorAudio = {
+          setLantern: function(v){ lanternActive = !!v; if (on) (lanternActive ? startHeart() : stopHeart()); },
+          isOn: function(){ return on; }
+        };
         function start(){
           try {
             ctx = new (window.AudioContext || window.webkitAudioContext)();
-            var master = ctx.createGain(); master.gain.value = 0.0; master.connect(ctx.destination);
+            master = ctx.createGain(); master.gain.value = 0.0; master.connect(ctx.destination);
             master.gain.setTargetAtTime(0.07, ctx.currentTime, 1.2);
+            hbGain = ctx.createGain(); hbGain.gain.value = 1.25; hbGain.connect(master);
             var o1 = ctx.createOscillator(); o1.type = 'sawtooth'; o1.frequency.value = 52;
             var o2 = ctx.createOscillator(); o2.type = 'sine'; o2.frequency.value = 52.6;
             var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 200;
@@ -1162,11 +1191,14 @@
             o1.start(); o2.start(); noise.start();
             nodes = [o1, o2, noise];
             on = true; btn.classList.add('on'); lbl.textContent = 'ÁUDIO: ON';
+            startHeart();   /* se a lanterna já estiver ativa, começa o coração */
           } catch(e){ lbl.textContent = 'ÁUDIO: N/D'; }
         }
         function stop(){
+          stopHeart();
           try { nodes.forEach(function(n){ try { n.stop(); } catch(e){} }); if (ctx) ctx.close(); } catch(e){}
-          nodes = []; ctx = null; on = false; btn.classList.remove('on'); lbl.textContent = 'ÁUDIO: OFF';
+          nodes = []; ctx = null; master = null; hbGain = null; on = false;
+          btn.classList.remove('on'); lbl.textContent = 'ÁUDIO: OFF';
         }
         /* corta o chiado ao sair da página (navegação p/ classic, back/forward, fechar) */
         window.addEventListener('pagehide', function(){ if (on) stop(); });
@@ -1174,7 +1206,10 @@
         /* suspende ao trocar de aba, retoma ao voltar (se estava ligado) */
         document.addEventListener('visibilitychange', function(){
           if (!ctx) return;
-          try { document.hidden ? ctx.suspend() : (on && ctx.resume()); } catch(e){}
+          try {
+            if (document.hidden) { stopHeart(); ctx.suspend(); }
+            else if (on) { ctx.resume(); startHeart(); }
+          } catch(e){}
         });
       })();
 
@@ -1320,7 +1355,7 @@
         var fine = matchMedia('(pointer: fine)').matches;
 
         /* ---- MEDIDOR DE CORRUPÇÃO (estado global --corr) ---- */
-        var corr=0, interactions=0, maxDepth=0, maxHit=false, craf=null;
+        var corr=0, interactions=0, maxDepth=0, maxHit=false, craf=null, depthFloor=0;
         function depth(){ var h=root.scrollHeight-window.innerHeight; return h>0?Math.min(1,window.pageYOffset/h):0; }
         function bump(n){ interactions+=n||1; kickC(); }
         document.addEventListener('click', function(){ bump(1); }, true);
@@ -1344,42 +1379,129 @@
             var p=document.createElement('p'); p.className='terminal-line out'; p.innerHTML='<span class="er">></span> o sistema apodreceu. <span class="ac">mande uma mensagem antes que ele te leve.</span>';
             if(anchor) cb.insertBefore(p, anchor); }
         }
-        /* CLÍMAX: 100% — o sistema é consumido (uma vez por sessão) */
+        /* estilos do clímax injetados uma única vez */
+        var fxStyled=false;
+        function injectFxStyles(){
+          if(fxStyled) return; fxStyled=true;
+          var s=document.createElement('style');
+          s.textContent=
+            '@keyframes cfx-shake{0%,100%{transform:translate(0,0)}10%{transform:translate(-9px,4px) skewX(2deg)}'+
+            '20%{transform:translate(8px,-6px) skewX(-3deg)}30%{transform:translate(-11px,-3px)}40%{transform:translate(10px,7px) skewX(2deg)}'+
+            '55%{transform:translate(-7px,5px)}70%{transform:translate(6px,-8px) skewX(-2deg)}85%{transform:translate(-4px,3px)}}'+
+            '.consumed-quake{animation:cfx-shake .42s steps(2) infinite}'+
+            '#consumed-fx{position:fixed;inset:0;z-index:99999;pointer-events:none;overflow:hidden;'+
+            'font-family:"JetBrains Mono",ui-monospace,Consolas,monospace}'+
+            '#consumed-fx .tear{position:absolute;inset:0;mix-blend-mode:screen;opacity:0;background:'+
+            'repeating-linear-gradient(0deg,rgba(255,0,60,.16) 0 2px,transparent 2px 4px);'+
+            'animation:cfx-flick .18s steps(2) infinite}'+
+            '#consumed-fx .tear.g{background:repeating-linear-gradient(0deg,rgba(0,255,140,.13) 0 3px,transparent 3px 6px);animation-duration:.11s}'+
+            '@keyframes cfx-flick{0%{opacity:.9;transform:translateX(-6px)}50%{opacity:.25;transform:translateX(7px)}100%{opacity:.8;transform:translateX(-3px)}}'+
+            '#consumed-fx .flash{position:absolute;inset:0;background:#fff;opacity:0}'+
+            '@keyframes cfx-burst{0%{opacity:0}3%{opacity:.85}9%{opacity:0}14%{opacity:.5}18%{opacity:0}}'+
+            '#consumed-fx .flash.on{animation:cfx-burst .9s ease-out forwards}'+
+            '#consumed-fx .void{position:absolute;inset:0;background:#050506;opacity:0;transition:opacity .5s ease}'+
+            '#consumed-fx .void.on{opacity:1}'+
+            '#consumed-fx .panic{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(620px,86vw);'+
+            'color:#c9f2d6;font-size:13px;line-height:1.7;opacity:0;transition:opacity .35s;text-shadow:0 0 8px rgba(60,255,150,.35)}'+
+            '#consumed-fx .panic.on{opacity:1}'+
+            '#consumed-fx .panic .er{color:#ff3b4e;text-shadow:0 0 8px rgba(255,59,78,.5)}'+
+            '#consumed-fx .panic .ok{color:#39d98a}'+
+            '#consumed-fx .panic .cur{display:inline-block;width:9px;height:15px;margin-left:2px;'+
+            'background:#39d98a;vertical-align:-2px;animation:cfx-cur 1s steps(1) infinite}'+
+            '@keyframes cfx-cur{50%{opacity:0}}'+
+            '#consumed-fx .bar{margin-top:14px;height:8px;border:1px solid rgba(60,255,150,.35);background:rgba(60,255,150,.06)}'+
+            '#consumed-fx .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff3b4e,#39d98a);'+
+            'box-shadow:0 0 12px rgba(60,255,150,.5);transition:width 1.5s linear}';
+          document.head.appendChild(s);
+        }
+
+        /* CLÍMAX: 100% — o sistema é consumido, depois renasce do zero */
         var consumedHit=false;
         function onConsumed(){
           if(consumedHit) return; consumedHit=true;
           docBody.classList.add('consumed');
-          if(meterVal){ meterVal.textContent='100% ☠'; if(meterVal.closest('#corr-meter')) meterVal.closest('#corr-meter').classList.add('dead'); if(meterBar) meterBar.style.width='100%'; }
-          /* glitch forte + tremor */
-          var ov=document.getElementById('glitch-overlay');
-          if(ov && !reduce){ ov.classList.add('on'); setTimeout(function(){ ov.classList.remove('on'); }, 1000); }
-          if(!reduce){ docBody.classList.add('consumed-shudder'); setTimeout(function(){ docBody.classList.remove('consumed-shudder'); }, 700); }
-          /* banner do clímax */
-          var ban=document.createElement('div'); ban.id='consumed-banner'; ban.textContent='SISTEMA CONSUMIDO ☠';
-          docBody.appendChild(ban); ban.offsetWidth; ban.classList.add('show');
-          setTimeout(function(){ if(ban.parentNode) ban.remove(); }, 2800);
-          /* funil pro contato */
+          if(meterVal){ meterVal.textContent='100% ☠'; var mm=meterVal.closest('#corr-meter'); if(mm) mm.classList.add('dead'); if(meterBar) meterBar.style.width='100%'; }
+
+          /* funil pro contato (permanece na página) */
           var cb=document.querySelector('.contact-body');
           if(cb){ var lines=cb.querySelectorAll('.terminal-line'); var anchor=lines[lines.length-1];
             var p=document.createElement('p'); p.className='terminal-line out'; p.innerHTML='<span class="er">☠</span> não há mais sistema. resta uma saída: <a href="mailto:alexandregv1999@gmail.com">fale comigo</a>.';
             if(anchor) cb.insertBefore(p, anchor); }
-          /* depois do clímax + glitch: o ciclo renasce do zero */
-          setTimeout(resetCorr, 1400);
+
+          /* modo reduzido: sem violência — banner curto e reset */
+          if(reduce){
+            var b=document.createElement('div'); b.id='consumed-banner'; b.textContent='SISTEMA CONSUMIDO ☠';
+            docBody.appendChild(b); b.offsetWidth; b.classList.add('show');
+            setTimeout(function(){ if(b.parentNode) b.remove(); }, 2200);
+            setTimeout(resetCorr, 1600);
+            return;
+          }
+
+          injectFxStyles();
+          var fx=document.createElement('div'); fx.id='consumed-fx';
+          fx.innerHTML='<div class="tear"></div><div class="tear g"></div><div class="flash on"></div>'+
+                       '<div class="void"></div>'+
+                       '<div class="panic"><div class="ln"></div><div class="bar"><i></i></div></div>';
+          docBody.appendChild(fx);
+          docBody.classList.add('consumed-quake');
+
+          var panic=fx.querySelector('.panic'), ln=fx.querySelector('.panic .ln'),
+              barI=fx.querySelector('.bar>i'), voidEl=fx.querySelector('.void');
+
+          /* FASE 1 (0–0,9s): glitch/tremor violento → escurece */
+          setTimeout(function(){
+            docBody.classList.remove('consumed-quake');
+            voidEl.classList.add('on');
+          }, 850);
+
+          /* FASE 2 (1,15s): kernel panic tipado + barra de reconstrução */
+          var panicLines=[
+            '<span class="er">☠ FATAL:</span> núcleo do portfólio corrompido — <span class="er">0xDEAD·C0DE</span>',
+            'despejando memória residual ..... <span class="ok">ok</span>',
+            'integridade do sistema ......... <span class="er">perdida</span>',
+            '',
+            'o que você explorou consumiu o sistema.',
+            'reconstruindo a partir das cinzas <span class="cur"></span>'
+          ];
+          setTimeout(function(){
+            panic.classList.add('on');
+            var i=0;
+            (function typeLine(){
+              if(i<panicLines.length){
+                var row=document.createElement('div'); row.innerHTML=panicLines[i]||'&nbsp;'; ln.appendChild(row);
+                i++; setTimeout(typeLine, 230);
+              } else {
+                barI.style.width='100%';
+              }
+            })();
+          }, 1150);
+
+          /* FASE 3 (~3,2s): flash branco, remove overlay e RENASCE do zero */
+          setTimeout(function(){
+            var fl=document.createElement('div'); fl.className='flash on'; fx.appendChild(fl);
+            resetCorr();
+            setTimeout(function(){ if(fx.parentNode) fx.remove(); }, 650);
+          }, 3200);
         }
-        /* zera a corrupção após o clímax e reinicia o ciclo */
+
+        /* zera a corrupção após o clímax e reinicia o ciclo do zero */
         function resetCorr(){
-          corr=0; maxDepth=depth(); interactions=0; maxHit=false; consumedHit=false;
+          corr=0; maxDepth=0; depthFloor=depth(); interactions=0; maxHit=false; consumedHit=false;
           root.style.setProperty('--corr','0');
           docBody.setAttribute('data-corr','0');
-          docBody.classList.remove('consumed','corr-max','consumed-shudder');
+          docBody.classList.remove('consumed','corr-max','consumed-shudder','consumed-quake');
           if(meterVal){ meterVal.textContent='0%'; }
           if(meterBar){ meterBar.style.width='0%'; }
           var m=document.getElementById('corr-meter'); if(m) m.classList.remove('dead');
           kickC();
         }
         function loop(){
-          maxDepth=Math.max(maxDepth, depth());
-          var target=Math.min(1, maxDepth*0.9 + Math.min(interactions/60,0.12));
+          /* corrupção conta só o scroll NOVO desde o último renascimento (piso) */
+          var d=depth();
+          if(d<depthFloor) depthFloor=d;                 /* subir baixa o piso */
+          var rel = depthFloor<1 ? (d-depthFloor)/(1-depthFloor) : 0;
+          maxDepth=Math.max(maxDepth, rel);
+          var target=Math.min(1, maxDepth*0.85 + Math.min(interactions/40,0.25));
           corr += (target-corr)*0.08; if(corr<0.001)corr=0;
           root.style.setProperty('--corr', corr.toFixed(3));
           docBody.setAttribute('data-corr', corr>0.7?3:corr>0.42?2:corr>0.15?1:0);
@@ -1402,7 +1524,8 @@
           var KEY='horror-lantern', saved=null;
           try{ saved=localStorage.getItem(KEY); }catch(e){}
           var lampOn = saved===null ? true : saved==='1';
-          function applyLamp(){ docBody.classList.toggle('lantern-on', lampOn); if(tgl) tgl.classList.toggle('off', !lampOn); }
+          function applyLamp(){ docBody.classList.toggle('lantern-on', lampOn); if(tgl) tgl.classList.toggle('off', !lampOn);
+            if(window.__horrorAudio) window.__horrorAudio.setLantern(lampOn); }
           document.addEventListener('mousemove', function(e){
             root.style.setProperty('--lx', e.clientX+'px'); root.style.setProperty('--ly', e.clientY+'px');
           });
