@@ -361,7 +361,7 @@ setInterval(updateLocalTime, 30000);
 (function () {
   const layer = document.getElementById('rising-particles');
   if (!layer) return;
-  const COUNT = 22;
+  const COUNT = (matchMedia('(pointer: coarse)').matches || innerWidth < 720) ? 8 : 22;
 
   function spawnDrop() {
     const drop = document.createElement('span');
@@ -384,16 +384,21 @@ setInterval(updateLocalTime, 30000);
 const railDots = document.querySelectorAll('.rail-dot');
 const sections = document.querySelectorAll('section[id]');
 
+let railCurrent = null, railTick = false;
 window.addEventListener('scroll', () => {
-  const scrollY = window.scrollY + window.innerHeight / 3;
-  sections.forEach(section => {
-    if (scrollY >= section.offsetTop && scrollY < section.offsetTop + section.offsetHeight) {
-      railDots.forEach(d => d.classList.remove('active'));
-      const match = document.querySelector(`.rail-dot[data-target="${section.id}"]`);
-      if (match) match.classList.add('active');
-    }
+  if (railTick) return; railTick = true;
+  requestAnimationFrame(() => {
+    railTick = false;
+    const scrollY = window.scrollY + window.innerHeight / 3;
+    let cur = null;
+    sections.forEach(section => {
+      if (scrollY >= section.offsetTop && scrollY < section.offsetTop + section.offsetHeight) cur = section.id;
+    });
+    if (cur === railCurrent) return;           /* só mexe no DOM quando a seção muda */
+    railCurrent = cur;
+    railDots.forEach(d => d.classList.toggle('active', d.dataset.target === cur));
   });
-});
+}, { passive: true });
 
 // Scroll reveal animations
 const animElements = document.querySelectorAll('[data-anime]');

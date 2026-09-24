@@ -1074,3 +1074,19 @@ body {
     padding: 9px 13px !important;
   }
 }
+
+
+/* ███ MOBILE LITE — viewport estável + camadas leves em celular ███ */
+.hero { min-height: 100vh; min-height: 100svh; }
+@supports (height: 1lvh) {
+  @keyframes rise-up {
+    0% { transform: translateY(0) translateX(0); opacity: 0; }
+    8% { opacity: 0.75; }
+    85% { opacity: 0.55; }
+    100% { transform: translateY(-110lvh) translateX(var(--drift, 0px)); opacity: 0; }
+  }
+}
+@media (hover: none), (pointer: coarse) {
+  .rising-particles .drop { box-shadow: none; transition: none; }
+  #cmdk-overlay { backdrop-filter: none; }
+}
