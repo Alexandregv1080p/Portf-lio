@@ -134,7 +134,7 @@
     .door-horror::before {
       content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
       background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.35) 2px 4px);
-      mix-blend-mode: multiply; opacity: .55;
+      opacity: .55;
     }
     /* rolling scan bar + grain */
     .door-horror::after {
@@ -191,6 +191,19 @@
       position: absolute; inset: 0; z-index: 0; opacity: 0; transition: opacity .6s;
       background: radial-gradient(circle at 50% 60%, rgba(227,6,19,.2), transparent 55%);
     }
+
+
+    /* ---------- MIDDLE: NECRÓPOLE ---------- */
+    .door-necro {
+      background: radial-gradient(circle at 50% 110%, rgba(0,216,255,.12), transparent 55%), linear-gradient(180deg, #06020a, #0a0408 70%, #020103);
+    }
+    .door-necro .door-title { color: #e6f8ff; font-family: 'Fira Code', monospace; font-size: clamp(26px, 3.4vw, 46px); }
+    .door-necro .door-title .accent { color: #00d8ff; }
+    .door-necro .door-sub { color: rgba(200,235,255,.55); }
+    .door-necro .door-cta { border: 1px solid #00d8ff; color: #9be8ff; }
+    .door-necro:hover .door-cta { box-shadow: 0 0 26px rgba(0,216,255,.4); background: rgba(0,216,255,.08); }
+    .door-necro .tombs { font-size: clamp(44px, 7vw, 90px); letter-spacing: 6px; margin-bottom: 20px; color: transparent; -webkit-text-stroke: 1.5px rgba(0,216,255,.55); user-select: none; }
+    .seam { display: none; }
 
     /* ---------- SHARED DOOR CONTENT ---------- */
     .door-content { position: relative; z-index: 2; text-align: center; padding: 30px; max-width: 92%; }
@@ -282,6 +295,18 @@
       </div>
     </a>
 
+    <!-- MIDDLE · NECRÓPOLE -->
+    <a class="door door-necro" href="necropole.html" aria-label="Abrir passeio pelo cemitério">
+      <div class="door-shine"></div>
+      <div class="door-content">
+        <div class="tombs" aria-hidden="true">&#9769;&#9769;&#9769;</div>
+        <p class="door-kicker">versão 03 &middot; scroll</p>
+        <h2 class="door-title">NECR&Oacute;POLE<span class="accent">.exe</span></h2>
+        <p class="door-sub">um passeio pelo cemit&eacute;rio<br>role para caminhar</p>
+        <span class="door-cta">CAMINHAR <i class="fa-solid fa-person-walking"></i></span>
+      </div>
+    </a>
+
     <!-- RIGHT · HORROR -->
     <a class="door door-horror" href="horror.html" aria-label="Abrir versão cyber horror">
       <div class="grain"></div>
@@ -311,6 +336,7 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === '1') location.href = 'classic.html';
       if (e.key === '2') location.href = 'horror.html';
+      if (e.key === '3') location.href = 'necropole.html';
     });
   </script>
 </body>

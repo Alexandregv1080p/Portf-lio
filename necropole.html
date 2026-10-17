@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Necrópole.exe · Alexandre Gomes Vieira</title>
+  <meta name="description" content="Portfólio de Alexandre Gomes Vieira — um passeio por um cemitério cyber horror guiado pelo scroll.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nosifer&family=Metal+Mania&family=Chakra+Petch:wght@400;600&family=Oxanium:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="necropole.css">
+</head>
+<body>
+
+<!-- símbolos reutilizáveis (desenhados à mão, sem assets) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="cross" viewBox="0 0 40 80"><path d="M17 0h6v20h14v6H23v54h-6V26H3v-6h14z"/></symbol>
+    <symbol id="tomb" viewBox="0 0 60 80"><path d="M4 80V28C4 10 16 2 30 2s26 8 26 26v52z"/><path d="M30 22v26M22 31h16" fill="none"/></symbol>
+    <symbol id="tree" viewBox="0 0 200 300"><path fill="none" stroke-width="5" d="M95 300 100 170 70 120 36 92M100 170 130 120 172 78M70 120 58 66M130 120 142 58M100 170V98L90 46M58 66 40 40M142 58 160 34"/></symbol>
+    <radialGradient id="lampGlow"><stop offset="0" stop-color="#ffb27a" stop-opacity=".75"/><stop offset="1" stop-color="#ff2a2a" stop-opacity="0"/></radialGradient>
+  </defs>
+</svg>
+
+<div id="track">
+  <div class="stage" id="stage">
+
+    <div class="layer sky" id="sky">
+      <div class="moon" id="moon"><i class="moon-red" id="moonRed"></i></div>
+    </div>
+
+    <!-- skyline distante e fileira de lápides: padrões SVG rasterizados uma vez -->
+    <div class="layer far" id="far">
+      <svg width="100%" height="320"><defs><pattern id="pFar" width="900" height="320" patternUnits="userSpaceOnUse">
+        <g class="sil far-sil">
+          <path d="M40 320V210l30-70 30 70v110zM130 320V170h60v150zM150 170l30-90 30 90M330 320V190l50-100 50 100v130zM380 90V40M368 56h24M520 320V230h120v90zM540 230l40-70 40 70M760 320V180l24-60 24 60v140zM700 320V240h40v80z"/>
+          <use href="#cross" x="250" y="230" width="22" height="44"/><use href="#cross" x="660" y="250" width="18" height="36"/>
+        </g></pattern></defs><rect width="100%" height="320" fill="url(#pFar)"/></svg>
+    </div>
+    <div class="layer mid" id="mid">
+      <svg width="100%" height="260"><defs><pattern id="pMid" width="760" height="260" patternUnits="userSpaceOnUse">
+        <g class="sil mid-sil">
+          <use href="#tomb" x="30" y="170" width="46" height="62"/><use href="#cross" x="120" y="150" width="34" height="68"/>
+          <use href="#tree" x="190" y="30" width="190" height="200"/>
+          <use href="#tomb" x="410" y="180" width="40" height="54"/><use href="#tomb" x="470" y="165" width="48" height="66"/>
+          <use href="#cross" x="560" y="160" width="30" height="60"/><use href="#tree" x="610" y="50" width="140" height="190"/>
+        </g></pattern></defs><rect width="100%" height="260" fill="url(#pMid)"/></svg>
+    </div>
+
+    <div class="fog f1"></div><div class="fog f2"></div>
+    <div class="ground"></div>
+
+    <!-- CENÁRIO (mesma grade de cenas da camada de textos) -->
+    <div class="near" id="art" aria-hidden="true">
+      <div class="scene s-gate">
+        <svg class="gate" viewBox="0 0 520 330" preserveAspectRatio="xMidYMax meet">
+          <g class="iron">
+            <rect x="10" y="40" width="34" height="290"/><rect x="476" y="40" width="34" height="290"/>
+            <path d="M6 40h42l-21-34zM472 40h42l-21-34z"/>
+            <g id="gl" class="leaf l"><rect x="44" y="70" width="208" height="260" fill="none"/>
+              <path d="M70 70V330M100 70V330M130 70V330M160 70V330M190 70V330M220 70V330M44 160H252M44 250H252M70 70l-6-18 12 18zM100 70l-6-18 12 18zM130 70l-6-18 12 18zM160 70l-6-18 12 18zM190 70l-6-18 12 18zM220 70l-6-18 12 18z"/></g>
+            <g id="gr" class="leaf r"><rect x="268" y="70" width="208" height="260" fill="none"/>
+              <path d="M294 70V330M324 70V330M354 70V330M384 70V330M414 70V330M444 70V330M268 160H476M268 250H476M294 70l-6-18 12 18zM324 70l-6-18 12 18zM354 70l-6-18 12 18zM384 70l-6-18 12 18zM414 70l-6-18 12 18zM444 70l-6-18 12 18z"/></g>
+          </g>
+        </svg>
+        <svg class="deco tree-a" viewBox="0 0 200 300"><use href="#tree"/></svg>
+      </div>
+      <div class="scene s-alley">
+        <svg class="deco tree-b" viewBox="0 0 200 300"><use href="#tree"/></svg>
+        <svg class="deco x1" viewBox="0 0 40 80"><use href="#cross"/></svg>
+        <svg class="deco x2" viewBox="0 0 40 80"><use href="#cross"/></svg>
+        <svg class="deco x3" viewBox="0 0 60 80"><use href="#tomb"/></svg>
+      </div>
+      <div class="scene s-crypt">
+        <svg class="crypt-roof" viewBox="0 0 100 40" preserveAspectRatio="none"><path d="M0 40 50 2 100 40M8 40V40M0 38H100" vector-effect="non-scaling-stroke"/></svg>
+      </div>
+      <div class="scene s-skills">
+        <div class="rackwall"></div><div class="leds"></div>
+      </div>
+      <div class="scene s-chapel">
+        <svg class="chapel-roof" viewBox="0 0 100 60" preserveAspectRatio="none"><path d="M0 60 50 14 100 60M50 14V0M44 8h12" vector-effect="non-scaling-stroke"/></svg>
+        <svg class="deco x1 cx" viewBox="0 0 40 80"><use href="#cross"/></svg>
+        <svg class="deco x3 cy" viewBox="0 0 60 80"><use href="#tomb"/></svg>
+      </div>
+      <div class="scene s-end">
+        <svg class="deco tree-c" viewBox="0 0 200 300"><use href="#tree"/></svg>
+        <i class="hang"></i>
+      </div>
+    </div>
+
+    <div class="lantern" id="lantern"></div>
+
+    <!-- TEXTOS (HTML real: selecionável, i18n PT/EN) -->
+    <div class="near" id="cards">
+      <section class="scene s-gate" id="portao">
+        <div class="hero rv">
+          <p class="kicker">// processo: identificado</p>
+          <h1 data-i18n-html="hero.title">Alexandre, <span class="accent">full&nbsp;stack</span><br>developer</h1>
+          <p class="sub" data-i18n="hero.sub">Desenvolvo produtos web de ponta a ponta.</p>
+          <p class="cue"><i class="fa-solid fa-arrow-down"></i> role para entrar</p>
+        </div>
+      </section>
+
+      <section class="scene s-alley" id="alameda">
+        <h2 class="title rv" data-i18n="about.title">Sobre mim</h2>
+        <div class="row">
+          <article class="tomb rv" style="--h:300px"><span class="rip">R.I.P. · 01</span><p data-i18n-html="about.p1"></p></article>
+          <article class="tomb rv" style="--h:340px"><span class="rip">R.I.P. · 02</span><p data-i18n-html="about.p2"></p></article>
+          <article class="tomb rv" style="--h:390px"><span class="rip">R.I.P. · 03</span><p data-i18n-html="about.p3"></p></article>
+          <article class="tomb rv" style="--h:340px"><span class="rip">R.I.P. · 04</span><p data-i18n-html="about.p4"></p></article>
+          <article class="tomb rv" style="--h:300px"><span class="rip">R.I.P. · 05</span><p data-i18n-html="about.p5"></p></article>
+        </div>
+      </section>
+
+      <section class="scene s-crypt" id="cripta">
+        <h2 class="title rv" data-i18n="exp.title">Trajetória profissional</h2>
+        <div class="row">
+          <article class="door rv"><span class="idx">01</span><span class="date" data-i18n="exp.date1"></span><h3 data-i18n="exp.role1"></h3><b data-i18n="exp.company1"></b><p data-i18n="exp.desc1"></p></article>
+          <article class="door rv"><span class="idx">02</span><span class="date" data-i18n="exp.date2"></span><h3 data-i18n="exp.role2"></h3><b data-i18n="exp.company2"></b><p data-i18n="exp.desc2"></p></article>
+          <article class="door rv"><span class="idx">03</span><span class="date" data-i18n="exp.date3"></span><h3 data-i18n="exp.role3"></h3><b data-i18n="exp.company3"></b><p data-i18n="exp.desc3"></p></article>
+          <article class="door rv"><span class="idx">04</span><span class="date" data-i18n="exp.date4"></span><h3 data-i18n="exp.role4"></h3><b data-i18n="exp.company4"></b><p data-i18n="exp.desc4"></p></article>
+          <article class="door rv"><span class="idx">05</span><span class="date" data-i18n="exp.date5"></span><h3 data-i18n="exp.role5"></h3><b data-i18n="exp.company5"></b><p data-i18n="exp.desc5"></p></article>
+        </div>
+      </section>
+
+      <section class="scene s-skills" id="mausoleu">
+        <h2 class="title rv" data-i18n-html="skills.title">Stack &amp; ferramentas</h2>
+        <div class="row">
+          <article class="rack rv"><h4><span class="led"></span>srv-01 &middot; { front-end }</h4><div class="sk"><span>Angular / TypeScript</span><div class="bar"><i style="--w:0.92"></i></div><em data-i18n="skills.advanced"></em></div><div class="sk"><span>React / Next.js</span><div class="bar"><i style="--w:0.88"></i></div><em data-i18n="skills.advanced"></em></div><div class="sk"><span>Vue 3 / Pinia</span><div class="bar"><i style="--w:0.68"></i></div><em data-i18n="skills.intermediate"></em></div><div class="sk"><span>HTML5 / CSS3 / Tailwind</span><div class="bar"><i style="--w:0.88"></i></div><em data-i18n="skills.advanced"></em></div></article>
+          <article class="rack rv"><h4><span class="led"></span>srv-02 &middot; { back-end }</h4><div class="sk"><span>Node.js / NestJS / Express</span><div class="bar"><i style="--w:0.88"></i></div><em data-i18n="skills.advanced"></em></div><div class="sk"><span>Java / Spring Boot</span><div class="bar"><i style="--w:0.85"></i></div><em data-i18n="skills.advanced"></em></div><div class="sk"><span>.NET / C#</span><div class="bar"><i style="--w:0.68"></i></div><em data-i18n="skills.intermediate"></em></div><div class="sk"><span>PHP / Laravel</span><div class="bar"><i style="--w:0.62"></i></div><em data-i18n="skills.intermediate"></em></div></article>
+          <article class="rack rv"><h4><span class="led"></span>srv-03 &middot; { mobile &amp; devops }</h4><div class="sk"><span>Kotlin / Android</span><div class="bar"><i style="--w:0.82"></i></div><em data-i18n="skills.advanced"></em></div><div class="sk"><span>React Native / Expo</span><div class="bar"><i style="--w:0.66"></i></div><em data-i18n="skills.intermediate"></em></div><div class="sk"><span>PostgreSQL / MySQL / MongoDB</span><div class="bar"><i style="--w:0.72"></i></div><em data-i18n="skills.intermediate"></em></div><div class="sk"><span>Docker / Git / CI-CD</span><div class="bar"><i style="--w:0.85"></i></div><em data-i18n="skills.advanced"></em></div></article>
+          <article class="rack plaque rv"><h4><span class="led"></span>certs.log</h4><p><i class="fa-solid fa-award accent"></i> <span data-i18n="skills.cert1"></span></p><p><i class="fa-solid fa-award accent"></i> <span data-i18n="skills.cert2"></span></p></article>
+        </div>
+      </section>
+
+      <section class="scene s-chapel" id="capela">
+        <h2 class="title long rv" data-i18n-html="projects.statement">FRONT-END, BACK-END &amp; MOBILE</h2>
+        <div class="row">
+          <a class="glass rv" style="--g:var(--g0)" href="https://github.com/Alexandregv1080p" target="_blank" rel="noopener"><span class="cat">SYSTEMS</span><h3>Browser Engine</h3><b>C++ · HTML/CSS parser · layout · rendering</b><p data-i18n="projects.browser_desc"></p><span class="go"><span data-i18n="projects.link_github"></span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span></a>
+          <a class="glass rv" style="--g:var(--g1)" href="https://github.com/Alexandregv1080p" target="_blank" rel="noopener"><span class="cat">SYSTEMS</span><h3>SO · Raspberry Pi</h3><b>C · Assembly · bare-metal · boot / memória / I/O</b><p data-i18n="projects.os_desc"></p><span class="go"><span data-i18n="projects.link_github"></span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span></a>
+          <a class="glass rv" style="--g:var(--g2)" href="https://github.com/Alexandregv1080p/Dev-Codex" target="_blank" rel="noopener"><span class="cat">FULLSTACK</span><h3>Dev Codex</h3><b>.NET 8 · Vue 3 · Kotlin · PostgreSQL · SignalR · Docker</b><p data-i18n="projects.devcodex_desc"></p><span class="go"><span data-i18n="projects.link_github"></span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span></a>
+          <a class="glass rv" style="--g:var(--g0)" href="https://github.com/Alexandregv1080p/MinX" target="_blank" rel="noopener"><span class="cat">FULLSTACK</span><h3>MinX</h3><b>NestJS · Next.js · MySQL · Redis · AWS SQS/Lambda · K8s</b><p data-i18n="projects.minx_desc"></p><span class="go"><span data-i18n="projects.link_github"></span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span></a>
+          <a class="glass rv" style="--g:var(--g1)" href="https://github.com/Alexandregv1080p/Fast-Trade" target="_blank" rel="noopener"><span class="cat">FULLSTACK</span><h3>Fast Trade</h3><b>Java · Spring Boot · Angular 17 · Kotlin · PostgreSQL · WebSocket</b><p data-i18n="projects.fasttrade_desc"></p><span class="go"><span data-i18n="projects.link_github"></span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span></a>
+          <a class="glass rv" style="--g:var(--g2)" href="https://github.com/Alexandregv1080p/PagamentosApi" target="_blank" rel="noopener"><span class="cat">API</span><h3>Pagamentos API</h3><b>.NET 8 · Angular 17 · RabbitMQ · Cosmos DB · SignalR</b><p data-i18n="projects.pagapi_desc"></p><span class="go"><span data-i18n="projects.link_github"></span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span></a>
+          <a class="glass rv" style="--g:var(--g0)" href="https://github.com/Alexandregv1080p/Agenda-Atenta" target="_blank" rel="noopener"><span class="cat">WEB</span><h3>Agenda Atenta</h3><b>Laravel 13 · PHP · MySQL · Bootstrap · Web Push</b><p data-i18n="projects.agenda_desc"></p><span class="go"><span data-i18n="projects.link_github"></span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span></a>
+          <a class="glass rv" style="--g:var(--g1)" href="https://github.com/Alexandregv1080p/Eventus" target="_blank" rel="noopener"><span class="cat">WEB</span><h3>Eventus</h3><b>Angular 21 · Signals · Bootstrap 5</b><p data-i18n="projects.eventus_desc"></p><span class="go"><span data-i18n="projects.link_github"></span> <i class="fa-solid fa-arrow-up-right-from-square"></i></span></a>
+        </div>
+      </section>
+
+      <section class="scene s-end" id="saida">
+        <div class="end rv">
+          <h2 class="title" data-i18n="contact.title">Vamos trabalhar juntos?</h2>
+          <p class="sub" data-i18n="contact.echo_out"></p>
+          <div class="links">
+            <a href="mailto:alexandregv1999@gmail.com"><i class="fa-solid fa-envelope"></i> alexandregv1999@gmail.com</a>
+            <a href="https://github.com/Alexandregv1080p" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> GitHub</a>
+            <a href="https://linkedin.com/in/alexandre-gomes-vieira" target="_blank" rel="noopener"><i class="fa-brands fa-linkedin-in"></i> LinkedIn</a>
+          </div>
+          <p class="foot"><i class="fa-solid fa-location-dot"></i> <span data-i18n="contact.location"></span></p>
+        </div>
+      </section>
+    </div>
+
+    <!-- personagem: vulto com lanterna -->
+    <div class="walker" id="walker" aria-hidden="true">
+      <svg viewBox="0 0 120 220">
+        <g class="legs"><rect class="lg a" x="44" y="170" width="14" height="46" rx="3"/><rect class="lg b" x="64" y="170" width="14" height="46" rx="3"/></g>
+        <g class="body">
+          <path d="M60 20C40 20 34 45 36 70L26 190h68L84 70C86 45 80 20 60 20Z"/>
+          <ellipse cx="60" cy="42" rx="12" ry="14" fill="#000"/>
+          <circle cx="55" cy="42" r="1.8" class="eye"/><circle cx="65" cy="42" r="1.8" class="eye"/>
+          <path d="M84 80 104 112" fill="none" stroke-width="6"/>
+          <circle cx="107" cy="122" r="34" fill="url(#lampGlow)" stroke="none"/>
+          <rect x="100" y="112" width="14" height="20" rx="2" class="lamp"/>
+        </g>
+      </svg>
+      <i class="eyes" id="eyes"></i>
+    </div>
+
+    <div class="veil" id="veil"></div>
+    <div class="crtfx"></div>
+
+    <!-- HUD -->
+    <div class="hud rec"><span class="dot"></span> REC · <span id="depth">0m</span></div>
+    <nav class="hud nav">
+      <a href="index.html" title="Voltar ao portal"><i class="fa-solid fa-arrow-left"></i> portal</a>
+      <a href="horror.html" title="Cyber horror"><i class="fa-solid fa-skull"></i></a>
+      <div class="lang-switcher" id="lang-switcher"><button class="lang-btn active" data-lang="pt" type="button">PT</button><button class="lang-btn" data-lang="en" type="button">EN</button></div>
+      <button id="audio" type="button" title="Áudio ambiente"><i class="fa-solid fa-volume-xmark"></i></button>
+    </nav>
+    <div class="hud progress"><i id="bar"></i></div>
+    <div class="idle-log" id="idleLog">&gt; ainda aí?</div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script src="necropole.js"></script>
+</body>
+</html>

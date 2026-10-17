@@ -1708,3 +1708,83 @@ body.consumed-shudder { animation: shudder .6s steps(2) 3; }
 /* consumido: o CTA do contato implora mais forte */
 body.consumed .footer-cta { animation: pleaPulse .8s ease-in-out infinite; }
 body.consumed .contact-curse-title { text-shadow: 4px 0 var(--glitch-a), -4px 0 var(--glitch-b), 0 0 50px var(--accent); }
+
+
+/* =====================================================================
+   ██ MOBILE LITE — celulares: estável e leve ██
+   vh muda quando a barra do navegador some/aparece no scroll, o que
+   reiniciava as animações das gotas ("aparecem e somem sem parar").
+   lvh/svh são fixos. Em toque, cortamos camadas caras (blend, blur,
+   ruído animado) e o hover "grudado" do tap.
+   ===================================================================== */
+.hero { min-height: 100vh; min-height: 100svh; }
+@supports (height: 1lvh) {
+  @keyframes bloodFall {
+    0%   { transform: translateY(-16lvh) scaleY(.85); opacity: 0; }
+    7%   { opacity: 1; }
+    90%  { opacity: .92; }
+    100% { transform: translateY(114lvh) scaleY(1.25); opacity: 0; }
+  }
+  @keyframes rise {
+    0% { transform: translateY(0) translateX(0); opacity: 0; }
+    10% { opacity: .6; }
+    90% { opacity: .35; }
+    100% { transform: translateY(-108lvh) translateX(var(--drift,0)); opacity: 0; }
+  }
+}
+@media (hover: none), (pointer: coarse) {
+  .crt-roll, .crt-noise { display: none !important; }
+  .crt { mix-blend-mode: normal; opacity: .22; }
+  *, *::before, *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+  .bloodrop, .rising-particles .drop { filter: none !important; will-change: auto; }
+  .window:hover { transform: none; }
+  .proj-card:hover .proj-card-name.glitch::before,
+  .proj-card:hover .proj-card-name.glitch::after { animation: none; opacity: 0; }
+  #scroll-glitch { display: none !important; }
+
+  /* filtros SVG (feTurbulence + feDisplacementMap) são rasterizados na CPU
+     do celular e refeitos a cada repaint — o maior peso real no scroll */
+  .window::after, .win-shell::before { filter: none !important; }
+  .blood-top { filter: none !important; }
+  .blood-top .goo-drips *, .blood-top .goo-splat * { animation: none !important; }
+  .barb { filter: none !important; }
+  .proj-card, .window, .win-shell { will-change: auto !important; }
+}
+/* gotas: só translate (sem scaleY) = 100% compositor, zero repaint */
+@media (hover: none), (pointer: coarse) {
+  @supports (height: 1lvh) {
+    @keyframes bloodFall {
+      0%   { transform: translate3d(0,-16lvh,0); opacity: 0; }
+      7%   { opacity: 1; }
+      90%  { opacity: .92; }
+      100% { transform: translate3d(0,114lvh,0); opacity: 0; }
+    }
+  }
+}
+
+/* =====================================================================
+   ██ PERF — menos repaint, mesmo visual ██
+   ===================================================================== */
+/* multiply com listras PRETAS == pintura normal; evita blend de tela cheia */
+.crt { mix-blend-mode: normal; }
+.rising-particles .drop { filter: none; }
+
+/* base preta com borda áspera: o filtro SVG (feTurbulence) só roda uma vez.
+   O brilho do hover vira uma camada separada que só anima opacidade. */
+.win-shell::before,
+.win-shell:hover::before {
+  transition: none; will-change: transform;
+  outline-color: rgba(255,42,42,.5);
+  box-shadow: 0 0 24px rgba(227,6,19,.22), 0 22px 40px rgba(0,0,0,.7);
+}
+.win-shell::after {
+  display: block; content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  top: 0; bottom: 0; background: none; filter: none;
+  outline: 1.5px solid rgba(255,64,64,.85); outline-offset: -1px;
+  box-shadow: 0 0 55px rgba(227,6,19,.45), 0 34px 66px rgba(0,0,0,.8);
+  opacity: 0; transition: opacity .45s ease;
+}
+.win-shell:hover::after { opacity: 1; }
+/* a borda rasgada fica isolada na própria camada: repaint de conteúdo não refaz o filtro */
+.window::after { will-change: transform; }
+@media (prefers-reduced-motion: reduce) { .win-shell::after { transition: none; } }

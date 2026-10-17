@@ -1,0 +1,169 @@
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--g0:#ff2a2a;--g1:#00d8ff;--g2:#b86bff;--accent:#ff2a2a;--cy:#00d8ff;--ink:#05020a;--txt:#ecdada;--gh:20vh}
+html,body{background:var(--ink);color:var(--txt);font-family:'Chakra Petch',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--accent);color:#000}
+.accent{color:var(--accent)}
+
+/* o scroll vertical vira a caminhada: #track ganha a altura via JS */
+#track{position:relative}
+.stage{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden}
+.layer,.near{position:absolute;top:0;left:0;height:100%;will-change:transform}
+.near{display:flex;width:max-content}
+.scene{position:relative;flex:none;height:100%}
+.s-gate{width:100vw}
+.s-alley,.s-crypt{width:calc(5*310px + 40vw)}
+.s-skills{width:calc(4*340px + 40vw)}
+.s-chapel{width:calc(8*296px + 40vw)}
+.s-end{width:100vw}
+
+/* ---- fundo ---- */
+.sky{width:100%;background:
+  radial-gradient(1.5px 1.5px at 12% 18%,#fff8 50%,transparent),radial-gradient(1.5px 1.5px at 38% 9%,#fff6 50%,transparent),
+  radial-gradient(1.5px 1.5px at 66% 22%,#fff7 50%,transparent),radial-gradient(1.5px 1.5px at 84% 12%,#fff6 50%,transparent),
+  radial-gradient(1.5px 1.5px at 52% 31%,#fff5 50%,transparent),
+  linear-gradient(#030106,#12040a 70%,#1c060c)}
+.moon{position:absolute;right:12vw;top:9vh;width:clamp(70px,11vw,150px);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#f4ecec,#b9a9ab 60%,#7c6a6e);box-shadow:0 0 60px 8px rgba(255,200,200,.22)}
+.moon-red{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ff5a4a,#c01010 60%,#6b0006);opacity:0;box-shadow:0 0 70px 14px rgba(255,30,30,.5)}
+.far{bottom:0;top:auto;height:320px}
+.mid{bottom:0;top:auto;height:260px}
+.sil{stroke-width:1.5}
+.far-sil{fill:#0a0409;stroke:rgba(255,42,42,.28)}
+.mid-sil{fill:#070208;stroke:rgba(255,42,42,.5)}
+.fog{position:absolute;left:-20%;width:140%;height:34vh;bottom:calc(var(--gh) - 6vh);pointer-events:none;
+  background:radial-gradient(ellipse at 20% 60%,rgba(120,255,200,.10),transparent 60%),radial-gradient(ellipse at 75% 50%,rgba(255,60,60,.10),transparent 60%)}
+.f1{animation:drift 38s ease-in-out infinite alternate}
+.f2{bottom:calc(var(--gh) - 2vh);opacity:.7;animation:drift 52s ease-in-out infinite alternate-reverse}
+@keyframes drift{from{transform:translate3d(-4%,0,0)}to{transform:translate3d(4%,0,0)}}
+.ground{position:absolute;left:0;right:0;bottom:0;height:var(--gh);background:linear-gradient(#0a0309,#020103)}
+
+/* ---- cenário ---- */
+.scene::after{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--gh);pointer-events:none;
+  border-top:2px solid var(--accent);box-shadow:0 -4px 18px rgba(255,42,42,.25);
+  background:repeating-linear-gradient(90deg,rgba(255,42,42,.16) 0 2px,transparent 2px 120px),linear-gradient(#0a0309,#020103)}
+#cards .scene::after{content:none}
+.deco,.gate,.crypt-roof{position:absolute;pointer-events:none;overflow:visible;fill:#070208;stroke:rgba(255,42,42,.6);stroke-width:2}
+.deco{bottom:var(--gh)}
+.tree-a{left:14vw;height:46vh;width:auto}.tree-b{left:4vw;height:40vh}.tree-c{left:30vw;height:62vh}
+.x1{left:48%;height:15vh}.x2{left:64%;height:11vh}.x3{left:82%;height:14vh}
+.gate{left:56vw;bottom:var(--gh);height:62vh;width:auto;aspect-ratio:520/330}
+.iron{fill:#050206;stroke:var(--accent)}
+.leaf{transition:none}
+.leaf.l{transform-origin:44px 0}.leaf.r{transform-origin:476px 0}
+.crypt-roof{left:6vw;right:6vw;width:auto;bottom:calc(var(--gh) + 56vh);height:18vh;fill:#0a0409;stroke:rgba(255,42,42,.4)}
+.hang{position:absolute;left:62vw;bottom:calc(var(--gh) + 40vh);width:14px;height:22px;border-radius:3px;background:#ffb27a;box-shadow:0 0 40px 18px rgba(255,120,60,.4)}
+
+/* ---- textos ---- */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s ease}
+.rv.on{opacity:1;transform:none}
+.rv.on.dim{opacity:.3}
+.title{font:400 clamp(30px,4.4vw,60px)/1.05 'Metal Mania',cursive;color:#ffe3e3;letter-spacing:1.5px;text-shadow:2px 0 rgba(255,42,42,.7),-2px 0 rgba(0,216,255,.4);
+  position:absolute;left:20vw;top:11vh}
+.title.long{font-size:clamp(22px,2.6vw,38px);max-width:70vw}
+.s-end .title{position:static;margin-bottom:14px}
+.hero{position:absolute;left:5vw;top:9vh;width:min(46vw,600px)}
+.kicker{font:500 13px 'Oxanium',monospace;letter-spacing:3px;color:var(--cy);margin-bottom:16px}
+.hero h1{font:400 clamp(26px,3.6vw,54px)/1.15 'Nosifer','Metal Mania',cursive;color:#ffe3e3;margin-bottom:20px}
+.sub{font-size:clamp(14px,1.3vw,17px);line-height:1.6;color:rgba(236,218,218,.75);max-width:52ch}
+.cue{margin-top:30px;font:500 13px 'Oxanium',monospace;letter-spacing:3px;text-transform:uppercase;color:var(--accent);animation:blink 1.6s steps(1) infinite}
+@keyframes blink{50%{opacity:.25}}
+.row{position:absolute;left:20vw;bottom:calc(var(--gh) - 1px);display:flex;align-items:flex-end;gap:40px}
+.tomb,.door{flex:none;width:270px;background:linear-gradient(#170a10,#0a0408);border:1.5px solid rgba(255,42,42,.6);
+  box-shadow:0 0 26px rgba(255,42,42,.16);color:var(--txt)}
+.tomb{height:var(--h);border-radius:140px 140px 4px 4px;padding:58px 24px 24px;font-size:13.5px;line-height:1.55;text-align:center}
+.tomb p{overflow:hidden}
+.rip{display:block;font:700 12px 'Oxanium',monospace;letter-spacing:4px;color:var(--accent);margin-bottom:12px}
+.door{width:250px;min-height:340px;border-radius:125px 125px 0 0;padding:62px 22px 26px;text-align:center}
+.door .idx{display:block;font:400 34px 'Metal Mania',cursive;color:var(--accent);margin-bottom:6px}
+.door .date{display:block;font:500 12px 'Oxanium',monospace;letter-spacing:2px;color:var(--cy);margin-bottom:10px}
+.door h3{font:600 15px/1.25 'Chakra Petch',sans-serif;margin-bottom:4px}
+.door b{display:block;font:500 12px 'Oxanium',monospace;color:rgba(255,190,190,.7);margin-bottom:12px;font-weight:500}
+.door p{font-size:12.5px;line-height:1.5;color:rgba(236,218,218,.8)}
+.s-crypt .row{gap:40px}
+.end{position:absolute;left:12vw;top:20vh;width:min(70vw,620px)}
+.links{display:flex;flex-direction:column;gap:12px;margin:26px 0 22px;align-items:flex-start}
+.links a{display:inline-flex;gap:10px;align-items:center;padding:12px 20px;border:1px solid var(--accent);border-radius:6px;font:600 14px 'Oxanium',monospace;
+  letter-spacing:1px;background:rgba(10,2,3,.8);transition:background .2s,box-shadow .2s}
+.links a:hover{background:rgba(255,42,42,.18);box-shadow:0 0 24px rgba(255,42,42,.4)}
+.foot{font:500 13px 'Oxanium',monospace;color:rgba(236,218,218,.6)}
+
+/* ---- personagem ---- */
+.walker{position:absolute;left:22vw;bottom:calc(var(--gh) - 3vh);height:clamp(150px,27vh,260px);aspect-ratio:120/220;pointer-events:none}
+.walker svg{width:100%;height:100%;overflow:visible;fill:#050206;stroke:var(--accent);stroke-width:2}
+.eye{fill:var(--cy);stroke:none}
+.lamp{fill:#ffb27a;stroke:none}
+.lg{transform-box:fill-box;transform-origin:50% 0}
+.walker.walking .body{animation:bob .5s steps(2) infinite}
+.walker.walking .lg.a{animation:step .5s steps(2) infinite}
+.walker.walking .lg.b{animation:step .5s steps(2) infinite reverse}
+@keyframes bob{50%{transform:translateY(-3px)}}
+@keyframes step{0%{transform:rotate(-20deg)}100%{transform:rotate(20deg)}}
+.eyes{position:absolute;left:150%;top:34%;width:46px;height:8px;opacity:0;transition:opacity 1.2s;
+  background:radial-gradient(circle,var(--cy) 0 3px,transparent 4px) 0 50%/20px 8px no-repeat,radial-gradient(circle,var(--cy) 0 3px,transparent 4px) 26px 50%/20px 8px no-repeat}
+body.idle .eyes{opacity:.9}
+
+/* lanterna: escurece o cenário; textos ficam sempre legíveis */
+.lantern{position:absolute;inset:0;pointer-events:none;
+  background:
+   radial-gradient(circle calc(300px - var(--c,0)*90px) at var(--lx,50%) var(--ly,50%),transparent 0,transparent 40%,rgba(2,0,4,.55) 72%,rgba(2,0,4,.86) 100%)}
+
+/* ---- overlays ---- */
+.veil{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(160,0,10,.55))}
+.crtfx{position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(0,0,0,.2) 2px 4px),radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.6))}
+
+/* ---- HUD ---- */
+.hud{position:absolute;z-index:5;font:500 13px 'Oxanium',monospace;letter-spacing:2px}
+.rec{top:16px;left:18px;display:flex;gap:8px;align-items:center;pointer-events:none;color:var(--accent)}
+.rec .dot{width:10px;height:10px;border-radius:50%;background:#ff2b2b;animation:blink 1.4s steps(1) infinite}
+.nav{top:12px;right:14px;display:flex;gap:8px;align-items:center}
+.nav a,.nav button,.lang-btn{background:rgba(10,2,3,.75);color:var(--txt);border:1px solid rgba(255,42,42,.5);border-radius:6px;padding:7px 11px;font:inherit;letter-spacing:1px;cursor:pointer}
+.lang-switcher{display:flex}.lang-btn{border-radius:0}.lang-btn:first-child{border-radius:6px 0 0 6px}.lang-btn:last-child{border-radius:0 6px 6px 0;border-left:0}
+.lang-btn.active{background:var(--accent);color:#000}
+.nav a:hover,.nav button:hover{border-color:var(--accent)}
+.progress{left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.06)}
+.progress i{display:block;height:100%;background:var(--accent);transform:scaleX(0);transform-origin:left;box-shadow:0 0 10px var(--accent)}
+.idle-log{position:absolute;z-index:5;left:50%;bottom:7vh;transform:translateX(-50%);font:500 15px 'Oxanium',monospace;color:var(--cy);opacity:0;transition:opacity .8s;pointer-events:none}
+body.idle .idle-log{opacity:1}
+
+/* ---- mobile / acessibilidade ---- */
+@media (max-width:720px){
+  :root{--gh:17vh}
+  .tomb{width:236px}.door{width:226px}.hero{width:84vw}.title{left:8vw}
+  .row{left:12vw}.moon{right:6vw}
+  .walker{left:4vw;height:clamp(110px,19vh,170px)}
+  .nav a span,.nav .portal-txt{display:none}
+}
+@media (hover:none),(pointer:coarse){.f2{display:none}.fog{animation:none}}
+@media (prefers-reduced-motion:reduce){.fog,.cue,.rec .dot,.walker.walking *{animation:none!important}.rv{transition:none}}
+
+/* ---- skills: mausoléu dos servidores ---- */
+.rackwall{position:absolute;left:8vw;right:8vw;bottom:var(--gh);height:62vh;border:1.5px solid rgba(255,42,42,.4);border-bottom:0;
+  background:repeating-linear-gradient(90deg,#080309 0 120px,rgba(255,42,42,.25) 120px 122px)}
+.leds{position:absolute;left:8vw;right:8vw;bottom:calc(var(--gh) + 8vh);height:40vh;opacity:.7;animation:blink 2.4s steps(1) infinite;
+  background:radial-gradient(circle,var(--cy) 0 2px,transparent 3px) 14px 0/60px 26px}
+.rack{flex:none;width:300px;padding:22px 20px;background:linear-gradient(#0d0509,#060205);border:1.5px solid rgba(255,42,42,.6);border-radius:6px 6px 0 0;
+  box-shadow:0 0 22px rgba(255,42,42,.14)}
+.rack h4{font:700 12px 'Oxanium',monospace;letter-spacing:2px;color:var(--cy);margin-bottom:16px;display:flex;gap:8px;align-items:center}
+.led{width:8px;height:8px;border-radius:50%;background:#3dff9a;flex:none;animation:blink 2s steps(1) infinite}
+.sk{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin-bottom:14px;font-size:12.5px}
+.sk em{font:500 11px 'Oxanium',monospace;color:rgba(255,190,190,.65);font-style:normal;text-align:right}
+.bar{grid-column:1/-1;height:5px;background:rgba(255,255,255,.08);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);box-shadow:0 0 8px var(--accent);transform:scaleX(0);transform-origin:left;transition:transform 1.3s cubic-bezier(.2,.8,.2,1) .25s}
+.rv.on .bar i{transform:scaleX(var(--w))}
+.plaque p{font-size:12.5px;line-height:1.5;margin-bottom:12px;color:rgba(236,218,218,.85)}
+
+/* ---- projetos: capela abandonada ---- */
+.chapel-roof{position:absolute;left:6vw;right:6vw;bottom:calc(var(--gh) + 54vh);height:24vh;width:auto;fill:#0a0409;stroke:rgba(255,42,42,.4);stroke-width:2}
+.glass{flex:none;width:260px;min-height:380px;padding:70px 22px 22px;border:1.5px solid color-mix(in srgb,var(--g) 70%,transparent);border-radius:130px 130px 4px 4px;text-align:center;
+  background:radial-gradient(circle at 50% 14%,color-mix(in srgb,var(--g) 32%,transparent),transparent 46%),linear-gradient(#150a10,#080307);
+  box-shadow:0 0 26px color-mix(in srgb,var(--g) 20%,transparent);transition:opacity .8s ease,transform .8s ease,box-shadow .25s}
+.glass:hover{box-shadow:0 0 40px color-mix(in srgb,var(--g) 55%,transparent)}
+.glass .cat{display:block;font:700 11px 'Oxanium',monospace;letter-spacing:3px;color:var(--g);margin-bottom:8px}
+.glass h3{font:400 24px/1.1 'Metal Mania',cursive;margin-bottom:8px;color:#ffe3e3}
+.glass b{display:block;font:500 11px/1.4 'Oxanium',monospace;color:var(--cy);margin-bottom:12px}
+.glass p{font-size:12px;line-height:1.5;color:rgba(236,218,218,.8);margin-bottom:14px}
+.glass .go{font:600 12px 'Oxanium',monospace;color:var(--g);letter-spacing:1px}
+.s-skills .row,.s-chapel .row{gap:36px}
+@media (max-width:720px){.rack{width:270px}.glass{width:236px}}

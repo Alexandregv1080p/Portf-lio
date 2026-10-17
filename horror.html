@@ -167,7 +167,7 @@
               <div class="panel-actions"><i class="fa-solid fa-minus"></i><i class="fa-regular fa-square"></i><i class="fa-solid fa-xmark"></i></div>
             </div>
             <div class="panel-body" style="padding:0;">
-              <img src="imgs/foto-perfil-cortada.jpg" alt="Alexandre Gomes Vieira" class="panel-img">
+              <img src="imgs/foto-perfil-cortada.jpg" alt="Alexandre Gomes Vieira" class="panel-img" width="899" height="738" decoding="async" fetchpriority="high">
             </div>
           </div>
 
@@ -484,7 +484,7 @@
               <i class="fa-solid fa-envelope"></i>
               <div><strong data-i18n="contact.email_label">E-mail</strong><span>alexandregv1999@gmail.com</span></div>
             </a>
-            <a href="tel:+5535984511709" class="contact-card-item">
+            <a href="tel:+5535984249011" class="contact-card-item">
               <i class="fa-solid fa-phone"></i>
               <div><strong data-i18n="contact.phone_label">Telefone</strong><span>(35) 98451-1709</span></div>
             </a>
@@ -577,7 +577,8 @@
     (function () {
       const layer = document.getElementById('blood-fall');
       if (!layer) return;
-      const COUNT = 26;
+      const LITE = matchMedia('(pointer: coarse)').matches || innerWidth < 720;
+      const COUNT = LITE ? 9 : 26;
       for (let i = 0; i < COUNT; i++) {
         const d = document.createElement('span');
         d.className = 'bloodrop';
@@ -589,7 +590,7 @@
         const dur = 5 + Math.random() * 8;          // 5–13s fall
         d.style.animationDuration = dur + 's';
         d.style.animationDelay = (-Math.random() * dur) + 's'; // continuous from the start
-        d.style.filter = 'drop-shadow(0 0 ' + (2 + Math.random() * 4).toFixed(1) + 'px rgba(227,6,19,.6))';
+        if (!LITE) d.style.filter = 'drop-shadow(0 0 ' + (2 + Math.random() * 4).toFixed(1) + 'px rgba(227,6,19,.6))';
         layer.appendChild(d);
       }
     })();
@@ -825,17 +826,18 @@
             rafId=requestAnimationFrame(tick);
           }
 
-          el.style.cursor='crosshair';
+          var canHover = matchMedia('(hover: hover) and (pointer: fine)').matches;
+          if(canHover) el.style.cursor='crosshair';
 
-          el.addEventListener('mouseenter',function(e){
+          if(canHover) el.addEventListener('mouseenter',function(e){
             if(swapping)return;
             ensureSpans();
             mx=e.clientX; my=e.clientY;
             hoverActive=true;
             if(!rafId) rafId=requestAnimationFrame(tick);
           });
-          el.addEventListener('mousemove',function(e){ mx=e.clientX; my=e.clientY; });
-          el.addEventListener('mouseleave',function(){
+          if(canHover) el.addEventListener('mousemove',function(e){ mx=e.clientX; my=e.clientY; });
+          if(canHover) el.addEventListener('mouseleave',function(){
             hoverActive=false;
             if(rafId){cancelAnimationFrame(rafId);rafId=null;}
             restore();
@@ -856,7 +858,9 @@
 
           /* AUTO: word-swap esporadico de fundo (via textContent; spans reconstruidos no hover) */
           function runAuto(){
-            if(hoverActive||swapping)return;
+            if(hoverActive||swapping||document.hidden)return;
+            var rr=el.getBoundingClientRect();              /* só anima se estiver na tela */
+            if(rr.bottom<0||rr.top>window.innerHeight)return;
             var b=base, c=cursed(b);
             morph(el,b,c,30,function(){
               setTimeout(function(){morph(el,c,b,30,function(){});},700+Math.random()*900);
@@ -1099,7 +1103,7 @@
 
       /* ---- TURBULÊNCIA DE SCROLL (velocidade de rolagem = instabilidade do sinal) ---- */
       (function(){
-        if (reduce) return;
+        if (reduce || matchMedia('(pointer: coarse)').matches) return;   /* mobile: desliga */
         var sg = document.createElement('div'); sg.id = 'scroll-glitch';
         document.body.appendChild(sg);
         var glitchOv = document.getElementById('glitch-overlay');
@@ -1119,7 +1123,6 @@
           if (inten < 0.01) inten = 0;
           sg.style.opacity = inten.toFixed(3);
           sg.style.transform = 'translateY(' + ((Math.random() - 0.5) * inten * 8).toFixed(1) + 'px)';
-          document.documentElement.style.setProperty('--sg', inten.toFixed(3));
           if (inten > 0.7 && flashCd <= 0 && glitchOv){
             glitchOv.classList.add('on');
             setTimeout(function(){ glitchOv.classList.remove('on'); }, 200);
@@ -1526,9 +1529,14 @@
           var lampOn = saved===null ? true : saved==='1';
           function applyLamp(){ docBody.classList.toggle('lantern-on', lampOn); if(tgl) tgl.classList.toggle('off', !lampOn);
             if(window.__horrorAudio) window.__horrorAudio.setLantern(lampOn); }
+          /* vars só no #lantern (não na raiz) + 1 update por frame: não invalida o documento todo */
+          var lx=0, ly=0, lraf=0;
           document.addEventListener('mousemove', function(e){
-            root.style.setProperty('--lx', e.clientX+'px'); root.style.setProperty('--ly', e.clientY+'px');
-          });
+            lx=e.clientX; ly=e.clientY;
+            if(!lraf) lraf=requestAnimationFrame(function(){
+              lraf=0; lantern.style.setProperty('--lx', lx+'px'); lantern.style.setProperty('--ly', ly+'px');
+            });
+          }, { passive: true });
           var tgl=document.createElement('button'); tgl.id='lantern-toggle'; tgl.type='button';
           tgl.title='Modo lanterna (imersivo)'; tgl.innerHTML='<i class="fa-solid fa-lightbulb"></i>';
           tgl.addEventListener('click', function(){ lampOn=!lampOn; try{localStorage.setItem(KEY, lampOn?'1':'0');}catch(e){} applyLamp(); });
