@@ -12,7 +12,8 @@ export function createAudio(cfg, externalCtx) {
   const MASTER = 0.9;
   let ctx = null, master, dryBus, verbSend, noiseBuf, brownBuf;
   let started = false, muted = false;
-  const S = { camPos: { x: 0, y: 1.6, z: 0 }, p: 0, shade: { visible: false, dist: 99 }, doorOpen: [], doorDist: [] };
+  const S = { camPos: { x: 0, y: 1.6, z: 0 }, p: 0, shade: { visible: false, dist: 99 }, doorOpen: [], doorDist: [], floor: 0, fear: 0, floorBeat: 0, lift: -1 };
+  let cfgRef = { rooms: [], end: { x: 0, y: 1, z: -50 } };
   const fixtureState = [];                 /* { gain, k } por lâmpada */
   const rooms = [];                        /* som atrás de cada porta */
   let stepAcc = 0, stepSide = 1, lastShadeVisible = false;
@@ -95,7 +96,7 @@ export function createAudio(cfg, externalCtx) {
   /* ------------------------------------------------------ amostras reais (portas etc.) */
   /* Mixkit Sound Effects Free License (uso comercial permitido, sem atribuição).
      Se falharem ao carregar, o motor cai na síntese e continua funcionando. */
-  const SAMPLES = ['door_creak_open', 'door_scary_open', 'door_creak_both', 'door_creak_close', 'door_hard_shut', 'door_metal_close', 'door_slam', 'knock_thick', 'floor_creak', 'lock_gear'];
+  const SAMPLES = ['door_creak_open', 'door_scary_open', 'door_creak_both', 'door_creak_close', 'door_hard_shut', 'door_metal_close', 'door_slam', 'knock_thick', 'floor_creak', 'lock_gear', 'lift_open', 'lift_close'];
   const samples = {};
   async function loadSamples() {
     const base = (import.meta.env && import.meta.env.BASE_URL) || './';
@@ -178,9 +179,7 @@ export function createAudio(cfg, externalCtx) {
   }
 
   /* som de dentro de cada sala (abafado pela porta; vaza quando ela abre) */
-  const ROOM_KINDS = ['servers', 'radio', 'musicbox', 'clock', 'breath', 'servers', 'radio', 'clock'];
-  function buildRoom(i, pos) {
-    const kind = ROOM_KINDS[i % ROOM_KINDS.length];
+  function buildRoom(kind, pos) {
     const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520;
     const bus = ctx.createGain(); bus.gain.value = 0; bus.connect(lp);
     route(lp, { pos, send: 0.35, gain: 1 });
@@ -223,14 +222,75 @@ export function createAudio(cfg, externalCtx) {
     }
   }
 
+  /* ------------------------------------------------ sons de susto e de elevador */
+  function zap() {                                                   /* descarga elétrica / curto */
+    noiseHit({ type: 'highpass', freq: 2500, dur: 0.28, gain: 0.5, send: 0.3 });
+    thump({ type: 'sawtooth', f0: 1800, f1: 80, dur: 0.25, gain: 0.25, send: 0.3 });
+    thump({ f0: 55, f1: 30, dur: 0.5, gain: 0.5, delay: 0.05, send: 0.5 });
+    for (let i = 0; i < 6; i++) noiseHit({ freq: rnd(3000, 6000), q: 2, dur: 0.015, gain: 0.3, delay: 0.05 + i * rnd(0.03, 0.07), send: 0.2 });
+  }
+  function riser() {                                                 /* swell grave que sobe */
+    const t0 = ctx.currentTime + baseDelay, os = ctx.createOscillator(), e = ctx.createGain();
+    os.type = 'sawtooth'; os.frequency.setValueAtTime(38, t0); os.frequency.exponentialRampToValueAtTime(110, t0 + 3);
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(90, t0); lp.frequency.exponentialRampToValueAtTime(900, t0 + 3);
+    e.gain.setValueAtTime(0.0001, t0); e.gain.linearRampToValueAtTime(0.16, t0 + 2.6); e.gain.exponentialRampToValueAtTime(0.0001, t0 + 3.4);
+    os.connect(lp); lp.connect(e); route(e, { send: 0.5 }); os.start(t0); os.stop(t0 + 3.5);
+  }
+  function phone() {                                                 /* telefone tocando numa sala vazia (corta no meio) */
+    const c = S.camPos, pos = { x: rnd(-1.2, 1.2), y: 1.1, z: c.z - rnd(5, 9) }, t0 = ctx.currentTime + baseDelay;
+    for (let r = 0; r < 3; r++) for (let b = 0; b < 2; b++) {
+      const t = t0 + r * 1.15 + b * 0.24, e = ctx.createGain();
+      e.gain.setValueAtTime(0.0001, t); e.gain.linearRampToValueAtTime(0.16, t + 0.01); e.gain.setValueAtTime(0.16, t + 0.15); e.gain.linearRampToValueAtTime(0.0001, t + 0.18);
+      [440, 480].forEach((f) => { const o = ctx.createOscillator(); o.frequency.value = f; o.connect(e); o.start(t); o.stop(t + 0.2); });
+      route(e, { pos, send: 0.5 });
+    }
+  }
+  function chairRoll() {                                             /* cadeira de rodinhas rolando sozinha */
+    const c = S.camPos, t = ctx.currentTime + baseDelay, s = ctx.createBufferSource(); s.buffer = noiseBuf;
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 380; bp.Q.value = 2.2;
+    const e = ctx.createGain(); e.gain.setValueAtTime(0.0001, t); e.gain.linearRampToValueAtTime(0.35, t + 0.4); e.gain.setValueAtTime(0.35, t + 2.1); e.gain.linearRampToValueAtTime(0.0001, t + 2.6);
+    s.connect(bp); bp.connect(e);
+    const r = route(e, { pos: { x: -1.2, y: 0.3, z: c.z - 5 }, send: 0.5 }), p = r.tail;
+    if (p.positionX) { p.positionX.setValueAtTime(-1.2, t); p.positionX.linearRampToValueAtTime(1.0, t + 2.6); p.positionZ.setValueAtTime(c.z - 5, t); p.positionZ.linearRampToValueAtTime(c.z - 3.2, t + 2.6); }
+    s.start(t, Math.random() * 2, 2.7);
+    thump({ pos: { x: 1.2, y: 0.3, z: c.z - 3.2 }, f0: 120, f1: 55, dur: 0.2, gain: 0.5, delay: 2.6, send: 0.6 });
+  }
+  function drawerSlam() {
+    const pos = { x: rnd(-1.1, 1.1), y: 1.2, z: S.camPos.z - rnd(3, 8) };
+    noiseHit({ pos, type: 'highpass', freq: 1800, dur: 0.45, gain: 0.4, send: 0.5 });
+    thump({ pos, f0: 140, f1: 60, dur: 0.2, gain: 0.55, delay: 0.3, send: 0.6 });
+    sample('door_metal_close', { pos, lp: 1500, gain: 0.3, delay: 0.3, send: 0.6 });
+  }
+  function elevator(name, fear = 0) {
+    if (!started || muted) return;
+    if (name === 'close') { if (!sample('lift_close', { gain: 0.5, send: 0.4 })) noiseHit({ type: 'lowpass', freq: 1200, dur: 0.8, gain: 0.4, send: 0.4 }); }
+    else if (name === 'open') { if (!sample('lift_open', { gain: 0.5, send: 0.5, delay: 0.15 })) noiseHit({ type: 'lowpass', freq: 1500, dur: 0.7, gain: 0.35, delay: 0.15, send: 0.5 }); }
+    else if (name === 'hum') {
+      sample('floor_creak', { lp: 700, rate: 0.55, gain: 0.5, send: 0.6 });         /* cabo rangendo */
+      thump({ f0: 70, f1: 38, dur: 0.9, gain: 0.35, send: 0.6 });
+    } else if (name === 'ding') {                                                  /* gongo de elevador moderno; fica errado nos andares fundos */
+      const k = 1 - fear * 0.22;
+      tone({ freq: 1175 * k, dur: 1.5, gain: 0.2, send: 0.6 }); tone({ freq: 1568 * k, dur: 1.6, gain: 0.16, delay: 0.18, send: 0.6 });
+      if (fear > 0.5) { tone({ freq: 1250 * k, dur: 1.4, gain: 0.13, delay: 0.06, send: 0.7 }); thump({ f0: 48, f1: 30, dur: 1.2, gain: 0.4, send: 0.6 }); }
+    }
+  }
+  function event(name) {
+    if (!started || muted) return;
+    if (name === 'phone') phone(); else if (name === 'chair') chairRoll(); else if (name === 'drawer') drawerSlam();
+    else if (name === 'zap') zap(); else if (name === 'stinger') { riser(); thump({ f0: 46, f1: 24, dur: 0.9, gain: 0.6, delay: 2.7, send: 0.7 }); }
+  }
+
   /* ----------------------------------------------- eventos aleatórios do prédio */
   function ambientEvent(force) {
     const c = S.camPos, p = S.p, ahead = (d, x = 0) => ({ x, y: rnd(0.4, 2.6), z: c.z - d });
-    const kinds = [['drip', 36], ['knock', 18], ['steps', 14], ['groan', 14], ['whisper', p > 0.25 ? 10 : 0], ['slam', 6], ['rat', 8]];
+    const f = S.floor;
+    const kinds = [['drip', f <= 2 ? 34 : 8], ['knock', f >= 1 ? 12 + f * 2 : 0], ['steps', f >= 1 ? 8 + f * 3 : 0], ['groan', f >= 2 ? 10 + f * 3 : 0],
+      ['whisper', f >= 4 ? 18 + (f - 4) * 12 : 0], ['slam', f >= 3 ? 6 + f * 2 : 0], ['rat', f >= 2 ? 8 : 0], ['zap', f >= 3 ? 12 : 0]];
     let r = Math.random() * kinds.reduce((a, k) => a + k[1], 0), kind = kinds[0][0];
     for (const [k, w] of kinds) { if ((r -= w) <= 0) { kind = k; break; } }
     if (force) kind = force;
-    if (kind === 'drip') {
+    if (kind === 'zap') zap();
+    else if (kind === 'drip') {
       const pos = ahead(rnd(-8, 16), rnd(-1.2, 1.2));
       tone({ pos, freq: rnd(1700, 3000), dur: 0.22, gain: 0.6, send: 0.7 });
       if (Math.random() < 0.5) tone({ pos, freq: rnd(1700, 3000), dur: 0.2, gain: 0.5, delay: rnd(0.9, 1.6), send: 0.7 });
@@ -269,14 +329,14 @@ export function createAudio(cfg, externalCtx) {
     return kind;
   }
   function scheduleEvents() {
-    const wait = rnd(4500, 13000) * (1 - S.p * 0.45);
+    const wait = rnd(4500, 13000) * (1 - S.p * 0.45) * (1 - S.fear * 0.4);
     timers.push(setTimeout(() => { if (started && !muted) ambientEvent(); scheduleEvents(); }, wait));
   }
 
   /* -------------------------------------------------------- vulto: batimento */
   let beatTimer = 0;
   function beat() {
-    const pr = S.shade.visible ? clamp(1 - S.shade.dist / 12, 0, 1) : 0;
+    const pr = Math.max(S.shade.visible ? clamp(1 - S.shade.dist / 12, 0, 1) : 0, S.floorBeat);
     if (started && !muted && pr > 0.03) {
       const g = 0.18 + 0.55 * pr;
       thump({ f0: 62, f1: 40, dur: 0.16, gain: g, send: 0.08 });
@@ -288,12 +348,13 @@ export function createAudio(cfg, externalCtx) {
   /* ------------------------------------------------------------------ API */
   function start(positions) {
     if (started) return;
+    cfgRef = positions;
     if (!ctx) ctx = externalCtx || new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
     master = ctx.createGain(); master.gain.value = 0;
     const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -20; comp.ratio.value = 5; comp.attack.value = 0.01; comp.release.value = 0.3;
     dryBus = ctx.createGain(); verbSend = ctx.createGain();
     const conv = ctx.createConvolver(); noiseBuf = makeNoise(3, 'white'); brownBuf = makeNoise(4, 'brown'); conv.buffer = makeIR();
-    const verbOut = ctx.createGain(); verbOut.gain.value = 0.7;
+    const verbOut = ctx.createGain(); verbOut.gain.value = 0.7; S.verbOut = verbOut;
     dryBus.connect(master); verbSend.connect(conv); conv.connect(verbOut); verbOut.connect(master);
     /* limitador rápido + saturação suave: nada passa de 0 dBFS, mesmo com fonte 3D colada na orelha */
     const lim = ctx.createDynamicsCompressor(); lim.threshold.value = -6; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.001; lim.release.value = 0.12;
@@ -315,17 +376,26 @@ export function createAudio(cfg, externalCtx) {
     const sub = ctx.createOscillator(), subG = ctx.createGain(); sub.frequency.value = 36; subG.gain.value = 0.012; sub.connect(subG); route(subG, { send: 0 }); sub.start();
     S.subG = subG;
 
-    /* lâmpadas: zumbido posicional (gagueja com o flicker) */
-    positions.fixtures.forEach((pos) => {
+    /* lâmpadas: 3 zumbidos 3D que migram para as lâmpadas mais próximas (gaguejam com o flicker) */
+    for (let i = 0; i < 3; i++) {
       const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
       o1.type = 'sawtooth'; o1.frequency.value = 120; o2.type = 'square'; o2.frequency.value = 240.7;
       bp.type = 'bandpass'; bp.frequency.value = 360; bp.Q.value = 5; g.gain.value = 0.0012;
-      o1.connect(bp); o2.connect(bp); bp.connect(g); route(g, { pos, send: 0.25 }); o1.start(); o2.start();
-      fixtureState.push({ gain: g, pos, k: 1 });
-    });
-    /* sala de dentro de cada porta */
-    positions.doors.forEach((pos, i) => rooms.push(buildRoom(i, pos)));
-    timers.push(setInterval(() => { rooms.forEach((r, i) => roomTick(r, (S.doorDist[i] ?? 99) < 5.5)); }, 700 + (Math.random() * 100 | 0)));
+      o1.connect(bp); o2.connect(bp); bp.connect(g); const r = route(g, { pos: { x: 0, y: 2.9, z: -5 }, send: 0.25 }); o1.start(); o2.start();
+      fixtureState.push({ gain: g, panner: r.tail, k: 1 });
+    }
+    /* sala de dentro de cada porta/rack */
+    positions.rooms.forEach((r) => rooms.push(r.kind === 'none' ? null : buildRoom(r.kind, r.pos)));
+    timers.push(setInterval(() => { rooms.forEach((r, i) => { if (r) roomTick(r, (S.doorDist[i] ?? 99) < 5.5); }); }, 700 + (Math.random() * 100 | 0)));
+
+    /* camadas por andar: ventiladores (servidores), chiado agudo, e o zumbido grave do elevador descendo */
+    const fan = ctx.createBufferSource(); fan.buffer = noiseBuf; fan.loop = true;
+    const fbp = ctx.createBiquadFilter(); fbp.type = 'bandpass'; fbp.frequency.value = 1500; fbp.Q.value = 0.5;
+    const fanG = ctx.createGain(); fanG.gain.value = 0; fan.connect(fbp); fbp.connect(fanG); route(fanG, { send: 0.15 }); fan.start(); S.fanG = fanG;
+    const whine = ctx.createOscillator(), whG = ctx.createGain(); whine.frequency.value = 7400; whG.gain.value = 0; whine.connect(whG); route(whG, { send: 0 }); whine.start(); S.whineG = whG;
+    const lo = ctx.createOscillator(), lln = ctx.createBufferSource(), llp = ctx.createBiquadFilter(), lbp = ctx.createBiquadFilter(), liftG = ctx.createGain();
+    lo.type = 'sawtooth'; lo.frequency.value = 52; llp.type = 'lowpass'; llp.frequency.value = 140; lln.buffer = brownBuf; lln.loop = true; lbp.type = 'bandpass'; lbp.frequency.value = 260; lbp.Q.value = 0.7;
+    liftG.gain.value = 0; lo.connect(llp); llp.connect(liftG); lln.connect(lbp); lbp.connect(liftG); route(liftG, { send: 0.2 }); lo.start(); lln.start(); S.liftG = liftG;
 
     /* alarme de emergência no fim: pulsa e cresce quando você chega perto */
     const al = ctx.createOscillator(), al2 = ctx.createOscillator(), trem = ctx.createGain(), alg = ctx.createGain();
@@ -340,7 +410,7 @@ export function createAudio(cfg, externalCtx) {
     S.endPos = positions.end;
     master.gain.setTargetAtTime(muted ? 0 : MASTER, ctx.currentTime, 0.6);
     scheduleEvents(); beat();
-    if (ctx.state === 'suspended' && ctx.resume) ctx.resume();
+    if (ctx.state === 'suspended' && ctx.resume && !(window.OfflineAudioContext && ctx instanceof OfflineAudioContext)) ctx.resume();
     /* entrada: um trinco e o corredor ganha vida */
     thump({ f0: 70, f1: 38, dur: 0.5, gain: 0.5, send: 0.8 });
   }
@@ -363,26 +433,35 @@ export function createAudio(cfg, externalCtx) {
     }
     if (s.stepDist === 0 && s.speed < 0.02) stepAcc = Math.min(stepAcc, STRIDE * 0.5);
 
-    /* lâmpadas: o zumbido cai e crepita junto com a luz */
-    s.fixtures.forEach((k, i) => {
-      const f = fixtureState[i]; if (!f) return;
+    /* lâmpadas: o zumbido segue as 3 mais próximas, cai e crepita junto com a luz */
+    s.fixtures.forEach((fx, i) => {
+      const f = fixtureState[i]; if (!f) return; const k = fx.k;
+      setPos(f.panner, fx.pos);
       f.gain.gain.setTargetAtTime(0.0012 * (0.1 + 0.9 * k), t, 0.015);
-      if (f.k > 0.6 && k < 0.5 && !muted) { noiseHit({ pos: f.pos, freq: rnd(3200, 5200), q: 2, dur: 0.03, gain: 0.12, send: 0.3 }); thump({ pos: f.pos, f0: 300, f1: 120, dur: 0.05, gain: 0.05 }); }
+      if (f.k > 0.6 && k < 0.5 && !muted) { noiseHit({ pos: fx.pos, freq: rnd(3200, 5200), q: 2, dur: 0.03, gain: 0.12, send: 0.3 }); thump({ pos: fx.pos, f0: 300, f1: 120, dur: 0.05, gain: 0.05 }); }
       f.k = k;
     });
 
     /* salas atrás das portas: mais alto perto, e vaza quando a porta abre */
     rooms.forEach((r, i) => {
-      const d = s.doorDist[i] ?? 99; S.doorDist[i] = d;
+      const d = s.doorDist[i] ?? 99; S.doorDist[i] = d; if (!r) return;
       const open = S.doorOpen[i] || 0, near = clamp(1 - d / 6.5, 0, 1);
       r.bus.gain.setTargetAtTime(near * near * (0.6 + 1.4 * open), t, 0.12);
       r.lp.frequency.setTargetAtTime(520 + open * 3400, t, 0.15);
     });
 
+    /* atmosfera sonora do andar */
+    const f = S.floor, fear = S.fear;
+    S.fanG.gain.setTargetAtTime(f === 3 ? 0.06 : f === 2 ? 0.012 : f === 1 ? 0.006 : f >= 4 ? 0.02 : 0, t, 0.8);
+    S.whineG.gain.setTargetAtTime(f >= 3 ? 0.0016 * (0.4 + fear) : 0, t, 0.8);
+    S.verbOut.gain.setTargetAtTime(0.7 + fear * 0.5, t, 0.8);
+    S.liftG.gain.setTargetAtTime(s.lift >= 0 ? 0.3 + 0.12 * Math.sin(t * 7) : 0, t, 0.3);
+    S.lift = s.lift;
+
     /* alarme no fim e sub-grave que cresce com a profundidade */
     const dEnd = Math.abs(S.endPos.z - s.camPos.z);
     S.alarm.gain.setTargetAtTime(0.06 * clamp(1 - dEnd / 26, 0, 1), t, 0.3);
-    S.subG.gain.setTargetAtTime(0.012 + 0.04 * s.p, t, 0.5);
+    S.subG.gain.setTargetAtTime(0.012 + 0.04 * s.p + 0.03 * fear, t, 0.5);
 
     /* vulto: sting na primeira aparição + sumiço */
     if (s.shade.visible && !lastShadeVisible) {
@@ -396,16 +475,20 @@ export function createAudio(cfg, externalCtx) {
     lastShadeVisible = s.shade.visible;
   }
 
-  function door(i, open) {
+  function door(i, open, kind = 'door') {
     if (!started || i < 0) return;
     S.doorOpen[i] = open ? 1 : 0;
-    if (!muted) creak(positionsRef.doors[i], open);
+    if (muted || !cfgRef.rooms[i]) return;
+    const pos = cfgRef.rooms[i].pos;
+    if (kind === 'door') creak(pos, open);
+    else if (kind === 'rack') { if (open) { sample('lock_gear', { pos, gain: 0.4, send: 0.3 }); noiseHit({ pos, freq: 900, q: 0.8, dur: 0.5, gain: 0.5, send: 0.4 }); } else sample('lock_gear', { pos, gain: 0.3, rate: 0.8 }); }
+    else if (open) { tone({ pos, freq: 1320, dur: 0.18, gain: 0.5, send: 0.3 }); noiseHit({ pos, type: 'highpass', freq: 3000, dur: 0.12, gain: 0.3, send: 0.2 }); }
   }
-  let positionsRef = { doors: [], fixtures: [], end: { x: 0, y: 1, z: -50 } };
+  function setFloor(i, fear) { S.floor = i; S.fear = fear; S.floorBeat = i >= 5 ? 0.5 : i >= 4 ? 0.15 : 0; }
 
   return {
-    start(positions) { positionsRef = positions; start(positions); },
-    update, door,
+    start(positions) { start(positions); },
+    update, door, event, elevator, setFloor,
     get started() { return started; },
     get muted() { return muted; },
     setMuted(m) {
@@ -415,6 +498,6 @@ export function createAudio(cfg, externalCtx) {
     pause() { if (ctx && ctx.suspend) ctx.suspend(); },
     resume() { if (ctx && started && !muted && ctx.resume) ctx.resume(); },
     /* só para testes offline */
-    _test: { samplesReady: () => loadSamples(), samples: () => Object.keys(samples), at: (sec, fn) => { baseDelay = sec; try { fn(); } finally { baseDelay = 0; } }, footstep: (v = 1, s = 1) => footstep(v, s), creak: (pos, o) => creak(pos, o), ambient: (k) => ambientEvent(k), ctxRef: () => ctx, setCtx: (c) => { ctx = c; } },
+    _test: { zap: () => zap(), phone: () => phone(), chair: () => chairRoll(), drawer: () => drawerSlam(), elevator, event, samplesReady: () => loadSamples(), samples: () => Object.keys(samples), at: (sec, fn) => { baseDelay = sec; try { fn(); } finally { baseDelay = 0; } }, footstep: (v = 1, s = 1) => footstep(v, s), creak: (pos, o) => creak(pos, o), ambient: (k) => ambientEvent(k), ctxRef: () => ctx, setCtx: (c) => { ctx = c; } },
   };
 }

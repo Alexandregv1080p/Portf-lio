@@ -48,3 +48,26 @@ a{color:inherit;text-decoration:none}
 #end .links a{padding:9px 16px;border:1px solid var(--accent);border-radius:6px;font:600 13px 'Oxanium',monospace;background:rgba(10,2,3,.85)}
 #end .links a:hover{background:rgba(255,42,42,.2)}
 @media (prefers-reduced-motion:reduce){.rec .dot{animation:none}}
+
+/* ---- HUD de andar + corrupção ---- */
+.meta{top:44px;left:18px;display:flex;flex-direction:column;gap:6px;pointer-events:none;font-size:12px}
+#floortag{color:var(--cy);text-shadow:0 0 8px rgba(0,216,255,.5)}
+.corr span{color:rgba(236,218,218,.6);font-size:11px}.corr em{font-style:normal;color:var(--accent)}
+.cbar{width:140px;height:4px;background:rgba(255,255,255,.1);margin-top:4px}
+.cbar i{display:block;height:100%;background:var(--accent);box-shadow:0 0 8px var(--accent);transform:scaleX(0);transform-origin:left}
+/* ---- banner de andar (aparece no ding do elevador) ---- */
+#banner{position:fixed;z-index:6;left:50%;top:38%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;opacity:0;transition:opacity .35s}
+#banner.show{opacity:1;animation:bglitch 3.6s steps(1) both}
+#banner b{display:block;font:400 clamp(48px,9vw,120px)/1 'Metal Mania',cursive;color:#ffe9e9;text-shadow:3px 0 rgba(255,42,42,.8),-3px 0 rgba(0,216,255,.6);letter-spacing:4px}
+#banner span{display:block;margin-top:10px;font:600 clamp(13px,1.6vw,20px) 'Oxanium',monospace;letter-spacing:8px;color:var(--cy)}
+@keyframes bglitch{0%,18%,24%,60%,66%,100%{transform:translate(-50%,-50%)}20%{transform:translate(calc(-50% + 8px),-50%) skewX(6deg)}22%{transform:translate(calc(-50% - 6px),-50%)}62%{transform:translate(calc(-50% + 5px),-50%) skewX(-5deg)}64%{transform:translate(calc(-50% - 7px),-50%)}}
+/* ---- cartão: barras de skill ---- */
+#proj p{white-space:pre-line}
+#proj .bars{display:grid;gap:8px;margin:2px 0 10px;text-align:left}
+#proj .bars:empty{display:none}
+#proj .sk{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:12px}
+#proj .sk em{font:500 10px 'Oxanium',monospace;font-style:normal;color:rgba(255,190,190,.65)}
+#proj .sk .bar{grid-column:1/-1;height:4px;background:rgba(255,255,255,.1)}
+#proj .sk .bar i{display:block;height:100%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
+#proj .go[hidden]{display:none}
+@media (max-width:720px){.meta{top:40px;font-size:11px}.cbar{width:110px}}

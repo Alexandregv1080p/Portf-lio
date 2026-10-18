@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&family=Chakra+Petch:wght@400;600&family=Oxanium:wght@500;700&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="./assets/index-DZBMB0eC.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-NuGSZ3Ij.css">
+  <script type="module" crossorigin src="./assets/index-RtbZCdZe.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-OoCk7YSv.css">
 </head>
 <body>
   <canvas id="gl"></canvas>
@@ -27,6 +27,8 @@
 
   <div class="hud rec"><span class="dot"></span> REC · <span id="depth">0m</span></div>
   <nav class="hud nav"><button id="snd" type="button">som: off</button><a href="../index.html">&larr; portal</a></nav>
+  <div class="hud meta"><span id="floortag">ANDAR 0 · RECEPÇÃO</span><div class="corr"><span>CORRUPÇÃO <em id="corrval">0%</em></span><div class="cbar"><i id="corrbar"></i></div></div></div>
+  <div id="banner" aria-live="polite"><b>ANDAR 0</b><span>RECEPÇÃO</span></div>
   <div class="hud hint" id="hint">mova o mouse para guiar a luz &middot; role para avançar</div>
 
   <section id="hero" class="card show">
@@ -36,7 +38,7 @@
   </section>
 
   <a id="proj" class="card" target="_blank" rel="noopener">
-    <span class="cat"></span><h2></h2><b class="stack"></b><p></p><span class="go">Ver no GitHub ↗</span>
+    <span class="cat"></span><h2></h2><b class="stack"></b><p></p><div class="bars"></div><span class="go">Ver no GitHub ↗</span>
   </a>
 
   <section id="end" class="card">
