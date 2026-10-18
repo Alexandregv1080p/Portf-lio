@@ -217,6 +217,17 @@
       background: linear-gradient(to bottom, #050205, #050205) padding-box, radial-gradient(ellipse at 50% 70%, rgba(255,170,110,.6), transparent 60%);
       clip-path: polygon(0 0, 100% 0, 78% 100%, 22% 100%); opacity: .9; }
 
+
+    /* ---------- CORREDOR 3D (WebGL) ---------- */
+    .door-3d { background: radial-gradient(circle at 50% 40%, rgba(255,60,60,.18), transparent 55%), linear-gradient(180deg, #080204, #030102); }
+    .door-3d .door-title { color: #ffe9e9; font-family: 'Fira Code', monospace; font-size: clamp(22px, 2.6vw, 38px); }
+    .door-3d .door-title .accent { color: #ff4d4d; }
+    .door-3d .door-sub { color: rgba(255,210,210,.55); }
+    .door-3d .door-cta { border: 1px solid #ff4d4d; color: #ffb3b3; }
+    .door-3d:hover .door-cta { box-shadow: 0 0 26px rgba(255,60,60,.45); background: rgba(255,60,60,.1); }
+    .door-3d .beam { width: min(40%, 120px); aspect-ratio: 1; margin: 0 auto 22px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,240,220,.9), rgba(255,160,100,.25) 45%, transparent 70%); }
+
     /* ---------- SHARED DOOR CONTENT ---------- */
     .door-content { position: relative; z-index: 2; text-align: center; padding: 30px; max-width: 92%; }
     .door-kicker {
@@ -331,6 +342,18 @@
       </div>
     </a>
 
+    <!-- CORREDOR 3D -->
+    <a class="door door-3d" href="3d/index.html" aria-label="Abrir corredor 3D com lanterna">
+      <div class="door-shine"></div>
+      <div class="door-content">
+        <div class="beam" aria-hidden="true"></div>
+        <p class="door-kicker">versão 05 &middot; WebGL</p>
+        <h2 class="door-title">CORREDOR <span class="accent">3D</span></h2>
+        <p class="door-sub">o mouse &eacute; a lanterna<br>luz e sombra em tempo real</p>
+        <span class="door-cta">ACENDER <i class="fa-solid fa-lightbulb"></i></span>
+      </div>
+    </a>
+
     <!-- RIGHT · HORROR -->
     <a class="door door-horror" href="horror.html" aria-label="Abrir versão cyber horror">
       <div class="grain"></div>
@@ -362,6 +385,7 @@
       if (e.key === '2') location.href = 'horror.html';
       if (e.key === '3') location.href = 'necropole.html';
       if (e.key === '4') location.href = 'corredor.html';
+      if (e.key === '5') location.href = '3d/index.html';
     });
   </script>
 </body>
