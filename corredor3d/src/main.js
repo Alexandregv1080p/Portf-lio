@@ -116,7 +116,7 @@ function plateTexture(i, p) {
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = aniso; return t;
 }
 const doors = [];                    /* { pivot, leaf, open, z } */
-const leaves = [];
+const leaves = [];                   /* alvos de raycast: planos invisíveis FIXOS no vão da porta */
 PROJECTS.forEach((p, i) => {
   const side = i % 2 ? 1 : -1, z = -(DOOR0 + i * SP);
   const g = new THREE.Group();
@@ -135,8 +135,11 @@ PROJECTS.forEach((p, i) => {
   plate.position.set(DW / 2, 1.75, 0.055); pivot.add(plate);
   const handle = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.14, 0.07), darkMetal);
   handle.position.set(DW - 0.12, 1.05, 0.07); handle.castShadow = true; pivot.add(handle);
+  /* o raycast mira o vão (fixo), não a folha: se mirasse a folha, ela sairia da frente do raio ao abrir e a porta fecharia sozinha */
+  const hitbox = new THREE.Mesh(new THREE.PlaneGeometry(DW + 0.3, DH + 0.2), new THREE.MeshBasicMaterial({ visible: false }));
+  hitbox.position.set(0, DH / 2, 0.05); hitbox.userData.i = i; g.add(hitbox);
   scene.add(g);
-  doors.push({ pivot, z, side, open: 0 }); leaves.push(leaf);
+  doors.push({ pivot, z, side, open: 0 }); leaves.push(hitbox);
 });
 
 /* --------------------------------------------------------------- luzes */
@@ -216,7 +219,7 @@ addEventListener('pointermove', (e) => {
 
 const ray = new THREE.Raycaster();
 const projEl = $('proj'), heroEl = $('hero'), endEl = $('end'), depthEl = $('depth');
-let cardHover = false, shownDoor = -1;
+let cardHover = false, shownDoor = -1, lostAt = 0;
 projEl.addEventListener('pointerenter', () => { cardHover = true; });
 projEl.addEventListener('pointerleave', () => { cardHover = false; });
 function showDoor(i) {
@@ -234,6 +237,7 @@ function showDoor(i) {
 
 /* ------------------------------------------------------------------ loop */
 const maxScroll = () => Math.max(1, document.documentElement.scrollHeight - innerHeight);
+let forceZ = null;                                    /* só o harness de dev usa */
 let camZ = -1, lastScrollT = performance.now(), lastY = scrollY, bobPhase = 0, vel = 0;
 addEventListener('scroll', () => { lastScrollT = performance.now(); }, { passive: true });
 let shadeOn = false, shadeStart = 0, shadeZ = 0;
@@ -244,12 +248,16 @@ document.addEventListener('visibilitychange', () => { running = !document.hidden
 function tick() {
   if (!running) return;
   requestAnimationFrame(tick);
-  const now = performance.now(), dt = Math.min((now - lastT) / 1000, 0.05);
+  step(performance.now());
+}
+
+function step(now) {
+  const dt = clamp((now - lastT) / 1000, 0, 0.05);
   lastT = now; elapsed += dt; const t = elapsed;
 
   /* câmera: scroll → posição ao longo do corredor (suavizado) */
   const p = clamp(scrollY / maxScroll(), 0, 1);
-  const goalZ = -1 - p * (L - 7.5);
+  const goalZ = forceZ ?? (-1 - p * (L - 7.5));
   const prev = camZ;
   camZ = lerp(camZ, goalZ, 1 - Math.pow(0.002, dt));
   vel = lerp(vel, Math.abs(camZ - prev) / Math.max(dt, 1e-3), 0.1);
@@ -258,7 +266,7 @@ function tick() {
   const bobY = reduce ? 0 : Math.sin(bobPhase) * 0.035 * mv, bobX = reduce ? 0 : Math.cos(bobPhase * 0.5) * 0.02 * mv;
 
   /* sem mouse por alguns segundos (celular): a luz vagueia sozinha */
-  if (now - lastMove > 3500) aimGoal.set(Math.sin(t * 0.45) * 0.5, Math.cos(t * 0.33) * 0.18 - 0.04);
+  if (coarse && now - lastMove > 3500) aimGoal.set(Math.sin(t * 0.45) * 0.5, Math.cos(t * 0.33) * 0.18 - 0.04);
   aim.lerp(aimGoal, 1 - Math.pow(0.0005, dt));
 
   camera.position.set(bobX, 1.62 + bobY, camZ);
@@ -274,11 +282,15 @@ function tick() {
   /* porta sob a luz → abre e mostra o projeto */
   const hit = ray.intersectObjects(leaves, false)[0];
   const lookedAt = hit && hit.distance < 6.5 ? hit.object.userData.i : -1;
-  if (lookedAt >= 0 || !cardHover) showDoor(lookedAt);
+  if (lookedAt >= 0) { lostAt = 0; showDoor(lookedAt); }
+  else if (shownDoor >= 0 && !cardHover) {            /* sai da luz: espera um instante antes de fechar */
+    if (!lostAt) lostAt = now;
+    if (now - lostAt > 500) { lostAt = 0; showDoor(-1); }
+  }
   doors.forEach((d, i) => {
     const goal = i === shownDoor ? 1 : 0;
     d.open = lerp(d.open, goal, 1 - Math.pow(0.02, dt));
-    d.pivot.rotation.y = -d.open * 0.95;
+    d.pivot.rotation.y = -d.open * 0.85;
   });
 
   /* lâmpadas instáveis */
@@ -329,3 +341,16 @@ addEventListener('resize', () => {
 });
 scrollTo(0, 0);
 tick();
+
+/* só em dev: simula frames com tempo sintético (o painel de preview limita o rAF) */
+if (import.meta.env.DEV) {
+  let simNow = performance.now();
+  window.__sim = {
+    place(z, ax, ay) { camZ = forceZ = z; aim.set(ax, ay); aimGoal.set(ax, ay); lastMove = simNow; },
+    aimAt(ax, ay) { aimGoal.set(ax, ay); lastMove = simNow; },
+    run(n, ms = 16.7) { running = false; const log = []; let prev = shownDoor; for (let i = 0; i < n; i++) { simNow += ms; lastT = simNow - ms; step(simNow); if (shownDoor !== prev) { log.push([i, prev, shownDoor]); prev = shownDoor; } } return log; },
+    leaves, leafMeshes: doors.map((d) => d.pivot.children[0]),
+    state: () => ({ shownDoor, open: doors.map((d) => +d.open.toFixed(2)), aim: [aim.x, aim.y].map((v) => +v.toFixed(2)), camZ: +camZ.toFixed(2) }),
+    doorNdc(i) { camera.updateMatrixWorld(); const v = leaves[i].getWorldPosition(new THREE.Vector3()).project(camera); return [+v.x.toFixed(3), +v.y.toFixed(3)]; },
+  };
+}
