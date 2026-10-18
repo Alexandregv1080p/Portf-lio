@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { createAudio } from './audio.js';
 import { buildWorld, CL } from './world.js';
 import { createFx } from './fx.js';
+import { makeEnvironment, flashlightCookie, makeDust } from './lighting.js';
 import './style.css';
 
 const $ = (id) => document.getElementById(id);
@@ -33,6 +34,8 @@ const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.1, 80
 camera.rotation.order = 'YXZ';
 scene.add(camera);
 
+scene.environment = makeEnvironment(renderer); scene.environmentIntensity = 0.3;     /* reflexos: metal, portas, piso molhado */
+
 const manager = new THREE.LoadingManager(() => { $('loadmsg').hidden = true; $('enter').hidden = false; });
 const tl = new THREE.TextureLoader(manager);
 const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
@@ -46,29 +49,32 @@ const hemi = new THREE.HemisphereLight(0x2a1218, 0x050203, 0.1); scene.add(hemi)
 const spot = new THREE.SpotLight(0xfff0dc, coarse ? 90 : 150, 26, Math.PI / 7.5, 0.6, 1.4);
 spot.position.set(0.22, -0.22, 0.1);
 spot.castShadow = !coarse;
-spot.shadow.mapSize.set(1024, 1024);
+spot.shadow.mapSize.set(coarse ? 1024 : 2048, coarse ? 1024 : 2048); spot.shadow.radius = 3.5;
+if (!coarse) spot.map = flashlightCookie();
 spot.shadow.bias = -0.0004; spot.shadow.normalBias = 0.03;
 spot.shadow.camera.near = 0.3; spot.shadow.camera.far = 26;
 camera.add(spot);
 const aimTarget = new THREE.Object3D(); scene.add(aimTarget); spot.target = aimTarget;
 
-/* poeira (e fuligem nos andares fundos) acompanhando a câmera */
-const DUST = coarse ? 160 : 380;
-const dustPos = new Float32Array(DUST * 3), dustSeed = new Float32Array(DUST);
-for (let i = 0; i < DUST; i++) { dustPos[i * 3] = (Math.random() - 0.5) * 3.2; dustPos[i * 3 + 1] = Math.random() * 3.2; dustPos[i * 3 + 2] = -Math.random() * 14; dustSeed[i] = Math.random() * 6.28; }
-const dustGeo = new THREE.BufferGeometry(); dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
-const dc = document.createElement('canvas'); dc.width = dc.height = 32;
-const dg = dc.getContext('2d'), grad = dg.createRadialGradient(16, 16, 0, 16, 16, 16);
-grad.addColorStop(0, 'rgba(255,255,255,1)'); grad.addColorStop(1, 'rgba(255,255,255,0)'); dg.fillStyle = grad; dg.fillRect(0, 0, 32, 32);
-const dustMat = new THREE.PointsMaterial({ color: 0xffe2c8, size: 0.026, map: new THREE.CanvasTexture(dc), transparent: true, opacity: 0.28, depthWrite: false });
-const dust = new THREE.Points(dustGeo, dustMat); dust.frustumCulled = false; scene.add(dust);
+/* poeira iluminada de verdade: só aparece na lanterna e nos feixes das lâmpadas */
+const DUST = coarse ? 260 : 700;
+const dustSys = makeDust(DUST), dustGeo = dustSys.points.geometry, dustPos = dustSys.base, dustSeed = dustGeo.attributes.aSeed.array, dustMat = dustSys.mat;
+scene.add(dustSys.points);
+const spotPosV = new THREE.Vector3(), spotDirV = new THREE.Vector3();
 
-/* o vulto */
+/* o vulto: figura alta e magra, braços longos pendurados, cabeça inclinada — silhueta preta, só os olhos brilham */
 const shade = new THREE.Group();
-const sMat = new THREE.MeshBasicMaterial({ color: 0x000000 });          /* silhueta preta: some no escuro, aparece contra a luz */
-const sBody = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.32, 1.45, 14), sMat); sBody.position.y = 0.95; shade.add(sBody);
-const sHead = new THREE.Mesh(new THREE.SphereGeometry(0.19, 16, 12), sMat); sHead.position.y = 1.85; shade.add(sHead);
-for (const x of [-0.07, 0.07]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 6), new THREE.MeshBasicMaterial({ color: 0xff2a2a })); e.position.set(x, 1.87, 0.17); shade.add(e); }
+const sMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+const part = (geo, x, y, z, rx = 0, rz = 0) => { const m = new THREE.Mesh(geo, sMat); m.position.set(x, y, z); m.rotation.set(rx, 0, rz); shade.add(m); return m; };
+part(new THREE.CylinderGeometry(0.15, 0.2, 0.95, 10), 0, 1.35, 0);                 /* tronco */
+part(new THREE.CylinderGeometry(0.075, 0.06, 0.95, 8), -0.09, 0.5, 0);             /* pernas */
+part(new THREE.CylinderGeometry(0.075, 0.06, 0.95, 8), 0.09, 0.5, 0);
+const armL = part(new THREE.CylinderGeometry(0.04, 0.03, 1.2, 6), -0.27, 1.12, 0.03, 0, 0.1);   /* braços longos */
+const armR = part(new THREE.CylinderGeometry(0.04, 0.03, 1.2, 6), 0.27, 1.12, 0.03, 0, -0.1);
+const head = part(new THREE.SphereGeometry(0.13, 14, 12), 0.03, 1.98, 0.02); head.scale.set(0.9, 1.25, 0.95); head.rotation.z = -0.22;
+part(new THREE.CylinderGeometry(0.045, 0.06, 0.18, 8), 0.0, 1.82, 0);              /* pescoço */
+for (const x of [-0.04, 0.05]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 6), new THREE.MeshBasicMaterial({ color: 0xff2a2a })); e.position.set(x, 2.0, 0.12); shade.add(e); }
+shade.userData.arms = [armL, armR, head];
 shade.visible = false; scene.add(shade);
 
 const fx = createFx(renderer, scene, camera, { coarse });
@@ -171,7 +177,8 @@ const SCARES = [
 
 /* ------------------------------------------------------------------ loop */
 let forceD = null;                                          /* só o harness de dev usa */
-let camD = D_START, lastScrollT = performance.now(), bobPhase = 0, vel = 0;
+let aimDist = 8;
+let camD = D_START, lastScrollT = performance.now(), vel = 0, wv = 0, phase = 0, ws = 0, lastInLift = false;   /* wv: velocidade (m/s com sinal); phase: passadas */
 addEventListener('scroll', () => { lastScrollT = performance.now(); }, { passive: true });
 const fwdV = new THREE.Vector3(), upV = new THREE.Vector3();
 let lastT = performance.now(), elapsed = 0, running = true, lastFloor = -1;
@@ -181,7 +188,20 @@ document.addEventListener('visibilitychange', () => {
   running = !document.hidden;
   if (running) { lastT = performance.now(); audio.resume(); tick(); } else audio.pause();
 });
-function tick() { if (!running) return; requestAnimationFrame(tick); step(performance.now()); }
+/* qualidade adaptativa: se a GPU não acompanha, desliga o que pesa (AO → resolução → bloom), sem o jogador perceber */
+let lastTickT = performance.now(), ema = 16, sampled = 0, qLevel = 0;
+function degrade() {
+  qLevel++;
+  if (qLevel === 1 && fx.gtao) fx.gtao.enabled = false;
+  else if (qLevel === 2) { renderer.setPixelRatio(1); renderer.setSize(innerWidth, innerHeight); fx.composer.setPixelRatio(1); fx.composer.setSize(innerWidth, innerHeight); }
+  else if (qLevel === 3 && fx.bloom) fx.bloom.enabled = false;
+}
+function tick() {
+  if (!running) return; requestAnimationFrame(tick);
+  const now = performance.now(), raw = now - lastTickT; lastTickT = now;
+  if (raw < 250) { ema = ema * 0.95 + raw * 0.05; if (++sampled > 150 && ema > 27 && qLevel < 3) { degrade(); sampled = 0; ema = 16; } }
+  step(now);
+}
 
 function step(now) {
   const dt = clamp((now - lastT) / 1000, 0, 0.05);
@@ -193,22 +213,37 @@ function step(now) {
   const px = clamp(scrollY, 0, segs.totalPx);
   const goalD = forceD ?? dFromPx(px);
   const prevD = camD;
-  camD = lerp(camD, goalD, 1 - Math.pow(0.002, dt));
-  const stepD = Math.abs(camD - prevD);
-  vel = lerp(vel, stepD / Math.max(dt, 1e-3), 0.1);
-  bobPhase += stepD * 2.6;
+  /* o scroll define para onde ir; o personagem ANDA até lá: velocidade máxima, aceleração com peso, freio suave.
+     (sem isso a câmera "desliza" por inércia exponencial e não parece caminhada) */
+  const vmax = lastInLift ? 1.1 : 3.3, vback = 1.7;
+  const desired = clamp((goalD - camD) * 3.4, -vback, vmax);
+  wv += (desired - wv) * (1 - Math.exp(-dt / (Math.abs(desired) > Math.abs(wv) ? 0.2 : 0.13)));
+  if (forceD !== null && Math.abs(goalD - camD) < 1e-4) wv = 0;
+  camD += wv * dt;
+  const stepD = Math.abs(camD - prevD), speed = Math.abs(wv);
+  vel = speed;
   const env = world.envAt(camD);
   const inLift = env.cabin && camD > env.cabin.d0 + 0.3 && camD < env.cabin.d1;
-  const mv = clamp(vel / 1.2, 0, 1) * (inLift ? 0.15 : 1);
-  const bobY = reduce ? 0 : Math.sin(bobPhase) * 0.035 * mv, bobX = reduce ? 0 : Math.cos(bobPhase * 0.5) * 0.02 * mv;
+  lastInLift = inLift;
+  /* passada: o comprimento cresce com a velocidade (andar → trotar); cada número inteiro de fase é um apoio do pé */
+  const stride = lerp(0.72, 1.08, clamp(speed / 3.3, 0, 1)), prevPhase = phase;
+  phase += stepD / stride;
+  const steps = Math.floor(phase) - Math.floor(prevPhase);
+  ws = lerp(ws, clamp(speed / 1.5, 0, 1), 1 - Math.exp(-dt / 0.1));
+  const fall = Math.pow(Math.cos(Math.PI * phase), 2);                  /* 1 no apoio do pé, 0 no meio da passada */
+  const sway = Math.sin(Math.PI * phase);                                 /* alterna esquerda/direita a cada passo */
+  const bobY = reduce ? 0 : -0.052 * ws * fall + 0.018 * ws;              /* a cabeça cai no apoio */
+  const bobX = reduce ? 0 : 0.034 * ws * sway;
+  const nod = reduce ? 0 : 0.016 * ws * fall;                             /* leve "cabeceio" para baixo no impacto */
   const z = world.zOf(camD);
 
   /* atmosfera do andar (névoa, grade, glitch, tremor, FOV) */
   scene.fog.color.copy(env.fog); scene.background.copy(env.fog); scene.fog.density = env.fogD;
   hemi.color.copy(env.amb); hemi.intensity = env.ambI;
+  scene.environmentIntensity = 0.1 + env.fear * 0.34;       /* reflexos mais fortes quanto mais fundo (piso molhado, metal); a recepção fica seca */
   const shakeAmt = (reduce ? 0 : env.shake * 0.012) + ctl.shake * 0.05 + (inLift && env.k > 0 ? 0.01 : 0);
   ctl.shake = Math.max(0, ctl.shake - dt * 1.6);
-  camera.fov = lerp(camera.fov, env.fov + ctl.fov, 1 - Math.pow(0.05, dt)); camera.updateProjectionMatrix();
+  camera.fov = lerp(camera.fov, env.fov + ctl.fov + (reduce ? 0 : 0.7 * ws * fall), 1 - Math.exp(-dt / 0.07)); camera.updateProjectionMatrix();
 
   /* sem mouse por alguns segundos (celular): a luz vagueia sozinha */
   if (coarse && now - lastMove > 3500) aimGoal.set(Math.sin(t * 0.45) * 0.5, Math.cos(t * 0.33) * 0.18 - 0.04);
@@ -216,14 +251,20 @@ function step(now) {
 
   const sx = (Math.random() - 0.5) * shakeAmt, sy = (Math.random() - 0.5) * shakeAmt;
   camera.position.set(bobX + sx, 1.62 + bobY + sy, z);
-  const roll = bobX * 0.5 + env.fear * Math.sin(t * 0.7) * 0.012;      /* o mundo "não está no prumo" lá no fundo */
-  camera.rotation.set(aim.y * 0.16, -aim.x * 0.38, roll);
+  const roll = (reduce ? 0 : 0.013 * ws * sway) + env.fear * Math.sin(t * 0.7) * 0.012;      /* o mundo "não está no prumo" lá no fundo */
+  camera.rotation.set(aim.y * 0.16 - nod, -aim.x * 0.38 + (reduce ? 0 : 0.006 * ws * sway), roll);
 
   /* lanterna */
   camera.updateMatrixWorld();
   ray.setFromCamera(aim, camera); ray.far = 20;
   aimTarget.position.copy(ray.ray.origin).addScaledVector(ray.ray.direction, 9);
-  spot.intensity = (coarse ? 90 : 150) * (1 + env.fear * 0.35) * (0.96 + Math.sin(t * 23) * 0.015 + Math.sin(t * 7.1) * 0.02) * (inLift ? 0.22 : 1);                 /* dentro da cabine a parede está colada: sem isso estoura o branco */
+  /* distância até a superfície mirada (planos do corredor): a intensidade acompanha, como a adaptação dos olhos */
+  { const o = ray.ray.origin, d = ray.ray.direction; let tt = 22;
+    if (d.x > 1e-4) tt = Math.min(tt, (1.6 - o.x) / d.x); else if (d.x < -1e-4) tt = Math.min(tt, (-1.6 - o.x) / d.x);
+    if (d.y < -1e-4) tt = Math.min(tt, -o.y / d.y); else if (d.y > 1e-4) tt = Math.min(tt, (3.2 - o.y) / d.y);
+    aimDist = lerp(aimDist, Math.max(tt, 0.5), 1 - Math.exp(-dt / 0.14)); }
+  const nearK = clamp(Math.pow(aimDist / 6, 1.15), 0.16, 1.3);
+  spot.intensity = (coarse ? 90 : 150) * nearK * (1 + env.fear * 0.35) * (0.96 + Math.sin(t * 23) * 0.015 + Math.sin(t * 7.1) * 0.02) * (inLift ? 0.35 : 1);
 
   /* ponto de interesse sob a luz → abre e mostra o cartão */
   const hit = ray.intersectObjects(hits, false)[0];
@@ -249,12 +290,17 @@ function step(now) {
   u.sat.value = env.sat; u.tint.value.set(env.tint[0], env.tint[1], env.tint[2]);
   u.flick.value = reduce ? 1 : (dark ? 0.96 : out.flick); u.time.value = t * 60 % 1000;
 
-  /* poeira acompanha a câmera; mais fuligem e mais vermelha nos andares fundos */
-  dustMat.color.set(env.fear > 0.7 ? 0xff9a8a : 0xffe2c8); dustMat.opacity = 0.22 + env.fear * 0.18;
+  /* poeira: posições seguem a câmera; o brilho vem dos uniformes (lanterna + feixes) */
+  spot.getWorldPosition(spotPosV); spotDirV.copy(aimTarget.position).sub(spotPosV).normalize();
+  const du = dustMat.uniforms;
+  du.uSpotPos.value.copy(spotPosV); du.uSpotDir.value.copy(spotDirV); du.uSpotCos.value = Math.cos(spot.angle * 0.9);
+  du.uSpotI.value = clamp(spot.intensity / 150, 0, 1.6) * 0.9; du.uScale.value = renderer.domElement.height / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2));
+  du.uTint.value.set(env.fear > 0.7 ? 1.0 : 1.0, env.fear > 0.7 ? 0.62 : 0.93, env.fear > 0.7 ? 0.55 : 0.82);
+  (out.lampPool || []).forEach((lp, i) => { du.uLampPos.value[i].copy(lp.pos); du.uLampCol.value[i].copy(lp.color); du.uLampI.value[i] = lp.I; });
   const dp = dustGeo.attributes.position;
   for (let i = 0; i < DUST; i++) {
-    dp.array[i * 3] = dustPos[i * 3] + Math.sin(t * 0.3 + dustSeed[i]) * 0.15;
-    dp.array[i * 3 + 1] = dustPos[i * 3 + 1] + Math.cos(t * 0.25 + dustSeed[i]) * 0.1 - (env.fear > 0.7 ? (t * 0.15 + dustSeed[i]) % 3.2 * 0.2 : 0);
+    dp.array[i * 3] = dustPos[i * 3] + Math.sin(t * 0.3 + dustSeed[i]) * 0.18;
+    dp.array[i * 3 + 1] = dustPos[i * 3 + 1] + Math.cos(t * 0.25 + dustSeed[i]) * 0.12 - (env.fear > 0.7 ? ((t * 0.12 + dustSeed[i]) % 3.2) * 0.2 : 0);
     dp.array[i * 3 + 2] = z + 1 + dustPos[i * 3 + 2];
   }
   dp.needsUpdate = true;
@@ -278,6 +324,7 @@ function step(now) {
     if (sh.creep) sh.dist = Math.max(sh.min, lerp(11, sh.min, clamp((t - sh.t0) / 18, 0, 1)));
     else if (sh.chase) sh.dist = vel > 0.3 ? Math.min(sh.dist + dt * 0.5, 8) : Math.max(sh.min, sh.dist - dt * 0.9);
     shade.position.set(Math.sin(t * 0.7) * 0.25, 0, z - sh.dist);
+    const [aL, aR, hd] = shade.userData.arms; aL.rotation.z = 0.1 + Math.sin(t * 1.3) * 0.05; aR.rotation.z = -0.1 - Math.sin(t * 1.1) * 0.05; hd.rotation.z = -0.22 + Math.sin(t * 0.8) * 0.08;
     if (sh.snap && Math.random() < 0.3) shade.position.x += (Math.random() - 0.5) * 0.2;
   } else shade.visible = false;
 
@@ -304,7 +351,7 @@ function step(now) {
     camera.getWorldDirection(fwdV); upV.set(0, 1, 0).applyQuaternion(camera.quaternion);
     const pool = world.fixturePool(camD, 3);
     audio.update({
-      camPos: camera.position, fwd: fwdV, up: upV, p: corr, speed: vel, stepDist: stepD,
+      camPos: camera.position, fwd: fwdV, up: upV, p: corr, speed: vel, stepDist: stepD, steps, stepVol: clamp(0.5 + speed * 0.16, 0.5, 1),
       fixtures: pool.map((f) => ({ pos: { x: 0, y: 2.9, z: world.zOf(f.D) }, k: f.k })),
       doorDist: pois.map((p) => Math.hypot(p.pos.x - camera.position.x, p.pos.z - camera.position.z)),
       shade: { visible: shade.visible, dist: Math.abs(shade.position.z - z) },
@@ -329,6 +376,7 @@ if (import.meta.env.DEV) {
     size(w, h) { camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h, false); fx.composer.setSize(w, h); },
     place(d, ax = 0, ay = -0.05) { camD = forceD = d; aim.set(ax, ay); aimGoal.set(ax, ay); lastMove = simNow; },
     aimAt(ax, ay) { aimGoal.set(ax, ay); lastMove = simNow; },
+    goto(d) { forceD = d; }, gait: () => ({ camD: +camD.toFixed(2), wv: +wv.toFixed(2), phase: +phase.toFixed(2), ws: +ws.toFixed(2) }),
     run(n, ms = 16.7) { running = false; const log = []; let prev = shownPoi; for (let i = 0; i < n; i++) { simNow += ms; lastT = simNow - ms; step(simNow); if (shownPoi !== prev) { log.push([i, prev, shownPoi]); prev = shownPoi; } } return log; },
     state: () => ({ shownPoi, camD: +camD.toFixed(2), floor: lastFloor, aim: [aim.x, aim.y].map((v) => +v.toFixed(2)), open: pois.map((p) => +p.open.toFixed(2)) }),
     poiNdc(i) { camera.updateMatrixWorld(); const v = pois[i].hit.getWorldPosition(new THREE.Vector3()).project(camera); return [+v.x.toFixed(3), +v.y.toFixed(3)]; },

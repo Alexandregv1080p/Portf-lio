@@ -1,5 +1,7 @@
 /* O prédio: andares (zonas) ligados por elevadores, pontos de interesse (portas/telas/racks) e cenografia. */
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import { makeShaft, haloTexture } from './lighting.js';
 import { ABOUT, JOBS, RACKS, PROJECTS, ZONES } from './content.js';
 
 export const W = 3.2, H = 3.2, SP = 5, LEAD = 8, TAIL = 5, CL = 6;
@@ -38,7 +40,8 @@ export function buildWorld(scene, { tl, aniso, coarse }) {
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = aniso; return { c, g, t };
   };
   const box = (w, h, d, m, x, y, z, parent, cast = true) => {
-    const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(x, y, z);
+    const mn = Math.min(w, h, d);
+    const o = new THREE.Mesh(mn >= 0.07 ? new RoundedBoxGeometry(w, h, d, 2, Math.min(0.03, mn / 3.2)) : new THREE.BoxGeometry(w, h, d), m); o.position.set(x, y, z);
     if (cast) { o.castShadow = true; o.receiveShadow = true; } parent.add(o); return o;
   };
 
@@ -300,12 +303,32 @@ export function buildWorld(scene, { tl, aniso, coarse }) {
     events.endGlow = gl;
   }
 
+  /* poças de água/sangue que espelham as lâmpadas e manchas de sujeira nas paredes */
+  {
+    const edge = canvasTex(128, 128, (g) => { const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, '#fff'); gr.addColorStop(0.6, '#fff'); gr.addColorStop(1, '#000'); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); }).t;
+    edge.colorSpace = THREE.NoColorSpace;
+    const puddleMat = (c) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.05, metalness: 0, envMapIntensity: 2.4, alphaMap: edge, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 });
+    const puddles = [[zones[2], 0x0a1210, 7], [zones[3], 0x05080c, 4], [zones[4], 0x1a0505, 8], [zones[5], 0x2a0404, 6]];
+    for (const [z, col, n] of puddles) for (let i = 0; i < n; i++) {
+      const p = new THREE.Mesh(new THREE.CircleGeometry(1, 28), puddleMat(col)); p.rotation.x = -Math.PI / 2; p.scale.set(rr(0.35, 0.9), rr(0.5, 1.4), 1);
+      p.position.set(rr(-1.2, 1.2), 0.006, zOf(rr(z.d0 + 2, z.d1 - 2))); p.userData.noAO = true; scene.add(p);
+    }
+    const stain = canvasTex(256, 256, (g, w, h) => {
+      g.clearRect(0, 0, w, h);
+      for (let i = 0; i < 26; i++) { const x = rr(20, w - 20), y = rr(20, h - 20), r = rr(14, 70), gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(10,8,6,${rr(0.08, 0.28)})`); gr.addColorStop(1, 'rgba(10,8,6,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }
+      for (let i = 0; i < 10; i++) { const x = rr(10, w - 10), len = rr(40, 220), gr = g.createLinearGradient(0, 0, 0, len); gr.addColorStop(0, `rgba(30,18,10,${rr(0.15, 0.35)})`); gr.addColorStop(1, 'rgba(30,18,10,0)'); g.fillStyle = gr; g.fillRect(x, 0, rr(3, 12), len); }
+    });
+    zones.forEach((z) => { if (z.i === 0) return; for (let i = 0; i < 8 + z.i * 2; i++) wallDecal(stain, rr(1.2, 2.6), rr(1.2, 2.6), rr(z.d0 + 1, z.d1 - 1), rr(1.0, 2.4), i % 2 ? 1 : -1); });
+  }
+
   /* ------------------------------------------------------------- luzes */
   const fixtures = [];
   zones.forEach((z) => {
     for (let d = z.d0 + 3; d < z.d1 - 1.5; d += 8) {
       const tube = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.05, 1.1), new THREE.MeshBasicMaterial({ color: z.look.lamp })); tube.position.set(0, H - 0.04, zOf(d)); scene.add(tube);
-      fixtures.push({ D: d, y: H - 0.3, color: z.look.lamp, base: z.look.lampI, bad: rnd() < z.env.bad, seed: rnd() * 100, k: 1, tube, z: z.i, forced: -1 });
+      const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTexture(), color: z.look.lamp, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.4, fog: false }));
+      halo.scale.set(2.2, 2.2, 1); halo.position.set(0, H - 0.25, zOf(d)); halo.userData.noAO = true; scene.add(halo);
+      fixtures.push({ D: d, y: H - 0.3, color: z.look.lamp, base: z.look.lampI, bad: rnd() < z.env.bad, seed: rnd() * 100, k: 1, tube, halo, z: z.i, forced: -1 });
     }
   });
   cabins.forEach((c) => fixtures.push(c.light));
@@ -314,6 +337,8 @@ export function buildWorld(scene, { tl, aniso, coarse }) {
   [zones[4], zones[5]].forEach((z) => { for (let d = z.d0 + 5; d < z.d1 - 1; d += 9) { const t = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshBasicMaterial({ color: 0xff2020 })); t.position.set(z.id === 'end' ? 1.4 : -1.4, H - 0.4, zOf(d)); scene.add(t); emerg.push({ D: d, x: t.position.x, mesh: t }); } });
   const POOL = coarse ? 4 : 6;
   const lights = Array.from({ length: POOL }, () => { const l = new THREE.PointLight(0xffffff, 0, 11, 2); scene.add(l); return l; });
+  const shafts = Array.from({ length: POOL }, () => { const s = makeShaft(1.75, H - 0.05); scene.add(s); return s; });
+  const lampPool = lights.map((l) => ({ pos: l.position, color: l.color, I: 0 }));
   const redLights = [0, 1].map(() => { const l = new THREE.PointLight(0xff1a1a, 0, 14, 2); scene.add(l); return l; });
 
   /* ------------------------------------------------------------ consultas e passo */
@@ -360,10 +385,14 @@ export function buildWorld(scene, { tl, aniso, coarse }) {
       f.k = k; f.tube.material.color.setHex(f.color).multiplyScalar(0.3 + 0.7 * k);
       if (Math.abs(f.D - camD) < 7) flickMin = Math.min(flickMin, 0.88 + 0.12 * k);
     }
+    for (const f of fixtures) { if (f.halo) { const near = Math.abs(f.D - camD) < 22; f.halo.visible = near; if (near) f.halo.material.opacity = 0.38 * f.k; } }
     for (let i = 0; i < POOL; i++) {
-      const f = fixtures[first + i], l = lights[i];
-      if (!f) { l.intensity = 0; continue; }
+      const f = fixtures[first + i], l = lights[i], sh = shafts[i];
+      if (!f) { l.intensity = 0; sh.visible = false; lampPool[i].I = 0; continue; }
       l.color.setHex(f.color); l.position.set(0, f.y, zOf(f.D)); l.intensity = f.base * f.k;
+      sh.visible = f.k > 0.02; sh.position.set(0, H - 0.05, zOf(f.D));
+      sh.material.uniforms.uColor.value.setHex(f.color); sh.material.uniforms.uTime.value = t;
+      const kk = f.k * Math.min(1.2, f.base / 3.4); sh.material.uniforms.uK.value = 0.2 * kk; lampPool[i].I = 0.75 * kk;
     }
     /* luz de emergência vermelha pulsando (laboratório e abismo) */
     const near = emerg.filter((e) => Math.abs(e.D - camD) < 16).sort((a, b) => Math.abs(a.D - camD) - Math.abs(b.D - camD));
@@ -374,7 +403,7 @@ export function buildWorld(scene, { tl, aniso, coarse }) {
     /* objetos animados pelos sustos */
     if (events.drawers) events.drawers.forEach((dr) => { dr.open = lerp(dr.open, dr.goal, 1 - Math.pow(0.0001, dt)); dr.mesh.position.z = dr.mesh.userData.rest + dr.open * 0.55; });
     decorT.forEach((d) => d.update(t, camD));
-    return { flick: flickMin, fixtures };
+    return { flick: flickMin, fixtures, lampPool };
   }
 
   const fixturePool = (camD, n = 3) => {

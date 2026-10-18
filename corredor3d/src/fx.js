@@ -5,6 +5,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { GTAOPass } from 'three/examples/jsm/postprocessing/GTAOPass.js';
 
 export function createFx(renderer, scene, camera, { coarse }) {
   /* alvos com MSAA: sem isso o pós-processamento desfaz o antialias e as bordas ficam serrilhadas */
@@ -12,6 +13,17 @@ export function createFx(renderer, scene, camera, { coarse }) {
   const rt = new THREE.WebGLRenderTarget(Math.max(1, sz.x * pr), Math.max(1, sz.y * pr), { type: THREE.HalfFloatType, samples: coarse ? 2 : 4 });
   const composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
+  /* oclusão de ambiente (GTAO): contato e cantos escurecem, objetos "assentam" no cenário — só no desktop */
+  let gtao = null;
+  if (!coarse) {
+    gtao = new GTAOPass(scene, camera, innerWidth, innerHeight);
+    gtao.updateGtaoMaterial({ radius: 0.7, distanceExponent: 1.4, thickness: 1.2, scale: 1.1, samples: 14, distanceFallOff: 1, screenSpaceRadius: false });
+    gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 5, radiusExponent: 1, rings: 2, samples: 16 });
+    gtao.blendIntensity = 0.9;
+    const ov = gtao._overrideVisibility.bind(gtao);               /* feixes, halos e poças não entram no cálculo de AO */
+    gtao._overrideVisibility = function () { ov(); this.scene.traverse((o) => { if (o.userData && o.userData.noAO && o.visible) { o.visible = false; this._visibilityCache.push(o); } }); };
+    composer.addPass(gtao);
+  }
   let bloom = null;
   if (!coarse) { bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.45, 0.6, 0.88); composer.addPass(bloom); }
   const film = new ShaderPass({
@@ -47,5 +59,5 @@ export function createFx(renderer, scene, camera, { coarse }) {
   });
   composer.addPass(film);
   composer.addPass(new OutputPass());
-  return { composer, film, bloom };
+  return { composer, film, bloom, gtao };
 }

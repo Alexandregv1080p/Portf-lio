@@ -40,11 +40,11 @@ export const PROJECTS = [
    look: texturas/tons do cenário · env: atmosfera (névoa, grade de cor, glitch, tremor) · fear: 0..1 usado pelos sustos e pelo áudio */
 export const ZONES = [
   { id: 'lobby', floor: '0', name: 'RECEPÇÃO', n: 0, len: 24, fear: 0.0,
-    look: { wall: ['wall', 0xc2b8b0, 2.6], floor: ['floor', 0x8c8286, 1.4, 0.7], ceil: ['ceil', 0x8a8286, 2], lamp: 0xffe6c8, lampI: 4.2 },
-    env: { fog: 0x0a0807, fogD: 0.05, amb: 0x2a2220, ambI: 0.16, tint: [1.04, 1, 0.94], sat: 1, glitch: 0, shake: 0, fov: 66, bad: 0.1, emerg: 0 } },
+    look: { wall: ['wall', 0x9a918a, 2.6], floor: ['floor', 0x6f666a, 1.4, 0.7], ceil: ['ceil', 0x6f6a6e, 2], lamp: 0xffe6c8, lampI: 2.2 },
+    env: { fog: 0x0a0807, fogD: 0.06, amb: 0x2a2220, ambI: 0.08, tint: [1.04, 1, 0.94], sat: 1, glitch: 0, shake: 0, fov: 66, bad: 0.1, emerg: 0 } },
   { id: 'sobre', floor: '-1', name: 'ESCRITÓRIOS', n: 5, fear: 0.2,
-    look: { wall: ['wall', 0x93a2aa, 2.6], floor: ['ceil', 0x70737a, 2, 0.8], ceil: ['ceil', 0x6f747c, 2], lamp: 0xcfe8ff, lampI: 3.6 },
-    env: { fog: 0x070b0d, fogD: 0.075, amb: 0x16222a, ambI: 0.12, tint: [0.92, 1, 1.05], sat: 0.9, glitch: 0.05, shake: 0, fov: 66, bad: 0.3, emerg: 0 } },
+    look: { wall: ['wall', 0x748188, 2.6], floor: ['ceil', 0x555860, 2, 0.8], ceil: ['ceil', 0x555a62, 2], lamp: 0xcfe8ff, lampI: 2.0 },
+    env: { fog: 0x070b0d, fogD: 0.085, amb: 0x16222a, ambI: 0.07, tint: [0.92, 1, 1.05], sat: 0.9, glitch: 0.05, shake: 0, fov: 66, bad: 0.3, emerg: 0 } },
   { id: 'exp', floor: '-2', name: 'ARQUIVO', n: 5, fear: 0.4,
     look: { wall: ['floor', 0x8aa090, 1.6], floor: ['floor', 0x56685a, 1.4, 0.55], ceil: ['ceil', 0x5f6862, 2], lamp: 0xcdf5d0, lampI: 3.0 },
     env: { fog: 0x060a07, fogD: 0.09, amb: 0x132016, ambI: 0.1, tint: [0.9, 1.07, 0.9], sat: 0.78, glitch: 0.12, shake: 0, fov: 67, bad: 0.55, emerg: 0 } },

@@ -109,6 +109,64 @@ export function createAudio(cfg, externalCtx) {
       } catch (e) { /* sem amostra: usa síntese */ }
     }));
   }
+  /* ---- passos reais: cada gravação longa é fatiada em passos soltos e sorteada a cada apoio do pé ---- */
+  const STEP_FILES = ['steps_tunnel', 'steps_stones_a', 'steps_stones_b', 'steps_puddle', 'steps_mud'];
+  const stepBank = {};
+  function sliceSteps(buf) {
+    const sr = buf.sampleRate, n = buf.length, hop = Math.round(sr * 0.004), ch = buf.numberOfChannels, data = [];
+    for (let c = 0; c < ch; c++) data.push(buf.getChannelData(c));
+    const env = [];
+    for (let i = 0; i + hop * 2 < n; i += hop) { let s = 0; for (let k = 0; k < hop * 2; k++) { let v = 0; for (let c = 0; c < ch; c++) v += data[c][i + k]; v /= ch; s += v * v; } env.push(Math.sqrt(s / (hop * 2))); }
+    const sorted = env.slice().sort((x, y) => x - y), ref = sorted[Math.floor(sorted.length * 0.98)] || 0.1, thr = ref * 0.35;
+    const onsets = []; let last = -1e9;
+    for (let i = 2; i < env.length; i++) if (env[i] > thr && env[i] > env[i - 1] * 1.35 && env[i - 1] <= env[i - 2] * 2.2 + 1e-6 && (i - last) * hop > sr * 0.32) { onsets.push(i * hop); last = i; }
+    const out = [];
+    for (let k = 0; k < onsets.length && out.length < 28; k++) {
+      const start = Math.max(0, onsets[k] - Math.round(sr * 0.012)), end = Math.min(n, start + Math.round(sr * 0.42), (onsets[k + 1] ?? n) - Math.round(sr * 0.01));
+      const len = end - start; if (len < sr * 0.12) continue;
+      const seg = ctx.createBuffer(1, len, sr), d = seg.getChannelData(0); let pk = 0;
+      for (let i = 0; i < len; i++) { let v = 0; for (let c = 0; c < ch; c++) v += data[c][start + i]; v /= ch; d[i] = v; pk = Math.max(pk, Math.abs(v)); }
+      const g = pk > 0 ? 0.8 / pk : 1, fi = Math.round(sr * 0.004), fo = Math.round(sr * 0.08);
+      for (let i = 0; i < len; i++) { d[i] *= g; if (i < fi) d[i] *= i / fi; if (i > len - fo) d[i] *= (len - i) / fo; }
+      out.push(seg);
+    }
+    return out;
+  }
+  async function loadStepBank() {
+    const base = (import.meta.env && import.meta.env.BASE_URL) || './';
+    await Promise.all(STEP_FILES.map(async (n) => {
+      try { const r = await fetch(`${base}sfx/${n}.mp3`); if (!r.ok) throw new Error(r.status); const sl = sliceSteps(await ctx.decodeAudioData(await r.arrayBuffer())); if (sl.length >= 3) stepBank[n] = sl; } catch (e) { /* cai na síntese */ }
+    }));
+  }
+  /* superfície por andar (a cabine do elevador é metal) */
+  const SURFACES = [
+    [['steps_tunnel', 1]],                                           /* 0 recepção: piso frio, eco de corredor */
+    [['steps_stones_a', 1]],                                         /* 1 escritórios: concreto seco */
+    [['steps_tunnel', 0.65], ['steps_puddle', 0.35]],                /* 2 arquivo: ladrilho molhado */
+    [['steps_stones_b', 1]],                                         /* 3 servidores: grade metálica */
+    [['steps_tunnel', 0.55], ['steps_puddle', 0.45]],                /* 4 laboratório: poças */
+    [['steps_mud', 0.7], ['steps_tunnel', 0.3]],                     /* 5 abismo: algo viscoso no chão */
+  ];
+  function pickSurface() {
+    const list = SURFACES[clamp(S.floor, 0, SURFACES.length - 1)].filter(([n]) => stepBank[n]);
+    if (!list.length) return null;
+    let r = Math.random() * list.reduce((s, [, w]) => s + w, 0);
+    for (const [n, w] of list) { if ((r -= w) <= 0) return n; }
+    return list[0][0];
+  }
+  function footstepReal(vol, side) {
+    const name = pickSurface(); if (!name) { footstep(vol, side); return; }
+    const bank = stepBank[name], buf = bank[(Math.random() * bank.length) | 0];
+    const t = ctx.currentTime + baseDelay, src = ctx.createBufferSource(); src.buffer = buf;
+    src.playbackRate.value = rnd(0.9, 1.0) * (S.floor >= 5 ? 0.92 : 1);          /* mais pesado e arrastado quanto mais fundo */
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = rnd(3800, 6500) * (S.lift >= 0 ? 0.8 : 1);
+    const e = ctx.createGain(); e.gain.value = 1; src.connect(lp); lp.connect(e);
+    route(e, { pan: side * 0.14, gain: 0.27 * vol, send: S.lift >= 0 ? 0.12 : 0.34 });
+    src.start(t);
+    thump({ pan: side * 0.1, f0: rnd(78, 96), f1: 44, dur: 0.17, gain: 0.3 * vol, send: 0.2 });          /* corpo grave do impacto */
+    if (S.floor === 3 || S.lift >= 0) tone({ pan: -side * 0.1, freq: rnd(520, 700), dur: 0.22, gain: 0.05 * vol, send: 0.3 });   /* grade/metal soa oco */
+  }
+
   function sample(name, o = {}) {
     const s = samples[name]; if (!s) return false;
     const t = ctx.currentTime + baseDelay + (o.delay || 0), src = ctx.createBufferSource(), rate = o.rate ?? rnd(0.96, 1.04);
@@ -405,7 +463,7 @@ export function createAudio(cfg, externalCtx) {
     al.connect(trem); al2.connect(trem); trem.connect(alg); route(alg, { pos: positions.end, send: 0.5 });
     al.start(); al2.start(); alLfo.start(); S.alarm = alg;
 
-    loadSamples();
+    loadSamples(); loadStepBank();
     started = true;
     S.endPos = positions.end;
     master.gain.setTargetAtTime(muted ? 0 : MASTER, ctx.currentTime, 0.6);
@@ -425,13 +483,13 @@ export function createAudio(cfg, externalCtx) {
       L.upX.value = s.up.x; L.upY.value = s.up.y; L.upZ.value = s.up.z;
     } else { L.setPosition(s.camPos.x, s.camPos.y, s.camPos.z); L.setOrientation(s.fwd.x, s.fwd.y, s.fwd.z, s.up.x, s.up.y, s.up.z); }
 
-    /* passos: um a cada STRIDE metros andados (acompanha o scroll de verdade) */
-    stepAcc += s.stepDist;
-    while (stepAcc >= STRIDE) {
-      stepAcc -= STRIDE; stepSide *= -1;
-      if (!muted) footstep(clamp(0.5 + s.speed * 0.3, 0.5, 1), stepSide);
+    /* passos: um por apoio do pé da câmera (a mesma passada que balança a cabeça) */
+    if (s.steps !== undefined) {
+      for (let i = 0; i < Math.min(2, s.steps); i++) { stepSide *= -1; if (!muted) footstepReal(s.stepVol ?? 1, stepSide); }
+    } else {
+      stepAcc += s.stepDist;
+      while (stepAcc >= STRIDE) { stepAcc -= STRIDE; stepSide *= -1; if (!muted) footstep(clamp(0.5 + s.speed * 0.3, 0.5, 1), stepSide); }
     }
-    if (s.stepDist === 0 && s.speed < 0.02) stepAcc = Math.min(stepAcc, STRIDE * 0.5);
 
     /* lâmpadas: o zumbido segue as 3 mais próximas, cai e crepita junto com a luz */
     s.fixtures.forEach((fx, i) => {
@@ -498,6 +556,6 @@ export function createAudio(cfg, externalCtx) {
     pause() { if (ctx && ctx.suspend) ctx.suspend(); },
     resume() { if (ctx && started && !muted && ctx.resume) ctx.resume(); },
     /* só para testes offline */
-    _test: { zap: () => zap(), phone: () => phone(), chair: () => chairRoll(), drawer: () => drawerSlam(), elevator, event, samplesReady: () => loadSamples(), samples: () => Object.keys(samples), at: (sec, fn) => { baseDelay = sec; try { fn(); } finally { baseDelay = 0; } }, footstep: (v = 1, s = 1) => footstep(v, s), creak: (pos, o) => creak(pos, o), ambient: (k) => ambientEvent(k), ctxRef: () => ctx, setCtx: (c) => { ctx = c; } },
+    _test: { zap: () => zap(), phone: () => phone(), chair: () => chairRoll(), drawer: () => drawerSlam(), elevator, event, samplesReady: () => Promise.all([loadSamples(), loadStepBank()]), stepBank: () => Object.fromEntries(Object.entries(stepBank).map(([k, v]) => [k, v.length])), footstepReal: (v = 1, s = 1) => footstepReal(v, s), samples: () => Object.keys(samples), at: (sec, fn) => { baseDelay = sec; try { fn(); } finally { baseDelay = 0; } }, footstep: (v = 1, s = 1) => footstep(v, s), creak: (pos, o) => creak(pos, o), ambient: (k) => ambientEvent(k), ctxRef: () => ctx, setCtx: (c) => { ctx = c; } },
   };
 }
