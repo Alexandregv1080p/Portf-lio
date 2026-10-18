@@ -320,9 +320,10 @@ function step(now) {
   ws = lerp(ws, clamp(speed / 1.5, 0, 1), 1 - Math.exp(-dt / 0.1));
   const fall = Math.pow(Math.cos(Math.PI * phase), 2);                  /* 1 no apoio do pé, 0 no meio da passada */
   const sway = Math.sin(Math.PI * phase);                                 /* alterna esquerda/direita a cada passo */
-  const bobY = reduce ? 0 : -0.052 * ws * fall + 0.018 * ws;              /* a cabeça cai no apoio */
+  const breath = reduce ? 0 : (1 - ws) * Math.sin(performance.now() / 1000 * 1.45);   /* respiração parada: sobe e desce devagar */
+  const bobY = reduce ? 0 : -0.052 * ws * fall + 0.018 * ws + 0.006 * breath;              /* a cabeça cai no apoio */
   const bobX = reduce ? 0 : 0.034 * ws * sway;
-  const nod = reduce ? 0 : 0.016 * ws * fall;                             /* leve "cabeceio" para baixo no impacto */
+  const nod = reduce ? 0 : 0.016 * ws * fall + 0.0025 * breath;                             /* leve "cabeceio" para baixo no impacto */
   const z = world.zOf(camD);
 
   /* atmosfera do andar (névoa, grade, glitch, tremor, FOV) */

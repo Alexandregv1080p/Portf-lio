@@ -67,14 +67,25 @@ export function buildWorld(scene, { tl, aniso, Q }) {
   })();
   const addGrunge = (m, strength = 0.8, scale = 0.37) => {
     m.onBeforeCompile = (sh) => {
+      sh.uniforms.uHW = { value: new THREE.Vector2(W / 2, H) };
+      sh.vertexShader = sh.vertexShader
+        .replace('#include <common>', '#include <common>\nvarying vec3 vWp;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvWp = (modelMatrix * vec4(position, 1.0)).xyz;');
       sh.uniforms.tGrunge = { value: grunge }; sh.uniforms.uGr = { value: strength }; sh.uniforms.uGs = { value: scale };
       sh.fragmentShader = sh.fragmentShader
-        .replace('#include <common>', '#include <common>\nuniform sampler2D tGrunge; uniform float uGr; uniform float uGs;')
+        .replace('#include <common>', '#include <common>\nvarying vec3 vWp; uniform vec2 uHW; uniform sampler2D tGrunge; uniform float uGr; uniform float uGs;')
         .replace('#include <map_fragment>', `#include <map_fragment>
           #ifdef USE_MAP
           vec4 grn = texture2D(tGrunge, vMapUv * uGs);
           vec4 grf = texture2D(tGrunge, vMapUv * 1.7 + 0.37);
           diffuseColor.rgb *= mix(1.0, (0.3 + grn.r * 0.85) * (0.58 + grf.g * 0.55), uGr);
+          /* sujeira por altura e cantos: rodapé encardido, escorrido do teto, quina parede/piso escura */
+          float ax = abs(vWp.x) / uHW.x;
+          float low = 1.0 - smoothstep(0.0, 0.9, vWp.y), high = smoothstep(uHW.y - 0.7, uHW.y, vWp.y);
+          float corner = smoothstep(0.7, 1.0, ax) * step(vWp.y, 0.05);
+          float streak = texture2D(tGrunge, vec2(vWp.z * 0.9 + vWp.x * 3.0, vWp.y * 0.07)).g;
+          float dirt = low * step(0.9, ax) * (0.45 + grf.r * 0.4) + high * 0.5 + corner * 0.4 + streak * 0.18 * smoothstep(0.2, 2.2, vWp.y) * step(0.9, ax);
+          diffuseColor.rgb *= 1.0 - clamp(dirt, 0.0, 0.8);
           #endif`)
         .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
           #ifdef USE_MAP
