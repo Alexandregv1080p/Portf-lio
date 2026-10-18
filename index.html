@@ -205,6 +205,18 @@
     .door-necro .tombs { font-size: clamp(44px, 7vw, 90px); letter-spacing: 6px; margin-bottom: 20px; color: transparent; -webkit-text-stroke: 1.5px rgba(0,216,255,.55); user-select: none; }
     .seam { display: none; }
 
+
+    /* ---------- CORREDOR ---------- */
+    .door-hall { background: radial-gradient(ellipse at 50% 45%, rgba(255,180,120,.16), transparent 55%), linear-gradient(180deg, #0a0306, #050205 60%, #020102); }
+    .door-hall .door-title { color: #fff1e6; font-family: 'Fira Code', monospace; font-size: clamp(24px, 3vw, 42px); }
+    .door-hall .door-title .accent { color: #ff9a5c; }
+    .door-hall .door-sub { color: rgba(255,225,200,.55); }
+    .door-hall .door-cta { border: 1px solid #ff9a5c; color: #ffc9a0; }
+    .door-hall:hover .door-cta { box-shadow: 0 0 26px rgba(255,154,92,.4); background: rgba(255,154,92,.08); }
+    .door-hall .vanish { width: min(46%, 150px); aspect-ratio: 3/4; margin: 0 auto 22px; border: 1px solid rgba(255,154,92,.5);
+      background: linear-gradient(to bottom, #050205, #050205) padding-box, radial-gradient(ellipse at 50% 70%, rgba(255,170,110,.6), transparent 60%);
+      clip-path: polygon(0 0, 100% 0, 78% 100%, 22% 100%); opacity: .9; }
+
     /* ---------- SHARED DOOR CONTENT ---------- */
     .door-content { position: relative; z-index: 2; text-align: center; padding: 30px; max-width: 92%; }
     .door-kicker {
@@ -307,6 +319,18 @@
       </div>
     </a>
 
+    <!-- CORREDOR -->
+    <a class="door door-hall" href="corredor.html" aria-label="Abrir corredor em primeira pessoa">
+      <div class="door-shine"></div>
+      <div class="door-content">
+        <div class="vanish" aria-hidden="true"></div>
+        <p class="door-kicker">versão 04 &middot; 1ª pessoa</p>
+        <h2 class="door-title">CORREDOR<span class="accent">.exe</span></h2>
+        <p class="door-sub">avance at&eacute; o fim do corredor<br>role para andar</p>
+        <span class="door-cta">AVANÇAR <i class="fa-solid fa-person-walking"></i></span>
+      </div>
+    </a>
+
     <!-- RIGHT · HORROR -->
     <a class="door door-horror" href="horror.html" aria-label="Abrir versão cyber horror">
       <div class="grain"></div>
@@ -337,6 +361,7 @@
       if (e.key === '1') location.href = 'classic.html';
       if (e.key === '2') location.href = 'horror.html';
       if (e.key === '3') location.href = 'necropole.html';
+      if (e.key === '4') location.href = 'corredor.html';
     });
   </script>
 </body>
