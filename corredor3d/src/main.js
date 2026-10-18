@@ -4,6 +4,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { createAudio } from './audio.js';
 import './style.css';
 
 const $ = (id) => document.getElementById(id);
@@ -57,7 +58,7 @@ camera.rotation.order = 'YXZ';
 scene.add(camera);
 
 /* --------------------------------------------------------------- materiais */
-const manager = new THREE.LoadingManager(() => $('loader').classList.add('done'));
+const manager = new THREE.LoadingManager(() => { $('loadmsg').hidden = true; $('enter').hidden = false; });
 const tl = new THREE.TextureLoader(manager);
 const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
 function pbr(name, rx, ry, opts = {}) {
@@ -142,6 +143,26 @@ PROJECTS.forEach((p, i) => {
   doors.push({ pivot, z, side, open: 0 }); leaves.push(hitbox);
 });
 
+/* --------------------------------------------------------------- áudio */
+const audio = createAudio();
+const doorPos = PROJECTS.map((p, i) => ({ x: (i % 2 ? 1 : -1) * (W / 2 - 0.5), y: 1.2, z: -(DOOR0 + i * SP) }));
+const sndBtn = $('snd');
+function paintSnd() { sndBtn.textContent = !audio.started || audio.muted ? 'som: off' : 'som: on'; }
+function enter(withSound) {
+  $('loader').classList.add('done');
+  if (withSound) {
+    audio.start({ doors: doorPos, fixtures: fixtures.map((f) => ({ x: 0, y: H - 0.3, z: f.light.position.z })), end: { x: 0, y: 1.5, z: -L + 1 } });
+    try { localStorage.setItem('c3d-snd', '1'); } catch (e) { /* ok */ }
+  }
+  paintSnd();
+}
+$('enter-snd').addEventListener('click', () => enter(true));
+$('enter-mute').addEventListener('click', () => enter(false));
+sndBtn.addEventListener('click', () => {
+  if (!audio.started) { enter(true); return; }
+  audio.setMuted(!audio.muted); paintSnd();
+});
+
 /* --------------------------------------------------------------- luzes */
 scene.add(new THREE.HemisphereLight(0x2a1218, 0x050203, 0.07));
 
@@ -224,6 +245,8 @@ projEl.addEventListener('pointerenter', () => { cardHover = true; });
 projEl.addEventListener('pointerleave', () => { cardHover = false; });
 function showDoor(i) {
   if (i === shownDoor) return;
+  if (shownDoor >= 0) audio.door(shownDoor, false);
+  if (i >= 0) audio.door(i, true);
   shownDoor = i;
   if (i < 0) { projEl.classList.remove('show'); return; }
   const p = PROJECTS[i];
@@ -241,9 +264,13 @@ let forceZ = null;                                    /* só o harness de dev us
 let camZ = -1, lastScrollT = performance.now(), lastY = scrollY, bobPhase = 0, vel = 0;
 addEventListener('scroll', () => { lastScrollT = performance.now(); }, { passive: true });
 let shadeOn = false, shadeStart = 0, shadeZ = 0;
+const fwdV = new THREE.Vector3(), upV = new THREE.Vector3();
 let lastT = performance.now(), elapsed = 0;
 let running = true;
-document.addEventListener('visibilitychange', () => { running = !document.hidden; if (running) { lastT = performance.now(); tick(); } });
+document.addEventListener('visibilitychange', () => {
+  running = !document.hidden;
+  if (running) { lastT = performance.now(); audio.resume(); tick(); } else audio.pause();
+});
 
 function tick() {
   if (!running) return;
@@ -301,7 +328,7 @@ function step(now) {
       const n = Math.sin(t * 31 + f.seed) * Math.sin(t * 13.7 + f.seed * 2);
       if (f.bad && n > 0.78) k = 0.12; else if (n > 0.93) k = 0.35;
     }
-    f.light.intensity = f.base * k; f.tube.material.color.setScalar(0.35 + 0.65 * k);
+    f.kk = k; f.light.intensity = f.base * k; f.tube.material.color.setScalar(0.35 + 0.65 * k);
     fl = Math.min(fl, 0.9 + 0.1 * k);
   });
   emergency.intensity = 22 * (0.75 + 0.25 * Math.sin(t * 3.2));
@@ -332,6 +359,15 @@ function step(now) {
   heroEl.classList.toggle('show', p < 0.025);
   endEl.classList.toggle('show', camZ < -(L - 9.5));
 
+  if (audio.started) {
+    camera.getWorldDirection(fwdV); upV.set(0, 1, 0).applyQuaternion(camera.quaternion);
+    audio.update({
+      camPos: camera.position, fwd: fwdV, up: upV, p, speed: vel, stepDist: Math.abs(camZ - prev),
+      fixtures: fixtures.map((f) => f.kk ?? 1),
+      doorDist: doorPos.map((d) => Math.hypot(d.x - camera.position.x, d.z - camera.position.z)),
+      shade: { visible: shade.visible, dist: Math.abs(shade.position.z - camZ) },
+    });
+  }
   composer.render();
 }
 
@@ -346,6 +382,7 @@ tick();
 if (import.meta.env.DEV) {
   let simNow = performance.now();
   window.__sim = {
+    audio, walkTo(z, frames = 240) { forceZ = z; return this.run(frames); },
     place(z, ax, ay) { camZ = forceZ = z; aim.set(ax, ay); aimGoal.set(ax, ay); lastMove = simNow; },
     aimAt(ax, ay) { aimGoal.set(ax, ay); lastMove = simNow; },
     run(n, ms = 16.7) { running = false; const log = []; let prev = shownDoor; for (let i = 0; i < n; i++) { simNow += ms; lastT = simNow - ms; step(simNow); if (shownDoor !== prev) { log.push([i, prev, shownDoor]); prev = shownDoor; } } return log; },

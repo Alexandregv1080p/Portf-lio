@@ -8,6 +8,14 @@ a{color:inherit;text-decoration:none}
 
 #loader{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:#030102;font:500 14px 'Oxanium',monospace;letter-spacing:4px;color:var(--accent);transition:opacity .8s}
 #loader.done{opacity:0;pointer-events:none}
+#loader{flex-direction:column;gap:22px;text-align:center}
+#enter{display:flex;flex-direction:column;gap:12px;align-items:center}
+#enter[hidden]{display:none}
+#enter p{font-size:12px;color:rgba(236,218,218,.6);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px}
+#enter button,.nav button{font:600 14px 'Oxanium',monospace;letter-spacing:2px;text-transform:uppercase;color:var(--txt);background:rgba(10,2,3,.8);
+  border:1px solid var(--accent);border-radius:6px;padding:12px 26px;cursor:pointer;transition:background .2s,box-shadow .2s}
+#enter button:hover,.nav button:hover{background:rgba(255,42,42,.2);box-shadow:0 0 24px rgba(255,42,42,.4)}
+#enter button.alt{border-color:rgba(255,255,255,.2);color:rgba(236,218,218,.6);font-size:12px;padding:8px 18px}
 #nogl{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:#030102;font:500 15px 'Oxanium',monospace;text-align:center;padding:24px;line-height:2}
 #nogl[hidden]{display:none}
 #nogl a{color:var(--cy);text-decoration:underline}
@@ -15,7 +23,8 @@ a{color:inherit;text-decoration:none}
 .hud{position:fixed;z-index:5;font:500 13px 'Oxanium',monospace;letter-spacing:2px}
 .rec{top:16px;left:18px;display:flex;gap:8px;align-items:center;pointer-events:none;color:var(--accent)}
 .rec .dot{width:10px;height:10px;border-radius:50%;background:#ff2b2b;animation:blink 1.4s steps(1) infinite}
-.nav{top:12px;right:14px}
+.nav{top:12px;right:14px;display:flex;gap:8px;align-items:center}
+.nav button{padding:7px 11px;font-size:13px;letter-spacing:1px}
 .nav a{display:inline-block;background:rgba(10,2,3,.75);border:1px solid rgba(255,42,42,.5);border-radius:6px;padding:7px 11px}
 .hint{left:50%;bottom:4vh;transform:translateX(-50%);color:rgba(236,218,218,.6);pointer-events:none;text-align:center;transition:opacity 1s;width:90%}
 .hint.gone{opacity:0}

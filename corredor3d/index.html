@@ -13,11 +13,18 @@
   <canvas id="gl"></canvas>
   <div id="spacer"></div>
 
-  <div id="loader"><span>carregando o corredor<i>...</i></span></div>
+  <div id="loader">
+    <span id="loadmsg">carregando o corredor<i>...</i></span>
+    <div id="enter" hidden>
+      <p>use fones de ouvido</p>
+      <button id="enter-snd" type="button">entrar com som</button>
+      <button id="enter-mute" type="button" class="alt">entrar sem som</button>
+    </div>
+  </div>
   <div id="nogl" hidden>WebGL indisponível neste dispositivo. <a href="../necropole.html">Abrir a versão 2D</a></div>
 
   <div class="hud rec"><span class="dot"></span> REC · <span id="depth">0m</span></div>
-  <nav class="hud nav"><a href="../index.html">&larr; portal</a></nav>
+  <nav class="hud nav"><button id="snd" type="button">som: off</button><a href="../index.html">&larr; portal</a></nav>
   <div class="hud hint" id="hint">mova o mouse para guiar a luz &middot; role para avançar</div>
 
   <section id="hero" class="card show">
