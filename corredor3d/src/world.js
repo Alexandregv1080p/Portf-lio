@@ -22,7 +22,7 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     const c = document.createElement('canvas'); c.width = c.height = T; c.getContext('2d').drawImage(img, 0, 0, T, T); t.image = c; t.needsUpdate = true;
   };
   const loadSet = (name, metal) => {
-    const L = (k, srgb) => { const t = tl.load(`tex/${Q.tex && Q.tex < 1024 ? Q.tex + '/' : ''}${name}_${k}.jpg`, shrinkTex); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = aniso; if (srgb) t.colorSpace = THREE.SRGBColorSpace; return t; };
+    const L = (k, srgb) => { const t = tl.load(`tex/${Q.tex || 1024}/${name}_${k}.webp`, shrinkTex); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = aniso; if (srgb) t.colorSpace = THREE.SRGBColorSpace; return t; };
     return { map: L('Color', true), normalMap: L('NormalGL'), roughnessMap: L('Roughness'), metalnessMap: metal ? L('Metalness') : null };
   };
   const sets = { wall: loadSet('wall'), floor: loadSet('floor'), ceil: loadSet('ceil'), metal: loadSet('metal', true) };
@@ -380,8 +380,10 @@ export function buildWorld(scene, { tl, aniso, Q }) {
   [zones[4], zones[5]].forEach((z) => { for (let d = z.d0 + 5; d < z.d1 - 1; d += 9) { const t = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshBasicMaterial({ color: 0xff2020 })); t.position.set(z.id === 'end' ? 1.4 : -1.4, H - 0.4, zOf(d)); scene.add(t); emerg.push({ D: d, x: t.position.x, mesh: t }); } });
   const POOL = Q.lights;
   const lights = Array.from({ length: POOL }, () => { const l = new THREE.PointLight(0xffffff, 0, 11, 2); scene.add(l); return l; });
-  const shafts = Array.from({ length: POOL }, () => { const s = makeShaft(1.75, H - 0.05); s.userData.noCull = true; scene.add(s); return s; });
+  const shafts = Array.from({ length: Math.min(POOL, Q.shafts) }, () => { const s = makeShaft(1.75, H - 0.05); s.userData.noCull = true; scene.add(s); return s; });
+  const setShafts = (on) => { shafts.forEach((s) => { s.userData.off = !on; if (!on) s.visible = false; }); };
   const lampPool = lights.map((l) => ({ pos: l.position, color: l.color, I: 0 }));
+  const poolArr = new Array(POOL).fill(null);
   const redLights = [0, 1].map(() => { const l = new THREE.PointLight(0xff1a1a, 0, 14, 2); scene.add(l); return l; });
 
   /* ------------------------------------------------------------ consultas e passo */
@@ -431,28 +433,28 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     for (const f of fixtures) { if (f.halo) { const near = Math.abs(f.D - camD) < 22; f.halo.visible = near; if (near) f.halo.material.opacity = 0.38 * f.k; } }
     for (let i = 0; i < POOL; i++) {
       const f = fixtures[first + i], l = lights[i], sh = shafts[i];
-      if (!f) { l.intensity = 0; sh.visible = false; lampPool[i].I = 0; continue; }
+      poolArr[i] = f || null;
+      if (!f) { l.intensity = 0; if (sh) sh.visible = false; lampPool[i].I = 0; continue; }
       l.color.setHex(f.color); l.position.set(0, f.y, zOf(f.D)); l.intensity = f.base * f.k;
-      sh.visible = f.k > 0.02; sh.position.set(0, H - 0.05, zOf(f.D));
-      sh.material.uniforms.uColor.value.setHex(f.color); sh.material.uniforms.uTime.value = t;
-      const kk = f.k * Math.min(1.2, f.base / 3.4); sh.material.uniforms.uK.value = 0.2 * kk; lampPool[i].I = 0.75 * kk;
+      const kk = f.k * Math.min(1.2, f.base / 3.4); lampPool[i].I = 0.75 * kk;
+      if (sh) {
+        sh.visible = !sh.userData.off && f.k > 0.02; sh.position.set(0, H - 0.05, zOf(f.D));
+        sh.material.uniforms.uColor.value.setHex(f.color); sh.material.uniforms.uTime.value = t; sh.material.uniforms.uK.value = 0.2 * kk;
+      }
     }
     /* luz de emergência vermelha pulsando (laboratório e abismo) */
-    const near = emerg.filter((e) => Math.abs(e.D - camD) < 16).sort((a, b) => Math.abs(a.D - camD) - Math.abs(b.D - camD));
-    redLights.forEach((l, i) => { const e = near[i]; if (!e) { l.intensity = 0; return; } l.position.set(e.x, H - 0.4, zOf(e.D)); l.intensity = o.emerg * (0.6 + 0.4 * Math.sin(t * 3.2 + e.D)); });
+    let e0 = null, e1 = null, d0 = 16, d1 = 16;
+    for (const e of emerg) { const d = Math.abs(e.D - camD); if (d < d0) { e1 = e0; d1 = d0; e0 = e; d0 = d; } else if (d < d1) { e1 = e; d1 = d; } }
+    [e0, e1].forEach((e, i) => { const l = redLights[i]; if (!e || o.emerg <= 0) { l.intensity = 0; return; } l.position.set(e.x, H - 0.4, zOf(e.D)); l.intensity = o.emerg * (0.6 + 0.4 * Math.sin(t * 3.2 + e.D)); });
     emerg.forEach((e) => e.mesh.material.color.setScalar(0.5 + 0.5 * Math.sin(t * 3.2 + e.D)).multiply(cA.set(0xff2020)));
     /* pontos de interesse: abrem/acendem quando a luz os alcança */
     pois.forEach((p, i) => { p.open = lerp(p.open, (o.active === i || p.force) ? 1 : 0, 1 - Math.pow(0.02, dt)); p.apply(); });
     /* objetos animados pelos sustos */
     if (events.drawers) events.drawers.forEach((dr) => { dr.open = lerp(dr.open, dr.goal, 1 - Math.pow(0.0001, dt)); dr.mesh.position.z = dr.mesh.userData.rest + dr.open * 0.55; });
     decorT.forEach((d) => d.update(t, camD));
-    return { flick: flickMin, fixtures, lampPool };
+    return { flick: flickMin, fixtures, lampPool, pool: poolArr };
   }
 
-  const fixturePool = (camD, n = 3) => {
-    const arr = fixtures.filter((f) => !f.cabin || true).slice().sort((a, b) => Math.abs(a.D - camD) - Math.abs(b.D - camD)).slice(0, n);
-    return arr;
-  };
 
   /* ----------------------------------------------- props reais (modelos CC0 da Poly Haven) */
   function populate(models) {
@@ -508,5 +510,5 @@ export function buildWorld(scene, { tl, aniso, Q }) {
   indexStatics();
   const populateAndIndex = (models) => { populate(models); indexStatics(); cull(0, true); };
 
-  return { zones, cabins, pois, fixtures, total, envAt, step, zoneAt, cabinAt, events, fixturePool, zOf, decorT, H, W, populate: populateAndIndex, addGrunge, shrinkTex, cull };
+  return { zones, cabins, pois, fixtures, total, envAt, step, zoneAt, cabinAt, events, zOf, decorT, H, W, populate: populateAndIndex, addGrunge, shrinkTex, cull, setShafts };
 }

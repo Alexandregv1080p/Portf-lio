@@ -4,5 +4,5 @@ import { defineConfig } from 'vite';
 // o build vai para ../3d, que o portal estático já serve sem precisar de CI
 export default defineConfig({
   base: './',
-  build: { outDir: '../3d', emptyOutDir: true },
+  build: { outDir: '../3d', emptyOutDir: true, target: 'es2022' },
 });

@@ -6,6 +6,8 @@ const rnd = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const pick = (arr) => arr[(Math.random() * arr.length) | 0];
 
+const LITE = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches;   /* celular: reverb curta e panner barato */
+
 export function createAudio(cfg, externalCtx) {
   const STRIDE = 0.78;                     /* metros por passo */
   const POS_BOOST = 2.6;                   /* fontes 3D perdem nível com a distância: compensa */
@@ -34,7 +36,7 @@ export function createAudio(cfg, externalCtx) {
   }
   /* resposta ao impulso de corredor longo: reflexões iniciais em flutter + cauda que escurece */
   function makeIR() {
-    const sec = 3.4, len = (ctx.sampleRate * sec) | 0, b = ctx.createBuffer(2, len, ctx.sampleRate);
+    const sec = LITE ? 2.0 : 3.2, len = (ctx.sampleRate * sec) | 0, b = ctx.createBuffer(2, len, ctx.sampleRate);
     for (let c = 0; c < 2; c++) {
       const d = b.getChannelData(c); let lp = 0;
       for (let i = 0; i < len; i++) {
@@ -56,7 +58,7 @@ export function createAudio(cfg, externalCtx) {
   function route(src, o = {}) {
     const g = ctx.createGain(); g.gain.value = (o.gain ?? 1) * (o.pos ? POS_BOOST : 1); src.connect(g); let tail = g;
     if (o.pos) {
-      const p = ctx.createPanner(); p.panningModel = 'HRTF'; p.distanceModel = 'inverse';
+      const p = ctx.createPanner(); p.panningModel = (o.cheap || LITE) ? 'equalpower' : 'HRTF'; p.distanceModel = 'inverse';   /* HRTF é caro: só nos one-shots do desktop */
       p.refDistance = 1.4; p.rolloffFactor = 1.35; p.maxDistance = 60; setPos(p, o.pos); tail.connect(p); tail = p;
     } else if (o.pan && ctx.createStereoPanner) {
       const sp = ctx.createStereoPanner(); sp.pan.value = o.pan; tail.connect(sp); tail = sp;
@@ -132,11 +134,18 @@ export function createAudio(cfg, externalCtx) {
     }
     return out;
   }
-  async function loadStepBank() {
+  const stepLoading = {};
+  function loadStepFile(n) {                                        /* cada gravação só é baixada/decodificada quando o andar precisa dela */
+    if (stepLoading[n]) return stepLoading[n];
     const base = (import.meta.env && import.meta.env.BASE_URL) || './';
-    await Promise.all(STEP_FILES.map(async (n) => {
+    return (stepLoading[n] = (async () => {
       try { const r = await fetch(`${base}sfx/${n}.mp3`); if (!r.ok) throw new Error(r.status); const sl = sliceSteps(await ctx.decodeAudioData(await r.arrayBuffer())); if (sl.length >= 3) stepBank[n] = sl; } catch (e) { /* cai na síntese */ }
-    }));
+    })());
+  }
+  const loadStepBank = () => Promise.all(STEP_FILES.map(loadStepFile));
+  function ensureSteps(floor) {
+    if (!ctx || !started) return;
+    for (const f of [floor, floor + 1]) { const list = SURFACES[clamp(f, 0, SURFACES.length - 1)]; for (const [n] of list) loadStepFile(n); }
   }
   /* superfície por andar (a cabine do elevador é metal) */
   const SURFACES = [
@@ -240,21 +249,25 @@ export function createAudio(cfg, externalCtx) {
   function buildRoom(kind, pos) {
     const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520;
     const bus = ctx.createGain(); bus.gain.value = 0; bus.connect(lp);
-    route(lp, { pos, send: 0.35, gain: 1 });
-    const room = { kind, lp, bus, pos, t: 0 };
+    const out = route(lp, { pos, send: 0.35, gain: 1, cheap: true });
+    const room = { kind, lp, bus, pos, t: 0, stoppers: [], out };
     const loop = (buf, f, q, g, type = 'bandpass') => {
       const s = ctx.createBufferSource(); s.buffer = buf; s.loop = true;
       const b = ctx.createBiquadFilter(); b.type = type; b.frequency.value = f; b.Q.value = q;
-      const v = ctx.createGain(); v.gain.value = g; s.connect(b); b.connect(v); v.connect(bus); s.start(0, Math.random() * 2); return v;
+      const v = ctx.createGain(); v.gain.value = g; s.connect(b); b.connect(v); v.connect(bus); s.start(0, Math.random() * 2); room.stoppers.push(s); return v;
     };
     if (kind === 'servers') {
-      [110, 220, 330].forEach((f, k) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = f * (1 + k * 0.002); g.gain.value = 0.05 / (k + 1); o.connect(g); g.connect(bus); o.start(); });
+      [110, 220, 330].forEach((f, k) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = f * (1 + k * 0.002); g.gain.value = 0.05 / (k + 1); o.connect(g); g.connect(bus); o.start(); room.stoppers.push(o); });
       loop(noiseBuf, 700, 0.6, 0.35);
     } else if (kind === 'radio') {
       const v = loop(noiseBuf, 1900, 0.5, 0.5);
-      const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = rnd(3, 8); lg.gain.value = 0.3; lfo.connect(lg); lg.connect(v.gain); lfo.start();
+      const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = rnd(3, 8); lg.gain.value = 0.3; lfo.connect(lg); lg.connect(v.gain); lfo.start(); room.stoppers.push(lfo);
     }
     return room;
+  }
+  function destroyRoom(r) {                                            /* sala longe: libera os nós (cada panner/oscilador custa CPU) */
+    for (const s of r.stoppers) { try { s.stop(); } catch (e) { /* ok */ } }
+    try { r.bus.disconnect(); r.lp.disconnect(); r.out.g.disconnect(); r.out.tail.disconnect(); } catch (e) { /* ok */ }
   }
   /* eventos que acontecem dentro da sala, só quando você está perto */
   function roomTick(r, near) {
@@ -439,11 +452,11 @@ export function createAudio(cfg, externalCtx) {
       const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
       o1.type = 'sawtooth'; o1.frequency.value = 120; o2.type = 'square'; o2.frequency.value = 240.7;
       bp.type = 'bandpass'; bp.frequency.value = 360; bp.Q.value = 5; g.gain.value = 0.0012;
-      o1.connect(bp); o2.connect(bp); bp.connect(g); const r = route(g, { pos: { x: 0, y: 2.9, z: -5 }, send: 0.25 }); o1.start(); o2.start();
+      o1.connect(bp); o2.connect(bp); bp.connect(g); const r = route(g, { pos: { x: 0, y: 2.9, z: -5 }, send: 0.25, cheap: true }); o1.start(); o2.start();
       fixtureState.push({ gain: g, panner: r.tail, k: 1 });
     }
     /* sala de dentro de cada porta/rack */
-    positions.rooms.forEach((r) => rooms.push(r.kind === 'none' ? null : buildRoom(r.kind, r.pos)));
+    positions.rooms.forEach(() => rooms.push(null));                    /* as salas são criadas só quando você chega perto */
     timers.push(setInterval(() => { rooms.forEach((r, i) => { if (r) roomTick(r, (S.doorDist[i] ?? 99) < 5.5); }); }, 700 + (Math.random() * 100 | 0)));
 
     /* camadas por andar: ventiladores (servidores), chiado agudo, e o zumbido grave do elevador descendo */
@@ -463,8 +476,9 @@ export function createAudio(cfg, externalCtx) {
     al.connect(trem); al2.connect(trem); trem.connect(alg); route(alg, { pos: positions.end, send: 0.5 });
     al.start(); al2.start(); alLfo.start(); S.alarm = alg;
 
-    loadSamples(); loadStepBank();
+    loadSamples();
     started = true;
+    ensureSteps(S.floor);
     S.endPos = positions.end;
     master.gain.setTargetAtTime(muted ? 0 : MASTER, ctx.currentTime, 0.6);
     scheduleEvents(); beat();
@@ -492,21 +506,28 @@ export function createAudio(cfg, externalCtx) {
     }
 
     /* lâmpadas: o zumbido segue as 3 mais próximas, cai e crepita junto com a luz */
-    s.fixtures.forEach((fx, i) => {
-      const f = fixtureState[i]; if (!f) return; const k = fx.k;
+    const nFix = s.nFix ?? s.fixtures.length;
+    for (let i = 0; i < fixtureState.length; i++) {
+      const f = fixtureState[i];
+      if (i >= nFix) { f.gain.gain.setTargetAtTime(0, t, 0.05); continue; }
+      const fx = s.fixtures[i], k = fx.k;
       setPos(f.panner, fx.pos);
       f.gain.gain.setTargetAtTime(0.0012 * (0.1 + 0.9 * k), t, 0.015);
       if (f.k > 0.6 && k < 0.5 && !muted) { noiseHit({ pos: fx.pos, freq: rnd(3200, 5200), q: 2, dur: 0.03, gain: 0.12, send: 0.3 }); thump({ pos: fx.pos, f0: 300, f1: 120, dur: 0.05, gain: 0.05 }); }
       f.k = k;
-    });
+    }
 
-    /* salas atrás das portas: mais alto perto, e vaza quando a porta abre */
-    rooms.forEach((r, i) => {
-      const d = s.doorDist[i] ?? 99; S.doorDist[i] = d; if (!r) return;
+    /* salas atrás das portas: criadas ao chegar perto (< 8 m), destruídas ao se afastar (> 11 m); mais alto perto e vaza quando a porta abre */
+    for (let i = 0; i < cfgRef.rooms.length; i++) {
+      const d = s.doorDist[i] ?? 99; S.doorDist[i] = d;
+      const cfg = cfgRef.rooms[i]; if (cfg.kind === 'none') continue;
+      let r = rooms[i];
+      if (!r) { if (d < 8) r = rooms[i] = buildRoom(cfg.kind, cfg.pos); else continue; }
+      else if (d > 11) { destroyRoom(r); rooms[i] = null; continue; }
       const open = S.doorOpen[i] || 0, near = clamp(1 - d / 6.5, 0, 1);
       r.bus.gain.setTargetAtTime(near * near * (0.6 + 1.4 * open), t, 0.12);
       r.lp.frequency.setTargetAtTime(520 + open * 3400, t, 0.15);
-    });
+    }
 
     /* atmosfera sonora do andar */
     const f = S.floor, fear = S.fear;
@@ -542,7 +563,7 @@ export function createAudio(cfg, externalCtx) {
     else if (kind === 'rack') { if (open) { sample('lock_gear', { pos, gain: 0.4, send: 0.3 }); noiseHit({ pos, freq: 900, q: 0.8, dur: 0.5, gain: 0.5, send: 0.4 }); } else sample('lock_gear', { pos, gain: 0.3, rate: 0.8 }); }
     else if (open) { tone({ pos, freq: 1320, dur: 0.18, gain: 0.5, send: 0.3 }); noiseHit({ pos, type: 'highpass', freq: 3000, dur: 0.12, gain: 0.3, send: 0.2 }); }
   }
-  function setFloor(i, fear) { S.floor = i; S.fear = fear; S.floorBeat = i >= 5 ? 0.5 : i >= 4 ? 0.15 : 0; }
+  function setFloor(i, fear) { S.floor = i; S.fear = fear; S.floorBeat = i >= 5 ? 0.5 : i >= 4 ? 0.15 : 0; ensureSteps(i); }
 
   return {
     start(positions) { start(positions); },
