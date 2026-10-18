@@ -92,6 +92,37 @@ export function createAudio(cfg, externalCtx) {
     route(e, o);
   }
 
+  /* ------------------------------------------------------ amostras reais (portas etc.) */
+  /* Mixkit Sound Effects Free License (uso comercial permitido, sem atribuição).
+     Se falharem ao carregar, o motor cai na síntese e continua funcionando. */
+  const SAMPLES = ['door_creak_open', 'door_scary_open', 'door_creak_both', 'door_creak_close', 'door_hard_shut', 'door_metal_close', 'door_slam', 'knock_thick', 'floor_creak', 'lock_gear'];
+  const samples = {};
+  async function loadSamples() {
+    const base = (import.meta.env && import.meta.env.BASE_URL) || './';
+    await Promise.all(SAMPLES.map(async (n) => {
+      try {
+        const r = await fetch(`${base}sfx/${n}.mp3`); if (!r.ok) throw new Error(r.status);
+        const buf = await ctx.decodeAudioData(await r.arrayBuffer());
+        let pk = 0; for (let c = 0; c < buf.numberOfChannels; c++) { const d = buf.getChannelData(c); for (let i = 0; i < d.length; i++) pk = Math.max(pk, Math.abs(d[i])); }
+        samples[n] = { buf, norm: pk > 0 ? 0.7 / pk : 1 };      /* normaliza todas para o mesmo pico */
+      } catch (e) { /* sem amostra: usa síntese */ }
+    }));
+  }
+  function sample(name, o = {}) {
+    const s = samples[name]; if (!s) return false;
+    const t = ctx.currentTime + baseDelay + (o.delay || 0), src = ctx.createBufferSource(), rate = o.rate ?? rnd(0.96, 1.04);
+    src.buffer = s.buf; src.playbackRate.value = rate;
+    let node = src;
+    if (o.lp) { const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = o.lp; node.connect(f); node = f; }
+    if (o.hp) { const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = o.hp; node.connect(f); node = f; }
+    const peak = s.norm * (o.gain ?? 1), len = (o.dur ?? s.buf.duration / rate), e = ctx.createGain();
+    e.gain.setValueAtTime(0.0001, t); e.gain.linearRampToValueAtTime(peak, t + 0.01);
+    if (o.dur) { e.gain.setValueAtTime(peak, t + Math.max(0.02, len - 0.15)); e.gain.linearRampToValueAtTime(0.0001, t + len); }
+    node.connect(e); route(e, o);
+    src.start(t, o.offset || 0, o.dur ? o.dur * rate : undefined);
+    return true;
+  }
+
   /* --------------------------------------------------------------- passos */
   /* camadas: corpo grave do calcanhar · estalo do salto no piso frio · arrasto da sola · ponta do pé · respingo (piso molhado) */
   function footstep(vol, side) {
@@ -118,6 +149,18 @@ export function createAudio(cfg, externalCtx) {
 
   /* ---------------------------------------------------------------- portas */
   function creak(pos, opening) {
+    if (samples.door_creak_open) {
+      if (opening) {
+        sample(pick(['door_creak_open', 'door_scary_open', 'door_creak_both']), { pos, send: 0.55, gain: 0.42, lp: 7000, dur: 2.8 });
+        sample('lock_gear', { pos, send: 0.4, gain: 0.26 });                                   /* trinco de metal */
+      } else {
+        sample(pick(['door_creak_close', 'door_hard_shut', 'door_metal_close']), { pos, send: 0.6, gain: 0.45 });
+      }
+      return;
+    }
+    creakSynth(pos, opening);
+  }
+  function creakSynth(pos, opening) {
     const t = ctx.currentTime + baseDelay, dur = opening ? rnd(1.0, 1.5) : 0.6;
     const e = ctx.createGain(); e.gain.setValueAtTime(0.0001, t); e.gain.linearRampToValueAtTime(1.5, t + 0.12);
     e.gain.setValueAtTime(1.5, t + dur * 0.7); e.gain.exponentialRampToValueAtTime(0.0001, t + dur);
@@ -191,11 +234,15 @@ export function createAudio(cfg, externalCtx) {
       const pos = ahead(rnd(-8, 16), rnd(-1.2, 1.2));
       tone({ pos, freq: rnd(1700, 3000), dur: 0.22, gain: 0.6, send: 0.7 });
       if (Math.random() < 0.5) tone({ pos, freq: rnd(1700, 3000), dur: 0.2, gain: 0.5, delay: rnd(0.9, 1.6), send: 0.7 });
+    } else if (kind === 'knock' && samples.knock_thick && Math.random() < 0.5) {      /* alguém bate numa porta, longe */
+      sample('knock_thick', { pos: ahead(rnd(8, 18), rnd(-1.3, 1.3)), lp: 2200, gain: 0.4, send: 0.8 });
     } else if (kind === 'knock') {                                  /* batidas no cano de metal */
       const pos = { x: rnd(-1.2, 1.2), y: 2.9, z: c.z - rnd(4, 18) }, n = (Math.random() * 3 | 0) + 2;
       for (let i = 0; i < n; i++) { const d = i * rnd(0.32, 0.55); thump({ pos, f0: rnd(150, 190), f1: 80, dur: 0.18, gain: 0.8, delay: d, send: 0.7 }); noiseHit({ pos, freq: 1300, q: 4, dur: 0.12, gain: 0.35, delay: d, send: 0.7 }); }
     } else if (kind === 'steps') {                                  /* alguém andando atrás de você */
       distantSteps((Math.random() * 4 | 0) + 4, { x: rnd(-0.6, 0.6), y: 0.1, z: c.z + rnd(7, 12) });
+    } else if (kind === 'groan' && samples.floor_creak && Math.random() < 0.5) {      /* tábua/estrutura rangendo no andar de cima */
+      sample('floor_creak', { pos: { x: rnd(-1.4, 1.4), y: 3.2, z: c.z - rnd(2, 10) }, lp: 1400, rate: rnd(0.8, 0.95), gain: 0.9, send: 0.7 });
     } else if (kind === 'groan') {                                  /* a estrutura geme */
       const t = ctx.currentTime + baseDelay, pos = { x: rnd(-1.4, 1.4), y: 2.8, z: c.z - rnd(3, 14) };
       const os = ctx.createOscillator(); os.type = 'sawtooth'; os.frequency.setValueAtTime(rnd(52, 62), t); os.frequency.linearRampToValueAtTime(rnd(38, 48), t + 3.6);
@@ -210,7 +257,9 @@ export function createAudio(cfg, externalCtx) {
       for (let k = 0; k < 6; k++) { const tt = t + k * rnd(0.18, 0.3); env.gain.linearRampToValueAtTime(rnd(0.45, 0.9), tt + 0.06); env.gain.linearRampToValueAtTime(0.01, tt + 0.16); }
       env.gain.exponentialRampToValueAtTime(0.0001, t + 2.1);
       sum.connect(env); route(env, { pos, send: 0.6 }); s.start(t, Math.random() * 2, 2.3);
-    } else if (kind === 'slam') {                                   /* porta batendo ao longe */
+    } else if (kind === 'slam' && samples.door_slam) {              /* porta batendo ao longe (abafada pela distância) */
+      sample(pick(['door_slam', 'door_metal_close']), { pos: ahead(rnd(14, 22), rnd(-1.4, 1.4)), lp: 1100, rate: rnd(0.85, 0.95), gain: 1, send: 0.95 });
+    } else if (kind === 'slam') {
       const pos = ahead(rnd(14, 22), rnd(-1.4, 1.4));
       thump({ pos, f0: 90, f1: 34, dur: 0.4, gain: 1.1, send: 0.9 }); noiseHit({ pos, freq: 900, q: 0.8, dur: 0.25, gain: 0.6, send: 0.9 });
     } else {                                                        /* algo correndo no forro */
@@ -286,6 +335,7 @@ export function createAudio(cfg, externalCtx) {
     al.connect(trem); al2.connect(trem); trem.connect(alg); route(alg, { pos: positions.end, send: 0.5 });
     al.start(); al2.start(); alLfo.start(); S.alarm = alg;
 
+    loadSamples();
     started = true;
     S.endPos = positions.end;
     master.gain.setTargetAtTime(muted ? 0 : MASTER, ctx.currentTime, 0.6);
@@ -365,6 +415,6 @@ export function createAudio(cfg, externalCtx) {
     pause() { if (ctx && ctx.suspend) ctx.suspend(); },
     resume() { if (ctx && started && !muted && ctx.resume) ctx.resume(); },
     /* só para testes offline */
-    _test: { at: (sec, fn) => { baseDelay = sec; try { fn(); } finally { baseDelay = 0; } }, footstep: (v = 1, s = 1) => footstep(v, s), creak: (pos, o) => creak(pos, o), ambient: (k) => ambientEvent(k), ctxRef: () => ctx, setCtx: (c) => { ctx = c; } },
+    _test: { samplesReady: () => loadSamples(), samples: () => Object.keys(samples), at: (sec, fn) => { baseDelay = sec; try { fn(); } finally { baseDelay = 0; } }, footstep: (v = 1, s = 1) => footstep(v, s), creak: (pos, o) => creak(pos, o), ambient: (k) => ambientEvent(k), ctxRef: () => ctx, setCtx: (c) => { ctx = c; } },
   };
 }

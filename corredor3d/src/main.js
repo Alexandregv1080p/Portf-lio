@@ -42,7 +42,7 @@ try {
   console.error('WebGL init falhou:', e);
   $('nogl').hidden = false; $('loader').remove(); throw e;
 }
-renderer.setPixelRatio(Math.min(devicePixelRatio, coarse ? 1.5 : 2));
+renderer.setPixelRatio(coarse ? Math.min(devicePixelRatio, 1.5) : clamp(devicePixelRatio, 1.5, 2));   /* desktop 1x renderiza em 1.5x: bordas e texturas mais limpas */
 renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = !coarse;
 renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -77,7 +77,7 @@ function pbr(name, rx, ry, opts = {}) {
 /* ---------------------------------------------------------------- corredor */
 const W = 3.2, H = 3.2, DOOR0 = 9, SP = 5, L = DOOR0 + SP * PROJECTS.length + 9;
 
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, L), pbr('floor', W / 1.4, L / 1.4, { color: 0x6f6568, roughness: 0.8 }));
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, L), pbr('floor', W / 1.4, L / 1.4, { color: 0x6f6568, roughness: 0.85, normalScale: new THREE.Vector2(0.55, 0.55) }));
 floor.rotation.x = -Math.PI / 2; floor.position.set(0, 0, -L / 2); floor.receiveShadow = true; scene.add(floor);
 
 const ceil = new THREE.Mesh(new THREE.PlaneGeometry(W, L), pbr('ceil', W / 2, L / 2, { color: 0x6d6468 }));
@@ -196,7 +196,7 @@ const dustGeo = new THREE.BufferGeometry(); dustGeo.setAttribute('position', new
 const dc = document.createElement('canvas'); dc.width = dc.height = 32;
 const dg = dc.getContext('2d'), grad = dg.createRadialGradient(16, 16, 0, 16, 16, 16);
 grad.addColorStop(0, 'rgba(255,255,255,1)'); grad.addColorStop(1, 'rgba(255,255,255,0)'); dg.fillStyle = grad; dg.fillRect(0, 0, 32, 32);
-const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: 0xffe2c8, size: 0.035, map: new THREE.CanvasTexture(dc), transparent: true, opacity: 0.4, depthWrite: false }));
+const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: 0xffe2c8, size: 0.026, map: new THREE.CanvasTexture(dc), transparent: true, opacity: 0.28, depthWrite: false }));
 dust.frustumCulled = false; scene.add(dust);
 
 /* o vulto: só aparece se você ficar parado, e só se a luz o alcançar */
@@ -218,11 +218,12 @@ const film = new ShaderPass({
     float h(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
     void main(){
       vec2 d = vUv - .5; float r = length(d);
-      float ca = .0012 + r*r*.012;
+      float ca = .0006 + r*r*.004;
       vec3 c = vec3(texture2D(tDiffuse, vUv + d*ca).r, texture2D(tDiffuse, vUv).g, texture2D(tDiffuse, vUv - d*ca).b);
-      c += (h(vUv*vec2(1920.,1080.) + time) - .5) * .06;
+      float lum = dot(c, vec3(.299,.587,.114));
+      float g = (h(floor(vUv*vec2(1280.,720.)) + time) - .5);
+      c += g * mix(.05, .012, smoothstep(.0, .6, lum));   /* grão fino, só aparece de verdade no escuro */
       c *= smoothstep(.95, .28, r*1.12);
-      c *= .94 + .06*sin(vUv.y*900.);
       gl_FragColor = vec4(c*flick, 1.);
     }`,
 });
