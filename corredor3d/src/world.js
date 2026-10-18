@@ -483,6 +483,21 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     const z0 = zones[0], z1 = zones[1], z2 = zones[2], z3 = zones[3], z4 = zones[4], z5 = zones[5];
 
     put('fire', wx(1, 0.1), zOf(z0.d0 + 7), -Math.PI / 2, 0.5, { y: 1.05 });
+    /* cadeiras reais nos postos de tela (a cadeira que rola sozinha é a mesma, só com outro visual) */
+    if (models.chair) for (const po of pois) if (po.kind === 'screen' && po.chair) {
+      const m = models.chair, o = m.obj.clone(true), sc = 0.9 / m.h; po.chair.children.forEach((c) => { c.visible = false; });
+      o.scale.setScalar(sc); o.rotation.y = Math.PI;
+      o.traverse((c) => { if (c.isMesh) { c.castShadow = Q.shadow; } }); po.chair.add(o);
+    }
+    for (let k = 0; k < z1.n; k++) if (keep()) { const side = -sideOf(k); put('laptop', wx(side, 0.4), zOf(poiD(z1, k) + 2.5), rr(-0.5, 0.5) + (side > 0 ? Math.PI : 0), 0.22, { y: 0.76 }); }
+    for (const sg of [put('sign', wx(-1, 0.4) + 0.9, zOf(z0.d0 + 12), 0.5, 0.65), put('sign', 0.3, zOf(z1.d0 + 9), -0.4, 0.65)]) if (sg) sg.traverse((c) => {
+      if (c.isMesh) { c.material = c.material.clone(); c.material.color.multiplyScalar(0.38); c.material.emissiveIntensity = 0; }   /* amarelo vivo estoura com a lanterna */
+    });
+    put('stool', wx(1, 0.3), zOf(z2.d0 + 6), rr(0, 6), 0.7);
+    put('truck', wx(-1, 0.3), zOf(z3.d0 + 9), Math.PI / 2 * (-1), 1.1, { lie: false });
+    for (let k = 0; k < z2.n; k++) if (keep()) put('box', wx(sideOf(k) * -1, 0.3), zOf(poiD(z2, k) + 5), rr(0, 6), 0.35);
+    for (let i = 0; i < 4; i++) if (keep()) put('box', wx(i % 2 ? 1 : -1, 0.3), zOf(z4.d0 + 8 + i * 9), rr(0, 6), 0.35, { y: i % 2 ? 0.45 : 0 });
+    put('stool', wx(-1, 0.3), zOf(z4.d0 + 14), 0.4, 0.7, { lie: true });
     put('cabinet', wx(-1, 0.3), zOf(z0.d0 + 17.5), Math.PI / 2, 1.1);
     for (let k = 0; k < z1.n; k++) { if (!keep()) continue; const side = -sideOf(k); put('desk', wx(side, 0.4), zOf(poiD(z1, k) + 2.5), along(models.desk, side), 0.76); }
     put('fire', wx(-1, 0.1), zOf(z1.d0 + 4), Math.PI / 2, 0.5, { y: 1.05 });
