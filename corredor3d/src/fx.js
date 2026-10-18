@@ -7,15 +7,15 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { GTAOPass } from 'three/examples/jsm/postprocessing/GTAOPass.js';
 
-export function createFx(renderer, scene, camera, { coarse }) {
+export function createFx(renderer, scene, camera, { Q }) {
   /* alvos com MSAA: sem isso o pós-processamento desfaz o antialias e as bordas ficam serrilhadas */
   const sz = renderer.getSize(new THREE.Vector2()), pr = renderer.getPixelRatio();
-  const rt = new THREE.WebGLRenderTarget(Math.max(1, sz.x * pr), Math.max(1, sz.y * pr), { type: THREE.HalfFloatType, samples: coarse ? 2 : 4 });
+  const rt = new THREE.WebGLRenderTarget(Math.max(1, sz.x * pr), Math.max(1, sz.y * pr), { type: Q.msaa ? THREE.HalfFloatType : THREE.UnsignedByteType, samples: Q.msaa });
   const composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
   /* oclusão de ambiente (GTAO): contato e cantos escurecem, objetos "assentam" no cenário — só no desktop */
   let gtao = null;
-  if (!coarse) {
+  if (Q.gtao) {
     gtao = new GTAOPass(scene, camera, innerWidth, innerHeight);
     gtao.updateGtaoMaterial({ radius: 0.7, distanceExponent: 1.4, thickness: 1.2, scale: 1.1, samples: 14, distanceFallOff: 1, screenSpaceRadius: false });
     gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 5, radiusExponent: 1, rings: 2, samples: 16 });
@@ -25,7 +25,7 @@ export function createFx(renderer, scene, camera, { coarse }) {
     composer.addPass(gtao);
   }
   let bloom = null;
-  if (!coarse) { bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.45, 0.6, 0.88); composer.addPass(bloom); }
+  if (Q.bloom) { bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.32, 0.55, 0.9); composer.addPass(bloom); }
   const film = new ShaderPass({
     uniforms: {
       tDiffuse: { value: null }, time: { value: 0 }, flick: { value: 1 }, sat: { value: 1 },
@@ -41,18 +41,14 @@ export function createFx(renderer, scene, camera, { coarse }) {
         float gate = step(.88 - glitch*.1, h(vec2(band, floor(time*.35))));
         uv.x += burst * .075 * gate * (h(vec2(band, time)) - .5) * 2.;           /* só durante os bursts: fora deles as bordas ficam limpas */
         uv.x += sin(uv.y*55. + time*.5) * .0002 * glitch;
-        /* barra de tracking rolando */
-        float by = fract(time*.011), bm = smoothstep(.06, .0, abs(uv.y - by));
-        uv.x += bm * .012 * glitch;
         vec2 d = vUv - .5; float r = length(d);
-        float ca = .0006 + r*r*.004 + glitch*.0022 + burst*.011;
+        float ca = .0004 + r*r*.0028 + burst*.009;
         vec3 c = vec3(texture2D(tDiffuse, uv + d*ca).r, texture2D(tDiffuse, uv).g, texture2D(tDiffuse, uv - d*ca).b);
-        c += bm * glitch * .05;
         if (burst > .45 && h(floor(vUv*vec2(26.,15.)) + floor(time*.5)) > .965) c = c.gbr * 1.2;      /* blocos corrompidos */
         float lum = dot(c, vec3(.299,.587,.114));
         c = mix(vec3(lum), c, sat) * tint;
         float g = h(floor(vUv*vec2(1920.,1080.)) + time) - .5;
-        c += g * mix(.03, .008, smoothstep(.0, .6, lum));
+        c += g * mix(.022, .006, smoothstep(.0, .6, lum));
         c *= smoothstep(.95, .28, r*1.12);
         gl_FragColor = vec4(c*flick, 1.);
       }`,

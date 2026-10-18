@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { createAudio } from './audio.js';
 import { buildWorld, CL } from './world.js';
 import { createFx } from './fx.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { makeEnvironment, flashlightCookie, makeDust } from './lighting.js';
 import './style.css';
 
@@ -11,18 +12,29 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const coarse = matchMedia('(pointer: coarse)').matches;
 
+/* qualidade por tier: desktop = high; celular forte = mid; celular comum = low. ?q=low|mid|high força (teste) */
+const qParam = new URLSearchParams(location.search).get('q');
+const mem = navigator.deviceMemory || 4, cores = navigator.hardwareConcurrency || 4;
+const TIER = ['low', 'mid', 'high'].includes(qParam) ? qParam : (!coarse ? 'high' : (mem >= 6 && cores >= 6 ? 'mid' : 'low'));
+const Q = {
+  high: { tex: 1024, pr: [1.5, 2], msaa: 4, shadow: true, gtao: true, bloom: true, lights: 6, dust: 700, props: 1, an: 8, cookie: true },
+  mid: { tex: 512, pr: [1, 1.25], msaa: 2, shadow: false, gtao: false, bloom: false, lights: 4, dust: 320, props: 0.7, an: 4, cookie: false },
+  low: { tex: 256, pr: [1, 1], msaa: 0, shadow: false, gtao: false, bloom: false, lights: 3, dust: 160, props: 0.4, an: 2, cookie: false },
+}[TIER];
+const touchUI = coarse || TIER !== 'high';
+
 /* ---------------------------------------------------------------- renderer */
 const canvas = $('gl');
 let renderer;
 try {
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: !coarse, powerPreference: 'high-performance' });
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: TIER === 'high', powerPreference: 'high-performance' });
 } catch (e) {
   console.error('WebGL init falhou:', e);
   $('nogl').hidden = false; $('loader').remove(); throw e;
 }
-renderer.setPixelRatio(coarse ? Math.min(devicePixelRatio, 1.5) : clamp(devicePixelRatio, 1.5, 2));
+renderer.setPixelRatio(clamp(devicePixelRatio, Q.pr[0], Q.pr[1]));
 renderer.setSize(innerWidth, innerHeight);
-renderer.shadowMap.enabled = !coarse;
+renderer.shadowMap.enabled = Q.shadow;
 renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.95;
@@ -36,28 +48,45 @@ scene.add(camera);
 
 scene.environment = makeEnvironment(renderer); scene.environmentIntensity = 0.3;     /* reflexos: metal, portas, piso molhado */
 
-const manager = new THREE.LoadingManager(() => { $('loadmsg').hidden = true; $('enter').hidden = false; });
+let texturesReady = false, modelsReady = false;
+const showEnter = () => { if (texturesReady && modelsReady) { $('loadmsg').hidden = true; $('enter').hidden = false; } };
+const manager = new THREE.LoadingManager(() => { texturesReady = true; showEnter(); });
 const tl = new THREE.TextureLoader(manager);
-const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+const aniso = Math.min(Q.an, renderer.capabilities.getMaxAnisotropy());
 
 /* ------------------------------------------------------------------ mundo */
-const world = buildWorld(scene, { tl, aniso, coarse });
+const world = buildWorld(scene, { tl, aniso, Q });
 const { zones, cabins, pois, events } = world;
+/* props reais (Poly Haven, CC0): barril, caixa militar, escrivaninha, gaveteiro, extintor */
+const MODELS = { barrel: 'Barrel_01', desk: 'metal_office_desk', cabinet: 'drawer_cabinet', crate: 'old_military_crate', fire: 'korean_fire_extinguisher_01' };
+{
+  const gl = new GLTFLoader(manager), base = import.meta.env.BASE_URL || './', box = new THREE.Box3(), v = new THREE.Vector3();
+  Promise.all(Object.entries(MODELS).map(async ([k, id]) => {
+    try {
+      const g = await gl.loadAsync(`${base}models/${id}/${id}.gltf`); box.setFromObject(g.scene); box.getSize(v);
+      const wrap = new THREE.Group(); g.scene.position.set(-(box.min.x + box.max.x) / 2, -box.min.y, -(box.min.z + box.max.z) / 2); wrap.add(g.scene);   /* origem no centro da base */
+      const seen = new Set();
+      g.scene.traverse((o) => { if (!o.isMesh) return; const ms = Array.isArray(o.material) ? o.material : [o.material];
+        for (const mt of ms) { if (seen.has(mt)) continue; seen.add(mt); for (const key of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap']) if (mt[key]) world.shrinkTex(mt[key]); world.addGrunge(mt, 0.6); } });
+      return [k, { obj: wrap, h: v.y, size: v.clone() }];
+    } catch (e) { console.warn('modelo não carregou:', id); return null; }
+  })).then((list) => { world.populate(Object.fromEntries(list.filter(Boolean))); modelsReady = true; showEnter(); });
+}
 const hemi = new THREE.HemisphereLight(0x2a1218, 0x050203, 0.1); scene.add(hemi);
 
 /* lanterna: SpotLight presa à câmera; o alvo segue o mouse */
-const spot = new THREE.SpotLight(0xfff0dc, coarse ? 90 : 150, 26, Math.PI / 7.5, 0.6, 1.4);
+const spot = new THREE.SpotLight(0xfff0dc, TIER === 'high' ? 150 : 100, 26, Math.PI / 7.5, 0.6, 1.4);
 spot.position.set(0.22, -0.22, 0.1);
-spot.castShadow = !coarse;
-spot.shadow.mapSize.set(coarse ? 1024 : 2048, coarse ? 1024 : 2048); spot.shadow.radius = 3.5;
-if (!coarse) spot.map = flashlightCookie();
+spot.castShadow = Q.shadow;
+spot.shadow.mapSize.set(2048, 2048); spot.shadow.radius = 3.5;
+if (Q.cookie) spot.map = flashlightCookie();
 spot.shadow.bias = -0.0004; spot.shadow.normalBias = 0.03;
 spot.shadow.camera.near = 0.3; spot.shadow.camera.far = 26;
 camera.add(spot);
 const aimTarget = new THREE.Object3D(); scene.add(aimTarget); spot.target = aimTarget;
 
 /* poeira iluminada de verdade: só aparece na lanterna e nos feixes das lâmpadas */
-const DUST = coarse ? 260 : 700;
+const DUST = Q.dust;
 const dustSys = makeDust(DUST), dustGeo = dustSys.points.geometry, dustPos = dustSys.base, dustSeed = dustGeo.attributes.aSeed.array, dustMat = dustSys.mat;
 scene.add(dustSys.points);
 const spotPosV = new THREE.Vector3(), spotDirV = new THREE.Vector3();
@@ -77,11 +106,11 @@ for (const x of [-0.04, 0.05]) { const e = new THREE.Mesh(new THREE.SphereGeomet
 shade.userData.arms = [armL, armR, head];
 shade.visible = false; scene.add(shade);
 
-const fx = createFx(renderer, scene, camera, { coarse });
+const fx = createFx(renderer, scene, camera, { Q });
 
 /* ------------------------------------------------------- trilho da câmera */
 /* scroll → distância D ao longo do prédio. Dentro dos elevadores o scroll "custa" mais por metro: a descida demora. */
-const D_START = 1, D_END = world.total - 2.4, PPM_WALK = 62, PPM_LIFT = 150;
+const D_START = 1, D_END = world.total - 2.4, PPM_WALK = 85, PPM_LIFT = 170;
 const segs = []; { let d = D_START, px = 0;
   const cuts = [D_START, ...cabins.flatMap((c) => [c.d0, c.d1]), D_END];
   for (let i = 0; i < cuts.length - 1; i++) {
@@ -90,6 +119,7 @@ const segs = []; { let d = D_START, px = 0;
     segs.push({ d0: a, d1: b, px0: px, ppm }); px += (b - a) * ppm; d = b;
   }
   segs.totalPx = px; }
+const pxFromD = (d) => { for (const s of segs) { if (d <= s.d1) return s.px0 + Math.max(0, d - s.d0) * s.ppm; } return segs.totalPx; };
 const dFromPx = (px) => { for (const s of segs) { if (px <= s.px0 + (s.d1 - s.d0) * s.ppm) return s.d0 + (px - s.px0) / s.ppm; } return D_END; };
 function sizeSpacer() { $('spacer').style.height = Math.round(segs.totalPx + innerHeight) + 'px'; }
 sizeSpacer();
@@ -118,6 +148,17 @@ addEventListener('pointermove', (e) => {
   lastMove = performance.now();
   if (!interacted) { interacted = true; $('hint').classList.add('gone'); }
 }, { passive: true });
+
+/* celular: o dedo (ou o último toque) guia a lanterna sem atrapalhar o scroll */
+function touchAim(e) {
+  const t = e.touches && e.touches[0]; if (!t) return;
+  aimGoal.set(clamp((t.clientX / innerWidth) * 2 - 1, -0.95, 0.95), clamp(-((t.clientY / innerHeight) * 2 - 1), -0.9, 0.6));
+  lastMove = performance.now();
+  if (!interacted) { interacted = true; $('hint').classList.add('gone'); }
+}
+addEventListener('touchstart', touchAim, { passive: true });
+addEventListener('touchmove', touchAim, { passive: true });
+if (touchUI) $('hint').textContent = 'deslize para andar · toque para guiar a luz';
 
 const ray = new THREE.Raycaster();
 const hits = pois.map((p) => p.hit);
@@ -178,6 +219,7 @@ const SCARES = [
 /* ------------------------------------------------------------------ loop */
 let forceD = null;                                          /* só o harness de dev usa */
 let aimDist = 8;
+let goalS = D_START;
 let camD = D_START, lastScrollT = performance.now(), vel = 0, wv = 0, phase = 0, ws = 0, lastInLift = false;   /* wv: velocidade (m/s com sinal); phase: passadas */
 addEventListener('scroll', () => { lastScrollT = performance.now(); }, { passive: true });
 const fwdV = new THREE.Vector3(), upV = new THREE.Vector3();
@@ -211,22 +253,31 @@ function step(now) {
 
   /* câmera: scroll → D (suavizado) */
   const px = clamp(scrollY, 0, segs.totalPx);
-  const goalD = forceD ?? dFromPx(px);
+  const rawGoal = forceD ?? dFromPx(px);
+  let goalD = rawGoal;
+  /* "coleira" do scroll: o ponto do scroll nunca fica mais de LEAD metros à frente/atrás do personagem.
+     Um fling longo não vira uma corrida automática: ele só anda no ritmo que o corpo aguenta e para junto com o dedo. */
+  if (forceD === null) {
+    const LEAD = 2.2;
+    if (rawGoal - camD > LEAD) goalD = camD + LEAD; else if (camD - rawGoal > LEAD) goalD = camD - LEAD;
+    if (goalD !== rawGoal) { const py = pxFromD(goalD); if (Math.abs(scrollY - py) > 3) scrollTo(0, py); }
+  }
+  goalS += (goalD - goalS) * (1 - Math.exp(-dt / 0.08));          /* suaviza o início do passo (aceleração com peso) */
   const prevD = camD;
-  /* o scroll define para onde ir; o personagem ANDA até lá: velocidade máxima, aceleração com peso, freio suave.
-     (sem isso a câmera "desliza" por inércia exponencial e não parece caminhada) */
-  const vmax = lastInLift ? 1.1 : 3.3, vback = 1.7;
-  const desired = clamp((goalD - camD) * 3.4, -vback, vmax);
-  wv += (desired - wv) * (1 - Math.exp(-dt / (Math.abs(desired) > Math.abs(wv) ? 0.2 : 0.13)));
-  if (forceD !== null && Math.abs(goalD - camD) < 1e-4) wv = 0;
-  camD += wv * dt;
+  /* o scroll é o passo: a câmera segue o ponto do scroll com uma mola criticamente amortecida (~0,3 s), então
+     ela PARA quando o scroll para (nada de continuar "correndo atrás" do ponto). A velocidade é limitada só por segurança. */
+  const OMEGA = lastInLift ? 6 : 11;
+  wv += (OMEGA * OMEGA * (goalS - camD) - 2 * OMEGA * wv) * dt;
+  wv = clamp(wv, lastInLift ? -2.2 : -6.5, lastInLift ? 2.2 : 6.5);
+  if (Math.abs(goalS - camD) < 0.002 && Math.abs(wv) < 0.02) { camD = goalS; wv = 0; }
+  else camD += wv * dt;
   const stepD = Math.abs(camD - prevD), speed = Math.abs(wv);
   vel = speed;
   const env = world.envAt(camD);
   const inLift = env.cabin && camD > env.cabin.d0 + 0.3 && camD < env.cabin.d1;
   lastInLift = inLift;
   /* passada: o comprimento cresce com a velocidade (andar → trotar); cada número inteiro de fase é um apoio do pé */
-  const stride = lerp(0.72, 1.08, clamp(speed / 3.3, 0, 1)), prevPhase = phase;
+  const stride = Math.max(lerp(0.75, 1.45, clamp(speed / 5, 0, 1)), speed / 3.6), prevPhase = phase;      /* nunca mais de ~3,6 passos/s */
   phase += stepD / stride;
   const steps = Math.floor(phase) - Math.floor(prevPhase);
   ws = lerp(ws, clamp(speed / 1.5, 0, 1), 1 - Math.exp(-dt / 0.1));
@@ -241,12 +292,12 @@ function step(now) {
   scene.fog.color.copy(env.fog); scene.background.copy(env.fog); scene.fog.density = env.fogD;
   hemi.color.copy(env.amb); hemi.intensity = env.ambI;
   scene.environmentIntensity = 0.1 + env.fear * 0.34;       /* reflexos mais fortes quanto mais fundo (piso molhado, metal); a recepção fica seca */
-  const shakeAmt = (reduce ? 0 : env.shake * 0.012) + ctl.shake * 0.05 + (inLift && env.k > 0 ? 0.01 : 0);
+  const shakeAmt = (reduce ? 0 : env.shake * 0.01 * (0.25 + 0.75 * ws)) + ctl.shake * 0.04 + (inLift && env.k > 0 ? 0.006 : 0);
   ctl.shake = Math.max(0, ctl.shake - dt * 1.6);
   camera.fov = lerp(camera.fov, env.fov + ctl.fov + (reduce ? 0 : 0.7 * ws * fall), 1 - Math.exp(-dt / 0.07)); camera.updateProjectionMatrix();
 
   /* sem mouse por alguns segundos (celular): a luz vagueia sozinha */
-  if (coarse && now - lastMove > 3500) aimGoal.set(Math.sin(t * 0.45) * 0.5, Math.cos(t * 0.33) * 0.18 - 0.04);
+  if (touchUI && now - lastMove > 4500) aimGoal.set(Math.sin(t * 0.45) * 0.5, Math.cos(t * 0.33) * 0.18 - 0.04);
   aim.lerp(aimGoal, 1 - Math.pow(0.0005, dt));
 
   const sx = (Math.random() - 0.5) * shakeAmt, sy = (Math.random() - 0.5) * shakeAmt;
@@ -263,8 +314,8 @@ function step(now) {
     if (d.x > 1e-4) tt = Math.min(tt, (1.6 - o.x) / d.x); else if (d.x < -1e-4) tt = Math.min(tt, (-1.6 - o.x) / d.x);
     if (d.y < -1e-4) tt = Math.min(tt, -o.y / d.y); else if (d.y > 1e-4) tt = Math.min(tt, (3.2 - o.y) / d.y);
     aimDist = lerp(aimDist, Math.max(tt, 0.5), 1 - Math.exp(-dt / 0.14)); }
-  const nearK = clamp(Math.pow(aimDist / 6, 1.15), 0.16, 1.3);
-  spot.intensity = (coarse ? 90 : 150) * nearK * (1 + env.fear * 0.35) * (0.96 + Math.sin(t * 23) * 0.015 + Math.sin(t * 7.1) * 0.02) * (inLift ? 0.35 : 1);
+  const nearK = clamp(Math.pow(aimDist / 6, 1.45), 0.1, 1.25);
+  spot.intensity = (TIER === 'high' ? 150 : 100) * nearK * (1 + env.fear * 0.35) * (0.96 + Math.sin(t * 23) * 0.015 + Math.sin(t * 7.1) * 0.02) * (inLift ? 0.35 : 1);
 
   /* ponto de interesse sob a luz → abre e mostra o cartão */
   const hit = ray.intersectObjects(hits, false)[0];
@@ -273,6 +324,7 @@ function step(now) {
   else if (shownPoi >= 0 && !cardHover) { if (!lostAt) lostAt = now; if (now - lostAt > 500) { lostAt = 0; showPoi(-1); } }
 
   /* mundo: elevadores, luzes, emergência, POIs */
+  world.cull(z);
   const out = world.step(camD, t, dt, { active: shownPoi, reduce, emerg: env.emerg });
   if (events.chairPoi && events.chairPoi.chair && events.chairPoi.chair.userData.roll) {
     const k = clamp((now - events.chairPoi.chair.userData.roll) / 2600, 0, 1), c = events.chairPoi.chair;
@@ -283,7 +335,7 @@ function step(now) {
   out.fixtures.forEach((f) => { f.forced = dark ? 0 : -1; });
 
   /* glitch: bursts aleatórios na frequência do andar */
-  if (!reduce && Math.random() < dt * (env.glitch * 0.9 + 0.02)) ctl.burst = Math.max(ctl.burst, 0.4 + Math.random() * 0.6);
+  if (!reduce && Math.random() < dt * (env.glitch * 0.22 + 0.004)) ctl.burst = Math.max(ctl.burst, 0.3 + Math.random() * 0.4);
   ctl.burst = Math.max(0, ctl.burst - dt * 2.4);
   const u = fx.film.uniforms;
   u.glitch.value = reduce ? 0 : env.glitch; u.burst.value = reduce ? 0 : ctl.burst;
@@ -374,9 +426,9 @@ if (import.meta.env.DEV) {
   window.__sim = {
     audio, world, camera, scene, spot, ctl, SCARES, renderer, fx, shade,
     size(w, h) { camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h, false); fx.composer.setSize(w, h); },
-    place(d, ax = 0, ay = -0.05) { camD = forceD = d; aim.set(ax, ay); aimGoal.set(ax, ay); lastMove = simNow; },
+    place(d, ax = 0, ay = -0.05) { camD = goalS = forceD = d; wv = 0; aim.set(ax, ay); aimGoal.set(ax, ay); lastMove = simNow; },
     aimAt(ax, ay) { aimGoal.set(ax, ay); lastMove = simNow; },
-    goto(d) { forceD = d; }, gait: () => ({ camD: +camD.toFixed(2), wv: +wv.toFixed(2), phase: +phase.toFixed(2), ws: +ws.toFixed(2) }),
+    goto(d) { forceD = d; }, release() { forceD = null; goalS = camD; }, dFromPx, pxFromD, gait: () => ({ camD: +camD.toFixed(2), wv: +wv.toFixed(2), phase: +phase.toFixed(2), ws: +ws.toFixed(2) }),
     run(n, ms = 16.7) { running = false; const log = []; let prev = shownPoi; for (let i = 0; i < n; i++) { simNow += ms; lastT = simNow - ms; step(simNow); if (shownPoi !== prev) { log.push([i, prev, shownPoi]); prev = shownPoi; } } return log; },
     state: () => ({ shownPoi, camD: +camD.toFixed(2), floor: lastFloor, aim: [aim.x, aim.y].map((v) => +v.toFixed(2)), open: pois.map((p) => +p.open.toFixed(2)) }),
     poiNdc(i) { camera.updateMatrixWorld(); const v = pois[i].hit.getWorldPosition(new THREE.Vector3()).project(camera); return [+v.x.toFixed(3), +v.y.toFixed(3)]; },
