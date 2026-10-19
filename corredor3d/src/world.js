@@ -120,6 +120,42 @@ export function buildWorld(scene, { tl, aniso, Q }) {
       if (z.i > 0) { const p = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, z.len, 12), steel); p.rotation.x = Math.PI / 2; p.position.set(s * (W / 2 - 0.3), H - 0.22, cz); p.castShadow = true; scene.add(p); }
     }
     for (let d = z.d0 + 2; d < z.d1; d += 4) box(W - 0.2, 0.05, 0.08, darkMetal, 0, H - 0.12, zOf(d), scene);   /* suportes */
+    /* ---- detalhe arquitetônico: quebra a monotonia das paredes (pilastras, lambri, faixa, calha, duto, placas, faixa no piso) */
+    const accent = new THREE.Color(L.lamp).multiplyScalar(0.45), wallC = new THREE.Color(L.wall[1]);
+    const inst = (geo, m, list, cast = false) => {
+      const im = new THREE.InstancedMesh(geo, m, list.length), o = new THREE.Object3D();
+      list.forEach((v, i) => { o.position.set(v[0], v[1], v[2]); o.rotation.set(0, v[3] || 0, 0); o.updateMatrix(); im.setMatrixAt(i, o.matrix); });
+      im.castShadow = cast && Q.shadow; im.receiveShadow = true; im.frustumCulled = false; scene.add(im); return im;
+    };
+    const ds = []; for (let d = z.d0 + 2; d < z.d1; d += 4) ds.push(d);
+    const pil = addGrunge(mat(sets[L.wall[0]], 0.5, 3, { color: wallC.clone().multiplyScalar(0.55) }), 0.9);
+    inst(new THREE.BoxGeometry(0.16, H, 0.34), pil, ds.flatMap((d) => [[-(W / 2 - 0.08), H / 2, zOf(d)], [W / 2 - 0.08, H / 2, zOf(d)]]), true);
+    const lam = addGrunge(mat(sets.metal, z.len / 1.4, 0.8, { color: wallC.clone().multiplyScalar(0.5), metalness: 0.55, roughness: 0.7 }), 0.8, 0.5);
+    for (const sd of [-1, 1]) {
+      box(0.035, 1.05, z.len, lam, sd * (W / 2 - 0.0175), 0.525, cz, scene, false);                         /* lambri metálico */
+      box(0.06, 0.07, z.len, darkMetal, sd * (W / 2 - 0.03), 1.08, cz, scene, false);                       /* guarda-corpo / friso */
+    }
+    if (Q.props >= 0.7) {
+      const st = new THREE.MeshStandardMaterial({ color: accent, roughness: 0.75, metalness: 0.1 });
+      for (const sd of [-1, 1]) box(0.012, 0.12, z.len, st, sd * (W / 2 - 0.006), 1.55, cz, scene, false);   /* faixa de cor do andar */
+      const dash = new THREE.MeshStandardMaterial({ color: accent, roughness: 0.6, metalness: 0.05, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+      const dl = []; for (let d = z.d0 + 1; d < z.d1 - 0.5; d += 1.6) dl.push([0, 0.004, zOf(d)]);
+      const dm = inst(new THREE.PlaneGeometry(0.07, 0.7).rotateX(-Math.PI / 2), dash, dl);                    /* tracejado central no piso */
+      dm.receiveShadow = false;
+      const sg = canvasTex(256, 64, (g, w, h) => {
+        g.fillStyle = '#0d0f12'; g.fillRect(0, 0, w, h); g.strokeStyle = '#' + accent.clone().multiplyScalar(2.2).getHexString(); g.lineWidth = 3; g.strokeRect(3, 3, w - 6, h - 6);
+        g.fillStyle = g.strokeStyle; g.font = 'bold 30px Consolas, monospace'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(`ANDAR ${z.floor} ▸`, w / 2, h / 2 + 1);
+      }).t;
+      const sgm = new THREE.MeshStandardMaterial({ map: sg, roughness: 0.55, metalness: 0.2, emissiveMap: sg, emissive: 0xffffff, emissiveIntensity: 0.18 });
+      const sl = []; for (let d = z.d0 + 6; d < z.d1 - 3; d += 12) sl.push([-(W / 2 - 0.03), 2.05, zOf(d), Math.PI / 2], [W / 2 - 0.03, 2.05, zOf(d), -Math.PI / 2]);
+      inst(new THREE.PlaneGeometry(0.9, 0.225), sgm, sl);
+    }
+    box(0.45, 0.05, z.len, darkMetal, -(W / 2 - 0.85), H - 0.3, cz, scene, false);                           /* calha de cabos */
+    if (z.i > 0) {
+      const dt = addGrunge(mat(sets.metal, 1, 1, { color: 0x77787c, metalness: 0.7, roughness: 0.6 }), 0.7, 0.8), dl2 = [];
+      for (let d = z.d0 + 1; d < z.d1 - 3.8; d += 4) dl2.push([W / 2 - 0.9, H - 0.42, zOf(d + 1.9)]);
+      inst(new THREE.BoxGeometry(0.55, 0.34, 3.7), dt, dl2, true);                                           /* duto em segmentos */
+    }
   });
   /* parede do fim do prédio + porta final */
   const lastZ = zones[zones.length - 1];
@@ -491,7 +527,7 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     }
     for (let k = 0; k < z1.n; k++) if (keep()) { const side = -sideOf(k); put('laptop', wx(side, 0.4), zOf(poiD(z1, k) + 2.5), rr(-0.5, 0.5) + (side > 0 ? Math.PI : 0), 0.22, { y: 0.76 }); }
     for (const sg of [put('sign', wx(-1, 0.4) + 0.9, zOf(z0.d0 + 12), 0.5, 0.65), put('sign', 0.3, zOf(z1.d0 + 9), -0.4, 0.65)]) if (sg) sg.traverse((c) => {
-      if (c.isMesh) { c.material = c.material.clone(); c.material.color.multiplyScalar(0.38); c.material.emissiveIntensity = 0; }   /* amarelo vivo estoura com a lanterna */
+      if (c.isMesh) { c.material = c.material.clone(); c.material.color.multiplyScalar(0.2); c.material.emissiveIntensity = 0; c.material.emissiveMap = null; c.material.roughness = 1; c.material.metalness = 0; }   /* amarelo vivo estoura com a lanterna */
     });
     put('stool', wx(1, 0.3), zOf(z2.d0 + 6), rr(0, 6), 0.7);
     put('truck', wx(-1, 0.3), zOf(z3.d0 + 9), Math.PI / 2 * (-1), 1.1, { lie: false });

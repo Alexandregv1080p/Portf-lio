@@ -99,19 +99,37 @@ const dustSys = makeDust(DUST), dustGeo = dustSys.points.geometry, dustPos = dus
 scene.add(dustSys.points);
 const spotPosV = new THREE.Vector3(), spotDirV = new THREE.Vector3();
 
-/* o vulto: figura alta e magra, braços longos pendurados, cabeça inclinada — silhueta preta, só os olhos brilham */
+/* o vulto: silhueta esfumaçada desenhada em canvas (billboard em Y) — braços longos, cabeça inclinada, bordas roídas por ruído, só os olhos brilham */
 const shade = new THREE.Group();
-const sMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-const part = (geo, x, y, z, rx = 0, rz = 0) => { const m = new THREE.Mesh(geo, sMat); m.position.set(x, y, z); m.rotation.set(rx, 0, rz); shade.add(m); return m; };
-part(new THREE.CylinderGeometry(0.15, 0.2, 0.95, 10), 0, 1.35, 0);                 /* tronco */
-part(new THREE.CylinderGeometry(0.075, 0.06, 0.95, 8), -0.09, 0.5, 0);             /* pernas */
-part(new THREE.CylinderGeometry(0.075, 0.06, 0.95, 8), 0.09, 0.5, 0);
-const armL = part(new THREE.CylinderGeometry(0.04, 0.03, 1.2, 6), -0.27, 1.12, 0.03, 0, 0.1);   /* braços longos */
-const armR = part(new THREE.CylinderGeometry(0.04, 0.03, 1.2, 6), 0.27, 1.12, 0.03, 0, -0.1);
-const head = part(new THREE.SphereGeometry(0.13, 14, 12), 0.03, 1.98, 0.02); head.scale.set(0.9, 1.25, 0.95); head.rotation.z = -0.22;
-part(new THREE.CylinderGeometry(0.045, 0.06, 0.18, 8), 0.0, 1.82, 0);              /* pescoço */
-for (const x of [-0.04, 0.05]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 6), new THREE.MeshBasicMaterial({ color: 0xff2a2a })); e.position.set(x, 2.0, 0.12); shade.add(e); }
-shade.userData.arms = [armL, armR, head];
+const shadeTex = (() => {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 512; const g = c.getContext('2d');
+  g.fillStyle = g.strokeStyle = '#000'; g.lineCap = 'round'; g.lineJoin = 'round';
+  g.filter = 'blur(1.6px)';
+  g.save(); g.translate(130, 72); g.rotate(-0.28); g.beginPath(); g.ellipse(0, 0, 19, 29, 0, 0, 7); g.fill(); g.restore();      /* cabeça */
+  g.lineWidth = 9; g.beginPath(); g.moveTo(129, 98); g.quadraticCurveTo(126, 112, 124, 128); g.stroke();                                  /* pescoço */
+  g.beginPath(); g.moveTo(92, 128); g.quadraticCurveTo(128, 116, 168, 130);                                                              /* ombros e casaco rasgado */
+  g.lineTo(158, 250); g.lineTo(172, 330); g.lineTo(150, 318); g.lineTo(146, 360); g.lineTo(132, 326); g.lineTo(118, 372); g.lineTo(110, 322); g.lineTo(90, 340); g.lineTo(100, 250); g.closePath(); g.fill();
+  for (const [sx, ex, cx] of [[94, 70, 58], [166, 196, 206]]) {                                                                          /* braços longos até abaixo do joelho */
+    g.lineWidth = 9; g.beginPath(); g.moveTo(sx, 132); g.quadraticCurveTo(cx, 250, ex, 398); g.stroke();
+    g.lineWidth = 2.6; for (let i = -2; i <= 2; i++) { g.beginPath(); g.moveTo(ex, 396); g.lineTo(ex + i * 5 + (sx < 128 ? -2 : 2), 436 + Math.abs(i) * -6); g.stroke(); }   /* dedos */
+  }
+  g.lineWidth = 15; g.beginPath(); g.moveTo(119, 330); g.lineTo(114, 500); g.stroke(); g.beginPath(); g.moveTo(141, 330); g.lineTo(147, 500); g.stroke();   /* pernas */
+  g.lineWidth = 11; g.beginPath(); g.moveTo(114, 498); g.lineTo(100, 508); g.stroke(); g.beginPath(); g.moveTo(147, 498); g.lineTo(161, 508); g.stroke();
+  const t = new THREE.CanvasTexture(c); t.anisotropy = 2; return t;
+})();
+const sMat = new THREE.MeshBasicMaterial({ map: shadeTex, transparent: true, depthWrite: false, color: 0x000000 });
+const shadeU = { uT: { value: 0 } };
+sMat.onBeforeCompile = (sh) => {
+  sh.uniforms.uT = shadeU.uT;
+  sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uT;')
+    .replace('#include <map_fragment>', `#include <map_fragment>
+      vec2 q = vMapUv * vec2(9., 18.) + vec2(0., -uT * .35);
+      float n = fract(sin(dot(floor(q), vec2(12.9898, 78.233))) * 43758.5453) * .55 + fract(sin(dot(floor(q * 2.3), vec2(39.3, 11.1))) * 9731.1) * .45;
+      diffuseColor.a *= smoothstep(.12, .5, diffuseColor.a * 1.15 + (n - .5) * .55) * (.82 + .18 * sin(uT * 2.1 + vMapUv.y * 6.));`);
+};
+const shadePlane = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 2.2), sMat); shadePlane.position.y = 1.1; shadePlane.renderOrder = 4; shade.add(shadePlane);
+for (const x of [-0.045, 0.06]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.016, 8, 6), new THREE.MeshBasicMaterial({ color: 0xff2a2a })); e.position.set(x - 0.015, 1.88, 0.03); shade.add(e); }
+shade.userData.arms = [{ rotation: { z: 0 } }, { rotation: { z: 0 } }, { rotation: { z: 0 } }];
 shade.visible = false; scene.add(shade);
 
 const fx = await createFx(renderer, scene, camera, { Q });
@@ -416,6 +434,7 @@ function step(now) {
     shade.position.set(Math.sin(t * 0.7) * 0.25, 0, z - sh.dist);
     const [aL, aR, hd] = shade.userData.arms; aL.rotation.z = 0.1 + Math.sin(t * 1.3) * 0.05; aR.rotation.z = -0.1 - Math.sin(t * 1.1) * 0.05; hd.rotation.z = -0.22 + Math.sin(t * 0.8) * 0.08;
     if (sh.snap && Math.random() < 0.3) shade.position.x += (Math.random() - 0.5) * 0.2;
+    shade.rotation.y = Math.atan2(camera.position.x - shade.position.x, camera.position.z - shade.position.z); shadePlane.rotation.z = Math.sin(t * 0.8) * 0.03; shadeU.uT.value = t;
   } else shade.visible = false;
 
   /* elevadores: dispara os sons/banner nas fases da descida */
