@@ -398,13 +398,40 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     const cubFabric = new THREE.MeshStandardMaterial({ color: 0x2a2e35, roughness: 1, metalness: 0 });
     const trim = new THREE.MeshStandardMaterial({ color: 0x4a4e54, roughness: 0.55, metalness: 0.6 });
     posters.forEach((txt, k) => {
-      const side = -sideOf(k), d = poiD(z, k);                                  /* baia de trabalho em torno da tela */
+      const side = sideOf(k), d = poiD(z, k);                                   /* baia de trabalho em torno da tela (mesma parede do posto) */
       const t = canvasTex(256, 320, (g, w, h) => { g.fillStyle = k >= 2 ? '#2a0a0a' : '#e8e6de'; g.fillRect(0, 0, w, h); g.fillStyle = k >= 2 ? '#d22' : '#222'; g.font = '700 30px sans-serif'; g.textAlign = 'center'; const parts = txt.split(' '); parts.forEach((p, i) => g.fillText(p, w / 2, 110 + i * 40)); g.strokeStyle = k >= 2 ? '#800' : '#999'; g.lineWidth = 8; g.strokeRect(6, 6, w - 12, h - 12); });
       for (const e of [-1, 1]) {                                                 /* divisórias perpendiculares à parede, com moldura de alumínio */
         const cx = side * (W / 2 - 0.5), cz2 = zOf(d + e * 1.05);
         box(1.0, 1.45, 0.05, cubFabric, cx, 0.95, cz2, scene);
         box(1.02, 0.04, 0.07, trim, cx, 1.69, cz2, scene, false); box(0.04, 1.49, 0.07, trim, cx - side * 0.5, 0.95, cz2, scene, false); box(0.05, 0.2, 0.09, trim, cx - side * 0.5, 0.1, cz2, scene, false);
-        if (e === 1) {                                                           /* pôster afixado na divisória, de frente para o posto */
+        if (e === 1 && k >= 2) {                                                 /* escrito com sangue direto na divisória: letras tremidas, escorridos, mão espalmada e poça */
+          const bt = canvasTex(512, 512, (g, w, h) => {
+            g.clearRect(0, 0, w, h);
+            const words = txt.split(' '), lh = Math.min(120, 380 / words.length);
+            words.forEach((wd, i) => {
+              const fs = 96 - words.length * 4, tw = wd.length * fs * 0.62; let x = (w - tw) / 2; const y0 = 90 + i * lh;
+              for (const ch of wd) {
+                g.save(); g.translate(x + fs * 0.3 + rr(-3, 3), y0 + rr(-6, 6)); g.rotate(rr(-0.16, 0.16)); g.font = `900 ${fs * rr(0.9, 1.12)}px Georgia, serif`; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+                g.fillStyle = rnd() < 0.5 ? '#430306' : '#560406'; g.shadowColor = 'rgba(40,0,2,.9)'; g.shadowBlur = 6; g.fillText(ch, 0, 0);
+                g.restore();
+                if (rnd() < 0.8) {                                                    /* escorrido sob a letra */
+                  const dx = x + fs * 0.3 + rr(-fs * 0.2, fs * 0.2), len = rr(30, 170), wdt = rr(3, 7);
+                  const gr = g.createLinearGradient(0, y0, 0, y0 + len); gr.addColorStop(0, 'rgba(110,6,10,.95)'); gr.addColorStop(1, 'rgba(60,0,3,.9)');
+                  g.fillStyle = gr; g.fillRect(dx - wdt / 2, y0, wdt, len); g.beginPath(); g.arc(dx, y0 + len, wdt * 0.85, 0, 6.3); g.fill();
+                }
+                x += fs * 0.62;
+              }
+            });
+            for (let n2 = 0; n2 < 90; n2++) { g.fillStyle = `rgba(${rr(70, 110) | 0},0,4,${rr(0.5, 0.95)})`; g.beginPath(); g.arc(rr(20, w - 20), rr(20, h - 60), rr(1, 5), 0, 6.3); g.fill(); }   /* respingos */
+            g.strokeStyle = 'rgba(80,0,4,.55)'; g.lineWidth = 22; g.lineCap = 'round'; g.beginPath(); g.moveTo(rr(40, 160), rr(380, 460)); g.quadraticCurveTo(rr(180, 300), rr(330, 500), rr(340, 470), rr(400, 480)); g.stroke();   /* rastro de mão arrastada */
+            g.fillStyle = 'rgba(95,4,8,.9)'; g.save(); g.translate(rr(330, 400), rr(300, 350)); g.rotate(rr(-0.4, 0.4)); g.beginPath(); g.ellipse(0, 0, 38, 46, 0, 0, 6.3); g.fill();
+            for (let f = 0; f < 5; f++) { g.save(); g.rotate((f - 2) * 0.32); g.fillRect(-6, -46 - 38, 12, 52); g.restore(); } g.restore();                                       /* palma e dedos */
+          });
+          const bm = new THREE.Mesh(new THREE.PlaneGeometry(0.92, 0.92), new THREE.MeshStandardMaterial({ map: bt.t, transparent: true, roughness: 0.22, metalness: 0.05, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+          bm.position.set(cx, 1.0, cz2 + 0.034); bm.userData.noAO = true; scene.add(bm);
+          const pool = new THREE.Mesh(new THREE.CircleGeometry(0.55, 24), new THREE.MeshStandardMaterial({ color: 0x3a0306, roughness: 0.08, metalness: 0.2, transparent: true, opacity: 0.92, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 }));
+          pool.rotation.x = -Math.PI / 2; pool.scale.set(1, rr(0.7, 1.1), 1); pool.position.set(cx - side * 0.1, 0.006, cz2 + 0.4); pool.userData.noAO = true; scene.add(pool);
+        } else if (e === 1) {                                                    /* pôster afixado na divisória, de frente para o posto */
           box(0.5, 0.62, 0.012, darkMetal, cx, 1.25, cz2 + 0.03, scene, false);
           const m = new THREE.Mesh(new THREE.PlaneGeometry(0.44, 0.56), new THREE.MeshStandardMaterial({ map: t.t, roughness: 0.8 })); m.position.set(cx, 1.25, cz2 + 0.04); scene.add(m);
         }
