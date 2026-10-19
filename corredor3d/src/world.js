@@ -127,7 +127,8 @@ export function buildWorld(scene, { tl, aniso, Q }) {
       list.forEach((v, i) => { o.position.set(v[0], v[1], v[2]); o.rotation.set(0, v[3] || 0, 0); o.updateMatrix(); im.setMatrixAt(i, o.matrix); });
       im.castShadow = cast && Q.shadow; im.receiveShadow = true; im.frustumCulled = false; scene.add(im); return im;
     };
-    const ds = []; for (let d = z.d0 + 2; d < z.d1; d += 4) ds.push(d);
+    const poiDs = Array.from({ length: z.n || 0 }, (_, k) => z.d0 + LEAD + k * SP), clear = (d) => poiDs.every((p) => Math.abs(p - d) > 1.1);   /* nada de pilastra/placa em cima de porta */
+    const ds = []; for (let d = z.d0 + 2; d < z.d1; d += 4) if (clear(d)) ds.push(d);
     const pil = addGrunge(mat(sets[L.wall[0]], 0.5, 3, { color: wallC.clone().multiplyScalar(0.55) }), 0.9);
     inst(new THREE.BoxGeometry(0.16, H, 0.34), pil, ds.flatMap((d) => [[-(W / 2 - 0.08), H / 2, zOf(d)], [W / 2 - 0.08, H / 2, zOf(d)]]), true);
     const lam = addGrunge(mat(sets.metal, z.len / 1.4, 0.8, { color: wallC.clone().multiplyScalar(0.5), metalness: 0.55, roughness: 0.7 }), 0.8, 0.5);
@@ -147,7 +148,7 @@ export function buildWorld(scene, { tl, aniso, Q }) {
         g.fillStyle = g.strokeStyle; g.font = 'bold 30px Consolas, monospace'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(`ANDAR ${z.floor} ▸`, w / 2, h / 2 + 1);
       }).t;
       const sgm = new THREE.MeshStandardMaterial({ map: sg, roughness: 0.55, metalness: 0.2, emissiveMap: sg, emissive: 0xffffff, emissiveIntensity: 0.18 });
-      const sl = []; for (let d = z.d0 + 6; d < z.d1 - 3; d += 12) sl.push([-(W / 2 - 0.03), 2.05, zOf(d), Math.PI / 2], [W / 2 - 0.03, 2.05, zOf(d), -Math.PI / 2]);
+      const sl = []; for (let d = z.d0 + 6; d < z.d1 - 3; d += 12) if (clear(d)) sl.push([-(W / 2 - 0.03), 2.05, zOf(d), Math.PI / 2], [W / 2 - 0.03, 2.05, zOf(d), -Math.PI / 2]);
       inst(new THREE.PlaneGeometry(0.9, 0.225), sgm, sl);
     }
     box(0.45, 0.05, z.len, darkMetal, -(W / 2 - 0.85), H - 0.3, cz, scene, false);                           /* calha de cabos */
@@ -335,9 +336,6 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     const sc = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.32), new THREE.MeshStandardMaterial({ map: mon.t, emissive: 0xffffff, emissiveMap: mon.t, emissiveIntensity: 0.8 })); sc.position.set(-0.25, 1.4, -0.4); sc.rotation.y = Math.PI / 2 - 0.2; desk.add(sc);
     const sofa = new THREE.Group(); sofa.position.set(-1.1, 0, zOf(z.d0 + 9)); scene.add(sofa);
     box(0.8, 0.45, 2.0, fabric, 0, 0.25, 0, sofa); box(0.2, 0.55, 2.0, fabric, -0.3, 0.7, 0, sofa);
-    const pot = new THREE.Group(); pot.position.set(-1.2, 0, zOf(z.d0 + 4)); scene.add(pot);
-    const pm = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.17, 0.5, 14), darkMetal); pm.position.y = 0.25; pot.add(pm);
-    for (let i = 0; i < 6; i++) { const lf = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.9, 6), new THREE.MeshStandardMaterial({ color: 0x1f4a24, roughness: 0.8 })); lf.position.set(rr(-0.12, 0.12), 0.95, rr(-0.12, 0.12)); lf.rotation.set(rr(-0.4, 0.4), 0, rr(-0.4, 0.4)); pot.add(lf); }
     const tv = canvasTex(512, 256, (g, w, h) => { g.fillStyle = '#05090c'; g.fillRect(0, 0, w, h); g.fillStyle = '#e8f6ff'; g.font = '700 40px monospace'; g.fillText('BEM-VINDO', 24, 90); g.font = '500 24px monospace'; g.fillStyle = '#7fd'; g.fillText('alexandre.exe · full stack', 24, 140); g.fillStyle = '#ff6a5a'; g.fillText('ANDAR 0 — não desça.', 24, 200); });
     const tm = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.8), new THREE.MeshStandardMaterial({ map: tv.t, emissive: 0xffffff, emissiveMap: tv.t, emissiveIntensity: 0.7 })); tm.position.set(-(W / 2 - 0.04), 1.9, zOf(z.d0 + 11)); tm.rotation.y = Math.PI / 2; scene.add(tm);
   }
@@ -526,6 +524,7 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     const z0 = zones[0], z1 = zones[1], z2 = zones[2], z3 = zones[3], z4 = zones[4], z5 = zones[5];
 
     put('fire', wx(1, 0.1), zOf(z0.d0 + 7), -Math.PI / 2, 0.5, { y: 1.05 });
+    put('plant', wx(-1, 0.3), zOf(z0.d0 + 4), 0.8, 1.0);                      /* vaso abandonado na recepção */
     /* cadeiras reais nos postos de tela (a cadeira que rola sozinha é a mesma, só com outro visual) */
     if (models.chair) for (const po of pois) if (po.kind === 'screen' && po.chair) {
       const m = models.chair, o = m.obj.clone(true), sc = 0.9 / m.h; po.chair.children.forEach((c) => { c.visible = false; });

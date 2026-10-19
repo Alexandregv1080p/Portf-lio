@@ -66,7 +66,7 @@ const aniso = Math.min(Q.an, renderer.capabilities.getMaxAnisotropy());
 const world = buildWorld(scene, { tl, aniso, Q });
 const { zones, cabins, pois, events } = world;
 /* props reais (Poly Haven, CC0): barril, caixas, mesa, gaveteiro, extintor, cadeira, placa, laptop, banco, carrinho */
-const MODELS = { barrel: 'Barrel_01', desk: 'metal_office_desk', cabinet: 'drawer_cabinet', crate: 'old_military_crate', fire: 'korean_fire_extinguisher_01', chair: 'SchoolChair_01', sign: 'WetFloorSign_01', box: 'cardboard_box_01', truck: 'hand_truck', laptop: 'classic_laptop', stool: 'metal_stool_03' };
+const MODELS = { barrel: 'Barrel_01', desk: 'metal_office_desk', cabinet: 'drawer_cabinet', crate: 'old_military_crate', fire: 'korean_fire_extinguisher_01', chair: 'SchoolChair_01', sign: 'WetFloorSign_01', box: 'cardboard_box_01', truck: 'hand_truck', laptop: 'classic_laptop', stool: 'metal_stool_03', plant: 'potted_plant_01' };
 {
   const gl = new GLTFLoader(manager), base = import.meta.env.BASE_URL || './', box = new THREE.Box3(), v = new THREE.Vector3();
   Promise.all(Object.entries(MODELS).map(async ([k, id]) => {
