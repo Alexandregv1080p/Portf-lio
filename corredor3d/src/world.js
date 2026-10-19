@@ -395,12 +395,21 @@ export function buildWorld(scene, { tl, aniso, Q }) {
   {
     const z = zones[1];
     const posters = ['TRABALHE EM EQUIPE', 'FOCO. FOCO. FOCO.', 'ELE ESTÁ AQUI', 'NÃO OLHE ATRÁS', 'VOCÊ É INSUBSTITUÍVEL'];
+    const cubFabric = new THREE.MeshStandardMaterial({ color: 0x2a2e35, roughness: 1, metalness: 0 });
+    const trim = new THREE.MeshStandardMaterial({ color: 0x4a4e54, roughness: 0.55, metalness: 0.6 });
     posters.forEach((txt, k) => {
-      const side = -sideOf(k), d = poiD(z, k) + 2.4;
+      const side = -sideOf(k), d = poiD(z, k);                                  /* baia de trabalho em torno da tela */
       const t = canvasTex(256, 320, (g, w, h) => { g.fillStyle = k >= 2 ? '#2a0a0a' : '#e8e6de'; g.fillRect(0, 0, w, h); g.fillStyle = k >= 2 ? '#d22' : '#222'; g.font = '700 30px sans-serif'; g.textAlign = 'center'; const parts = txt.split(' '); parts.forEach((p, i) => g.fillText(p, w / 2, 110 + i * 40)); g.strokeStyle = k >= 2 ? '#800' : '#999'; g.lineWidth = 8; g.strokeRect(6, 6, w - 12, h - 12); });
-      const m = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.76), new THREE.MeshStandardMaterial({ map: t.t, roughness: 0.8 })); m.position.set(side * (W / 2 - 0.02), 1.7, zOf(d)); m.rotation.y = -side * Math.PI / 2; scene.add(m);
+      for (const e of [-1, 1]) {                                                 /* divisórias perpendiculares à parede, com moldura de alumínio */
+        const cx = side * (W / 2 - 0.5), cz2 = zOf(d + e * 1.05);
+        box(1.0, 1.45, 0.05, cubFabric, cx, 0.95, cz2, scene);
+        box(1.02, 0.04, 0.07, trim, cx, 1.69, cz2, scene, false); box(0.04, 1.49, 0.07, trim, cx - side * 0.5, 0.95, cz2, scene, false); box(0.05, 0.2, 0.09, trim, cx - side * 0.5, 0.1, cz2, scene, false);
+        if (e === 1) {                                                           /* pôster afixado na divisória, de frente para o posto */
+          box(0.5, 0.62, 0.012, darkMetal, cx, 1.25, cz2 + 0.03, scene, false);
+          const m = new THREE.Mesh(new THREE.PlaneGeometry(0.44, 0.56), new THREE.MeshStandardMaterial({ map: t.t, roughness: 0.8 })); m.position.set(cx, 1.25, cz2 + 0.04); scene.add(m);
+        }
+      }
     });
-    for (let k = 0; k < z.n; k++) { const d = poiD(z, k) + 2.5, s = -sideOf(k); const g = new THREE.Group(); g.position.set(s * (W / 2 - 0.3), 0, zOf(d)); scene.add(g); box(0.06, 1.5, 1.6, fabric, 0, 0.75, 0, g); }   /* divisória */
     const roll = zones[1].pois = pois.filter((p) => p.z === z);
     events.chair = roll[2] ? roll[2].chair : null; events.chairPoi = roll[2];
   }
