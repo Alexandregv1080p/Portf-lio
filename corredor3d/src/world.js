@@ -510,9 +510,16 @@ export function buildWorld(scene, { tl, aniso, Q }) {
       const o = m.obj.clone(true), s = targetH / m.h;
       o.scale.setScalar(s); o.rotation.set(lie ? Math.PI / 2 : 0, ry, 0, 'YXZ');
       o.position.set(x, lie ? m.size.x * s * 0.5 + 0.02 : y, z);
-      o.traverse((c) => { if (c.isMesh) { c.castShadow = Q.shadow; c.receiveShadow = Q.shadow; } });
-      scene.add(o); return o;
+      o.updateMatrixWorld(true);
+      const key = name + '|' + Math.floor(-z / 40); (batches[key] = batches[key] || { list: [] }).list.push(o);   /* instanciado: uma chamada de desenho por modelo/trecho */
+      return o;
     };
+    const batches = {};
+    if (models.sign) {                                                      /* amarelo vivo estoura com a lanterna: escurece uma vez só */
+      const obj = models.sign.obj.clone(true);
+      obj.traverse((c) => { if (c.isMesh) { c.material = c.material.clone(); c.material.color.multiplyScalar(0.2); c.material.emissiveIntensity = 0; c.material.emissiveMap = null; c.material.roughness = 1; c.material.metalness = 0; } });
+      models.sign = { ...models.sign, obj };
+    }
     const keep = () => rnd() < Q.props;
     const wx = (side, half) => side * (W / 2 - half - 0.03);              /* encosta na parede */
     const along = (m, side) => (m && m.size.x > m.size.z ? Math.PI / 2 : 0) + (side > 0 ? Math.PI : 0);   /* eixo maior paralelo à parede */
@@ -526,9 +533,8 @@ export function buildWorld(scene, { tl, aniso, Q }) {
       o.traverse((c) => { if (c.isMesh) { c.castShadow = Q.shadow; } }); po.chair.add(o);
     }
     for (let k = 0; k < z1.n; k++) if (keep()) { const side = -sideOf(k); put('laptop', wx(side, 0.4), zOf(poiD(z1, k) + 2.5), rr(-0.5, 0.5) + (side > 0 ? Math.PI : 0), 0.22, { y: 0.76 }); }
-    for (const sg of [put('sign', wx(-1, 0.4) + 0.9, zOf(z0.d0 + 12), 0.5, 0.65), put('sign', 0.3, zOf(z1.d0 + 9), -0.4, 0.65)]) if (sg) sg.traverse((c) => {
-      if (c.isMesh) { c.material = c.material.clone(); c.material.color.multiplyScalar(0.2); c.material.emissiveIntensity = 0; c.material.emissiveMap = null; c.material.roughness = 1; c.material.metalness = 0; }   /* amarelo vivo estoura com a lanterna */
-    });
+    put('sign', wx(-1, 0.4) + 0.9, zOf(z0.d0 + 12), 0.5, 0.65);
+    put('sign', 0.3, zOf(z1.d0 + 9), -0.4, 0.65);
     put('stool', wx(1, 0.3), zOf(z2.d0 + 6), rr(0, 6), 0.7);
     put('truck', wx(-1, 0.3), zOf(z3.d0 + 9), Math.PI / 2 * (-1), 1.1, { lie: false });
     for (let k = 0; k < z2.n; k++) if (keep()) put('box', wx(sideOf(k) * -1, 0.3), zOf(poiD(z2, k) + 5), rr(0, 6), 0.35);
@@ -552,6 +558,15 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     for (let i = 0; i < 6; i++) {                                            /* abismo: pilhas tombadas, nada arrumado */
       if (!keep()) continue; const side = i % 2 ? 1 : -1, d = z5.d0 + 3 + i * 2.4;
       put(i % 2 ? 'barrel' : 'crate', wx(side, 0.32), zOf(d), rr(0, 6), i % 2 ? 0.95 : 0.45, { lie: i % 3 === 0 });
+    }
+    for (const b of Object.values(batches)) {                              /* transforma os clones em InstancedMesh */
+      const parts = (o) => { const a = []; o.traverse((c) => { if (c.isMesh) a.push(c); }); return a; };
+      const sets = b.list.map(parts);
+      sets[0].forEach((mesh, i) => {
+        const im = new THREE.InstancedMesh(mesh.geometry, mesh.material, b.list.length);
+        sets.forEach((ps, j) => im.setMatrixAt(j, ps[i].matrixWorld));
+        im.castShadow = Q.shadow; im.receiveShadow = Q.shadow; scene.add(im);
+      });
     }
   }
 
