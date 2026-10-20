@@ -236,7 +236,7 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     }).t; t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; };
     const RS = Q.tex >= 1024 ? 512 : 256, darkSheet = rustTex('#3c3e42', 'rgba(112,56,24,', RS), rustSheet = rustTex('#6a3b23', 'rgba(40,16,6,', RS);
     darkSheet.repeat.set(2, 1.4); rustSheet.repeat.set(3, 1);
-    const mm = addGrunge(new THREE.MeshStandardMaterial({ map: darkSheet, color: 0x86888c, roughness: 0.62, metalness: 0.35 }), 0.55, 0.6);
+    const mm = addGrunge(new THREE.MeshStandardMaterial({ map: darkSheet, color: 0xb2b4b8, roughness: 0.62, metalness: 0.35 }), 0.55, 0.6);
     const rustM = addGrunge(new THREE.MeshStandardMaterial({ map: rustSheet, color: 0xb0b0b0, roughness: 0.7, metalness: 0.3 }), 0.5, 0.6);
     const plate = canvasTex(256, 256, (g, w2, h2) => {                                                    /* chapa de piso xadrez (diamante) suja */
       g.fillStyle = '#222326'; g.fillRect(0, 0, w2, h2);
@@ -265,13 +265,44 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     }).t }));
     plaque.rotation.y = Math.PI / 2; plaque.position.set(-(W / 2 - 0.01), 2.05, zOf(c.d0 + 0.9)); scene.add(plaque);
     /* portas de correr (frente e fundo) */
+    const doorTex = canvasTex(512, 1024, (g, w2, h2) => {                                                    /* porta de aço pintada: dois painéis em relevo, rodapé arranhado, ferrugem e digitais */
+      g.fillStyle = '#464a50'; g.fillRect(0, 0, w2, h2);
+      for (let x = 0; x < w2; x += 2) { g.fillStyle = `rgba(${rnd() < 0.5 ? '255,255,255' : '0,0,0'},${rr(0.02, 0.07)})`; g.fillRect(x, 0, 2, h2); }
+      const panel = (y0, y1) => { g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(48, y0, w2 - 96, y1 - y0); g.strokeStyle = 'rgba(0,0,0,.7)'; g.lineWidth = 3; g.strokeRect(48, y0, w2 - 96, y1 - y0);
+        g.strokeStyle = 'rgba(255,255,255,.22)'; g.lineWidth = 2; g.beginPath(); g.moveTo(46, y1); g.lineTo(46, y0 - 2); g.lineTo(w2 - 48, y0 - 2); g.stroke();
+        for (const [rx, ry] of [[62, y0 + 14], [w2 - 62, y0 + 14], [62, y1 - 14], [w2 - 62, y1 - 14]]) { g.fillStyle = '#25272b'; g.beginPath(); g.arc(rx, ry, 5, 0, 6.3); g.fill(); g.fillStyle = 'rgba(255,255,255,.3)'; g.beginPath(); g.arc(rx - 1.5, ry - 1.5, 1.8, 0, 6.3); g.fill(); } };
+      panel(110, 520); panel(560, 940);
+      g.fillStyle = '#5f6267'; g.fillRect(0, h2 - 120, w2, 120); g.strokeStyle = 'rgba(0,0,0,.6)'; g.lineWidth = 3; g.strokeRect(0, h2 - 120, w2, 120);   /* chapa de proteção */
+      g.strokeStyle = 'rgba(220,224,230,.28)'; g.lineWidth = 1; for (let n = 0; n < 60; n++) { g.beginPath(); const x = rr(0, w2), y = rr(h2 - 120, h2); g.moveTo(x, y); g.lineTo(x + rr(-50, 50), y + rr(-14, 14)); g.stroke(); }
+      for (let n = 0; n < 12; n++) { const x = rr(20, w2 - 20), len = rr(60, 300), y = rr(300, h2 - 100), gr = g.createLinearGradient(0, y, 0, y + len); gr.addColorStop(0, 'rgba(125,60,24,0)'); gr.addColorStop(0.2, `rgba(125,60,24,${rr(0.2, 0.45)})`); gr.addColorStop(1, 'rgba(125,60,24,0)'); g.fillStyle = gr; g.fillRect(x, y, rr(4, 16), len); }
+      for (let n = 0; n < 6; n++) { const x = rr(0, w2), y = rr(0, h2), r = rr(30, 90), gr = g.createRadialGradient(x, y, 2, x, y, r); gr.addColorStop(0, 'rgba(15,12,8,.4)'); gr.addColorStop(1, 'rgba(15,12,8,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }
+      for (let n = 0; n < 3; n++) { g.fillStyle = 'rgba(10,8,6,.3)'; g.beginPath(); g.ellipse(rr(380, 470), rr(480, 620) + n * 30, 16, 24, rr(-0.5, 0.5), 0, 6.3); g.fill(); }   /* digitais sujas na altura da mão */
+      const gb = g.createLinearGradient(0, 0, 0, h2); gb.addColorStop(0.6, 'rgba(0,0,0,0)'); gb.addColorStop(1, 'rgba(0,0,0,.4)'); g.fillStyle = gb; g.fillRect(0, 0, w2, h2);
+    }).t;
+    const doorM = new THREE.MeshStandardMaterial({ map: doorTex, bumpMap: doorTex, bumpScale: 1.4, color: 0x8e9094, roughness: 0.58, metalness: 0.4 });
     const mkDoors = (d) => {
       const g = new THREE.Group(); g.position.set(0, 0, zOf(d)); scene.add(g);
-      const L = box(W / 2 + 0.02, H, 0.08, mm, -W / 4, H / 2, 0, g), R = box(W / 2 + 0.02, H, 0.08, mm, W / 4, H / 2, 0, g);
+      const L = box(W / 2 + 0.02, H, 0.08, doorM, -W / 4, H / 2, 0, g), R = box(W / 2 + 0.02, H, 0.08, doorM, W / 4, H / 2, 0, g);
       box(W + 0.2, 0.25, 0.14, darkMetal, 0, H - 0.1, 0, g, false);
       return { L, R, open: 1 };
     };
     c.front = mkDoors(c.d0); c.back = mkDoors(c.d1); c.back.open = 0;
+    /* revestimento de azulejo sujo e moldura ao redor da entrada (como na referência): nas paredes do corredor junto às portas */
+    const tileTex = canvasTex(512, 512, (g, w2, h2) => {
+      g.fillStyle = '#566e72'; g.fillRect(0, 0, w2, h2);
+      for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) { const v = rr(-14, 14); g.fillStyle = `rgb(${86 + v},${110 + v},${114 + v})`; g.fillRect(x * 64 + 2, y * 64 + 2, 60, 60); g.fillStyle = 'rgba(255,255,255,.1)'; g.fillRect(x * 64 + 2, y * 64 + 2, 60, 3); }
+      g.strokeStyle = 'rgba(10,14,16,.75)'; g.lineWidth = 3; for (let i = 0; i <= 8; i++) { g.beginPath(); g.moveTo(i * 64, 0); g.lineTo(i * 64, h2); g.moveTo(0, i * 64); g.lineTo(w2, i * 64); g.stroke(); }
+      g.strokeStyle = 'rgba(15,18,20,.6)'; g.lineWidth = 1.2; for (let n = 0; n < 7; n++) { let x = rr(0, w2), y = rr(0, h2); g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 6; k++) { x += rr(-18, 18); y += rr(6, 30); g.lineTo(x, y); } g.stroke(); }
+      for (let n = 0; n < 14; n++) { const x = rr(0, w2), y = rr(0, h2), r = rr(25, 90), gr = g.createRadialGradient(x, y, 2, x, y, r); gr.addColorStop(0, 'rgba(14,12,8,.45)'); gr.addColorStop(1, 'rgba(14,12,8,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }
+      for (let n = 0; n < 8; n++) { const x = rr(0, w2), len = rr(80, 400), gr = g.createLinearGradient(0, 0, 0, len); gr.addColorStop(0, 'rgba(70,40,18,0)'); gr.addColorStop(0.3, `rgba(70,40,18,${rr(0.2, 0.45)})`); gr.addColorStop(1, 'rgba(70,40,18,0)'); g.fillStyle = gr; g.fillRect(x, rr(0, h2 - len), rr(5, 18), len); }
+    }).t; tileTex.wrapS = tileTex.wrapT = THREE.RepeatWrapping; tileTex.repeat.set(2.2, 1.7);
+    const tileM = new THREE.MeshStandardMaterial({ map: tileTex, bumpMap: tileTex, bumpScale: 1.6, color: 0xb8c4c6, roughness: 0.35, metalness: 0.1 });
+    const frameM = new THREE.MeshStandardMaterial({ color: 0x1d1f23, roughness: 0.6, metalness: 0.6 });
+    for (const [dA, dir] of [[c.d0, -1], [c.d1, 1]]) for (const sd of [-1, 1]) {
+      const tl = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 2.5), tileM); tl.rotation.y = -sd * Math.PI / 2; tl.position.set(sd * (W / 2 - 0.07), 1.25, zOf(dA + dir * 1.7)); tl.receiveShadow = true; scene.add(tl);
+      box(0.06, 0.06, 3.4, frameM, sd * (W / 2 - 0.075), 2.52, zOf(dA + dir * 1.7), scene, false);               /* remate superior */
+      box(0.06, 0.12, 3.4, frameM, sd * (W / 2 - 0.075), 0.06, zOf(dA + dir * 1.7), scene, false);               /* rodapé */
+    }
     /* painel de andar (canvas atualizado só quando muda) */
     const disp = canvasTex(256, 128, () => {});
     const dm = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.35), new THREE.MeshBasicMaterial({ map: disp.t }));
@@ -287,7 +318,7 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     const panel = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.75), new THREE.MeshStandardMaterial({ map: btn.t, roughness: 0.45, metalness: 0.6, emissive: 0xffffff, emissiveMap: btn.t, emissiveIntensity: 0.15 }));
     panel.rotation.y = -Math.PI / 2; panel.position.set(W / 2 - 0.012, 1.3, zOf(c.d0 + 0.95)); scene.add(panel);
     box(0.02, 0.8, 0.35, steel, W / 2 - 0.012, 1.3, zOf(c.d0 + 0.95), scene, false);
-    c.light = { D: c.d0 + CL / 2, y: H - 0.35, color: 0xfff0dc, base: 3.2, bad: false, seed: 1, k: 1, cabin: true };
+    c.light = { D: c.d0 + CL / 2, y: H - 0.35, color: 0xfff0dc, base: 4.4, bad: false, seed: 1, k: 1, cabin: true };
     const tube = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.04, 0.28), new THREE.MeshBasicMaterial({ color: 0xe8ead0 })); tube.position.set(0, H - 0.05, cz); scene.add(tube);
     c.light.tube = tube;
     box(1.0, 0.03, 0.36, darkMetal, 0, H - 0.015, cz, scene, false);                       /* moldura da luminária */
