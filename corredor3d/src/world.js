@@ -476,15 +476,15 @@ export function buildWorld(scene, { tl, aniso, Q }) {
         blockers.push(box(1.0, 1.45, 0.05, cubFabric, cx, 0.95, cz2, scene));
         box(1.02, 0.04, 0.07, trim, cx, 1.69, cz2, scene, false); box(0.04, 1.49, 0.07, trim, cx - side * 0.5, 0.95, cz2, scene, false); box(0.05, 0.2, 0.09, trim, cx - side * 0.5, 0.1, cz2, scene, false);
         if (e === 1 && k >= 2) {                                                 /* escrito com sangue direto na divisória: letras tremidas, escorridos, mão espalmada e poça */
-          const bt = canvasTex(Q.tex >= 1024 ? 1024 : 512, Q.tex >= 1024 ? 1024 : 512, (g, w0) => {
-            const f = w0 / 512, w = 512, h = 512; g.scale(f, f); g.clearRect(0, 0, w, h); g.lineCap = g.lineJoin = 'round';
-            const words = txt.split(' '), lh = Math.min(118, 330 / words.length), fs = 100 - words.length * 6;
+          const bt = canvasTex(Q.tex >= 1024 ? 1024 : 512, Q.tex >= 1024 ? 768 : 384, (g, w0) => {
+            const f = w0 / 512, w = 512, h = 384; g.scale(f, f); g.clearRect(0, 0, w, h); g.lineCap = g.lineJoin = 'round';
+            const ws0 = txt.split(' '), half = Math.ceil(ws0.length / 2), words = ws0.length > 2 ? [ws0.slice(0, half).join(' '), ws0.slice(half).join(' ')] : ws0, lh = 128, fs = 124;
             const dark = ['#450408', '#51050a', '#5f070c'];
             const blob = (x1, y1, x2, y2, r, col) => { g.fillStyle = col; const n = Math.max(4, Math.hypot(x2 - x1, y2 - y1) / 3); for (let i = 0; i <= n; i++) { const t = i / n; g.beginPath(); g.arc(x1 + (x2 - x1) * t + rr(-1.2, 1.2), y1 + (y2 - y1) * t + rr(-1.2, 1.2), r * rr(0.85, 1.1), 0, 6.3); g.fill(); } };
             for (let n = 0; n < 6; n++) { const x = rr(40, w - 40), y = rr(40, h - 120), r = rr(40, 120), gr = g.createRadialGradient(x, y, 4, x, y, r); gr.addColorStop(0, 'rgba(60,3,6,.34)'); gr.addColorStop(1, 'rgba(60,3,6,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }   /* sangue seco ao fundo */
             words.forEach((wd, i) => {
               g.font = `900 ${fs}px Impact, "Arial Black", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
-              const tw = g.measureText(wd).width, y0 = 100 + i * lh, chW = tw / wd.length; let x = (w - tw) / 2 + rr(-8, 8);
+              let tw = g.measureText(wd).width; const fit = Math.min(1, 460 / tw); if (fit < 1) { g.font = `900 ${fs * fit}px Impact, "Arial Black", sans-serif`; tw = g.measureText(wd).width; } const y0 = 125 + i * lh, chW = tw / wd.length; let x = (w - tw) / 2 + rr(-8, 8);
               for (const ch of wd) {                                                  /* traço de dedo: bordas irregulares (várias passadas deslocadas), sem contorno de "adesivo" */
                 const rot = rr(-0.13, 0.13), sc = rr(0.92, 1.08);
                 for (let pass = 0; pass < 4; pass++) {
@@ -503,7 +503,7 @@ export function buildWorld(scene, { tl, aniso, Q }) {
             });
             for (let n = 0; n < 90; n++) { const x = rr(10, w - 10), y = rr(10, h - 80), r = rr(0.7, 4), el = rnd() < 0.4 ? rr(1.6, 4.5) : 1; g.fillStyle = `rgba(${rr(45, 85) | 0},2,6,${rr(0.5, 0.95)})`; g.beginPath(); g.ellipse(x, y, r, r * el, rr(-0.7, 0.7), 0, 6.3); g.fill(); }   /* respingos */
             /* mão ensanguentada pressionada: formas orgânicas, dedos irregulares, rastro de arrasto */
-            g.save(); g.translate(rr(345, 400), rr(318, 345)); g.rotate(rr(-0.3, 0.15));
+            g.save(); g.translate(rr(420, 462), rr(236, 262)); g.rotate(rr(-0.3, 0.15));
             const tr = g.createLinearGradient(0, 10, 0, 170); tr.addColorStop(0, 'rgba(60,3,6,.7)'); tr.addColorStop(1, 'rgba(60,3,6,0)'); g.fillStyle = tr; g.beginPath(); g.moveTo(-30, 30); g.lineTo(30, 30); g.lineTo(rr(8, 24), 170); g.lineTo(rr(-24, -8), 170); g.fill();
             const hc = '#4a0509';
             blob(-14, 18, 14, 26, 30, hc); blob(-20, 4, 20, 8, 26, hc);                                        /* palma */
@@ -514,10 +514,11 @@ export function buildWorld(scene, { tl, aniso, Q }) {
             for (let n = 0; n < 700; n++) { g.fillStyle = `rgba(0,0,0,${rr(0.35, 0.95)})`; const hx = rnd() < 0.5; g.beginPath(); g.arc(hx ? rr(300, 470) : rr(30, 480), hx ? rr(250, 420) : rr(60, 400), rr(0.5, 2.4), 0, 6.3); g.fill(); }
             g.globalCompositeOperation = 'source-over';
           });
-          const bm = new THREE.Mesh(new THREE.PlaneGeometry(0.92, 0.92), new THREE.MeshStandardMaterial({ map: bt.t, bumpMap: bt.t, bumpScale: 3, color: 0xe0e0e0, transparent: true, roughness: 0.16, metalness: 0.08, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
-          bm.position.set(cx, 1.0, cz2 + 0.034); bm.userData.noAO = true; scene.add(bm);
-          const pool = new THREE.Mesh(new THREE.CircleGeometry(0.55, 24), new THREE.MeshStandardMaterial({ color: 0x3a0306, roughness: 0.08, metalness: 0.2, transparent: true, opacity: 0.92, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 }));
-          pool.rotation.x = -Math.PI / 2; pool.scale.set(1, rr(0.7, 1.1), 1); pool.position.set(cx - side * 0.1, 0.006, cz2 + 0.4); pool.userData.noAO = true; scene.add(pool);
+          const bm = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.8), new THREE.MeshStandardMaterial({ map: bt.t, bumpMap: bt.t, bumpScale: 3, color: 0xb4b4b4, transparent: true, roughness: 0.2, metalness: 0.08, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+          const gcD = z.d0 + 4 + 4 * Math.round((d + 1 - z.d0 - 4) / 4);                       /* centro do vão entre pilastras, na parede em frente ao posto */
+          bm.position.set(-side * (W / 2 - 0.022), 1.85, zOf(gcD)); bm.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2; bm.userData.noAO = true; scene.add(bm);
+          const pool = new THREE.Mesh(new THREE.CircleGeometry(0.6, 24), new THREE.MeshStandardMaterial({ color: 0x3a0306, roughness: 0.08, metalness: 0.2, transparent: true, opacity: 0.92, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 }));
+          pool.rotation.x = -Math.PI / 2; pool.scale.set(1.4, rr(0.7, 1.0), 1); pool.position.set(-side * (W / 2 - 0.5), 0.006, zOf(gcD)); pool.userData.noAO = true; scene.add(pool);
         } else if (e === 1) {                                                    /* pôster afixado na divisória, de frente para o posto */
           box(0.5, 0.62, 0.012, darkMetal, cx, 1.25, cz2 + 0.03, scene, false);
           const m = new THREE.Mesh(new THREE.PlaneGeometry(0.44, 0.56), new THREE.MeshStandardMaterial({ map: t.t, roughness: 0.9, color: 0x8c8c8c })); m.position.set(cx, 1.25, cz2 + 0.04); scene.add(m);
