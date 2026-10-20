@@ -150,8 +150,33 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     };
     const poiDs = Array.from({ length: z.n || 0 }, (_, k) => z.d0 + LEAD + k * SP), clear = (d) => poiDs.every((p) => Math.abs(p - d) > 1.1);   /* nada de pilastra/placa em cima de porta */
     const ds = []; for (let d = z.d0 + 2; d < z.d1; d += 4) if (clear(d)) ds.push(d);
-    const pil = new THREE.MeshStandardMaterial({ color: wallC.clone().multiplyScalar(0.3), roughness: 0.92, metalness: 0 });
-    inst(new THREE.BoxGeometry(0.16, H, 0.34), pil, ds.flatMap((d) => [[-(W / 2 - 0.08), H / 2, zOf(d)], [W / 2 - 0.08, H / 2, zOf(d)]]), true);
+    /* pilastra de concreto detalhada: fuste com textura em escala real (poros, trincas, manchas), base, capitel, cinta de aço e parafusos */
+    const concrete = canvasTex(256, 256, (g, w2, h2) => {
+      g.fillStyle = '#7b756c'; g.fillRect(0, 0, w2, h2);
+      for (let n = 0; n < 2600; n++) { g.fillStyle = `rgba(${rnd() < 0.5 ? '255,250,240' : '0,0,0'},${rr(0.03, 0.12)})`; g.fillRect(rr(0, w2), rr(0, h2), rr(1, 3), rr(1, 3)); }       /* grão */
+      for (let n = 0; n < 90; n++) { g.fillStyle = `rgba(20,16,12,${rr(0.35, 0.8)})`; g.beginPath(); g.arc(rr(0, w2), rr(0, h2), rr(0.6, 2.2), 0, 6.3); g.fill(); }              /* poros */
+      g.strokeStyle = 'rgba(25,20,16,.55)'; g.lineWidth = 1; for (let n = 0; n < 5; n++) { let x = rr(0, w2), y = rr(0, h2); g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 7; k++) { x += rr(-14, 14); y += rr(8, 26); g.lineTo(x, y); } g.stroke(); }   /* trincas */
+      for (let n = 0; n < 8; n++) { const x = rr(0, w2), len = rr(60, h2), gr = g.createLinearGradient(0, 0, 0, len); gr.addColorStop(0, 'rgba(40,28,18,0)'); gr.addColorStop(0.3, `rgba(40,28,18,${rr(0.15, 0.35)})`); gr.addColorStop(1, 'rgba(40,28,18,0)'); g.fillStyle = gr; g.fillRect(x, rr(0, h2 - len), rr(4, 18), len); }   /* escorridos */
+      const gb = g.createLinearGradient(0, 0, 0, h2); gb.addColorStop(0.6, 'rgba(0,0,0,0)'); gb.addColorStop(1, 'rgba(0,0,0,.5)'); g.fillStyle = gb; g.fillRect(0, 0, w2, h2);
+    }).t;
+    concrete.wrapS = concrete.wrapT = THREE.RepeatWrapping;
+    const pil = new THREE.MeshStandardMaterial({ map: concrete, bumpMap: concrete, bumpScale: 2.2, color: wallC.clone().multiplyScalar(0.62), roughness: 0.95, metalness: 0 });
+    const metersBox = (w, h, d, den = 0.9) => {                                                               /* UVs em metros: a textura não estica no fuste alto */
+      const geo = new THREE.BoxGeometry(w, h, d), uv = geo.attributes.uv, dims = [[d, h], [d, h], [w, d], [w, d], [w, h], [w, h]];
+      for (let f = 0; f < 6; f++) for (let v = 0; v < 4; v++) { const i = f * 4 + v; uv.setXY(i, uv.getX(i) * dims[f][0] * den, uv.getY(i) * dims[f][1] * den); }
+      return geo;
+    };
+    const pos = (y, extra = 0) => ds.flatMap((d) => [[-(W / 2 - 0.08 - extra), y, zOf(d)], [W / 2 - 0.08 - extra, y, zOf(d)]]);
+    inst(metersBox(0.16, H, 0.34), pil, pos(H / 2), true);                                                       /* fuste */
+    const pm = addGrunge(new THREE.MeshStandardMaterial({ map: concrete, color: wallC.clone().multiplyScalar(0.45), roughness: 0.95 }), 0.6, 0.5);
+    inst(metersBox(0.2, 0.26, 0.42), pm, pos(0.13, 0.02));                                                       /* base */
+    inst(metersBox(0.2, 0.2, 0.42), pm, pos(H - 0.1, 0.02));                                                     /* capitel */
+    const bandM = new THREE.MeshStandardMaterial({ color: 0x2f3237, roughness: 0.5, metalness: 0.7 });
+    inst(new THREE.BoxGeometry(0.19, 0.08, 0.38), bandM, pos(1.08, 0.015));                                      /* cinta de aço na altura do friso */
+    inst(new THREE.BoxGeometry(0.19, 0.05, 0.38), bandM, pos(2.35, 0.015));
+    const boltM = new THREE.MeshStandardMaterial({ color: 0x8a8c90, roughness: 0.4, metalness: 0.9 });
+    const bolts = []; for (const d of ds) for (const sd of [-1, 1]) for (const y of [1.08, 2.35]) for (const dz of [-0.13, 0.13]) bolts.push([sd * (W / 2 - 0.08 - 0.015) - sd * 0.1, y, zOf(d) + dz]);
+    inst(new THREE.SphereGeometry(0.016, 8, 6), boltM, bolts);                                                   /* parafusos */
     const lam = addGrunge(mat(sets.metal, z.len / 1.4, 0.8, { color: wallC.clone().multiplyScalar(0.5), metalness: 0.55, roughness: 0.7 }), 0.8, 0.5);
     for (const sd of [-1, 1]) {
       box(0.035, 1.05, z.len, lam, sd * (W / 2 - 0.0175), 0.525, cz, scene, false);                         /* lambri metálico */
