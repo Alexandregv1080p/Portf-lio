@@ -38,7 +38,7 @@ export function buildWorld(scene, { tl, aniso, Q }) {
   const plastic = new THREE.MeshStandardMaterial({ color: 0x1a1a1e, roughness: 0.6 });
   const fabric = new THREE.MeshStandardMaterial({ color: 0x2a2a30, roughness: 1 });
   const wood = new THREE.MeshStandardMaterial({ color: 0x2e221c, roughness: 0.92 });
-  const paper = new THREE.MeshStandardMaterial({ color: 0xcfc8b8, roughness: 1, side: THREE.DoubleSide });
+  const paper = new THREE.MeshStandardMaterial({ color: 0x45403a, roughness: 1, side: THREE.DoubleSide });
 
   const canvasTex = (w, h, draw) => {
     const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); draw(g, w, h);
@@ -142,7 +142,7 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     }
     for (let d = z.d0 + 2; d < z.d1; d += 4) box(W - 0.2, 0.05, 0.08, darkMetal, 0, H - 0.12, zOf(d), scene);   /* suportes */
     /* ---- detalhe arquitetônico: quebra a monotonia das paredes (pilastras, lambri, faixa, calha, duto, placas, faixa no piso) */
-    const accent = new THREE.Color(L.lamp).multiplyScalar(0.45), wallC = new THREE.Color(L.wall[1]);
+    const accent = new THREE.Color(L.lamp).multiplyScalar(0.2), wallC = new THREE.Color(L.wall[1]);
     const inst = (geo, m, list, cast = false) => {
       const im = new THREE.InstancedMesh(geo, m, list.length), o = new THREE.Object3D();
       list.forEach((v, i) => { o.position.set(v[0], v[1], v[2]); o.rotation.set(0, v[3] || 0, 0); o.updateMatrix(); im.setMatrixAt(i, o.matrix); });
@@ -382,8 +382,8 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     const z = zones[0];
     const desk = new THREE.Group(); desk.position.set(1.0, 0, zOf(z.d0 + 15)); scene.add(desk);
     /* balcão de recepção: corpo de madeira ripada, tampo de pedra polida, ressalto de atendimento, toe-kick e objetos */
-    const walnut = new THREE.MeshStandardMaterial({ color: 0x24160f, roughness: 0.65, metalness: 0.05 });
-    const slatM = new THREE.MeshStandardMaterial({ color: 0x3b2619, roughness: 0.55, metalness: 0.05 });
+    const walnut = new THREE.MeshStandardMaterial({ color: 0x1b110b, roughness: 0.7, metalness: 0.05 });
+    const slatM = new THREE.MeshStandardMaterial({ color: 0x28180f, roughness: 0.6, metalness: 0.05 });
     const stone = new THREE.MeshStandardMaterial({ roughness: 0.18, metalness: 0.1, map: canvasTex(256, 256, (g, w, h) => {
       g.fillStyle = '#16171a'; g.fillRect(0, 0, w, h); g.strokeStyle = 'rgba(200,205,215,.22)';
       for (let i = 0; i < 14; i++) { g.lineWidth = rr(0.6, 2); g.beginPath(); let x = rr(0, w), y = 0; g.moveTo(x, y); for (let k = 0; k < 8; k++) { x += rr(-30, 30); y += h / 8; g.lineTo(x, y); } g.stroke(); }
