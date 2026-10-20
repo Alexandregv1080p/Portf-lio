@@ -168,6 +168,7 @@ sndBtn.addEventListener('click', () => { if (!audio.started) { enter(true); retu
 
 /* ------------------------------------------------------------ interação */
 const aim = new THREE.Vector2(0.1, -0.05), aimGoal = new THREE.Vector2(0.1, -0.05);
+let lookYaw = 0;
 const aimEff = new THREE.Vector2(), lookTmp = new THREE.Vector2(), lookV = new THREE.Vector3();
 let lastMove = -1e9, interacted = false;
 addEventListener('pointermove', (e) => {
@@ -356,7 +357,7 @@ function step(now) {
   /* sem mouse por alguns segundos (celular): a luz vagueia sozinha */
   if (touchUI && now - lastMove > 4500) aimGoal.set(Math.sin(t * 0.45) * 0.5, Math.cos(t * 0.33) * 0.18 - 0.04);
   /* olhar guiado: ao se aproximar de uma tela/porta/rack a cabeça e a lanterna viram sozinhas para ele (o mouse ainda pesa um pouco) */
-  aimEff.copy(aimGoal);
+  aimEff.copy(aimGoal); let yawTarget = 0;
   if (!reduce && !inLift && !cardHover) {
     let best = null, bw = 0;
     for (const po of pois) {
@@ -366,15 +367,17 @@ function step(now) {
     }
     if (best) {
       lookV.set(best.pos.x, best.pos.y, best.pos.z).project(camera);
+      yawTarget = -Math.atan2(best.pos.x - camera.position.x, Math.max(best.D - camD, 1.0)) * 1.0 * bw;                 /* a cabeça gira de verdade, além da lanterna */
       if (lookV.z < 1) { aimEff.lerp(lookTmp.set(clamp(lookV.x, -0.95, 0.95), clamp(lookV.y * 0.8, -0.5, 0.5)), bw * 0.78); }
     }
   }
   aim.lerp(aimEff, 1 - Math.pow(0.0005, dt));
+  lookYaw = lerp(lookYaw, yawTarget, 1 - Math.exp(-dt / 0.28));
 
   const sx = (Math.random() - 0.5) * shakeAmt, sy = (Math.random() - 0.5) * shakeAmt;
   camera.position.set(bobX + sx, 1.62 + bobY + sy, z);
   const roll = (reduce ? 0 : 0.013 * ws * sway) + env.fear * Math.sin(t * 0.7) * 0.012;      /* o mundo "não está no prumo" lá no fundo */
-  camera.rotation.set(aim.y * 0.16 - nod, -aim.x * 0.38 + (reduce ? 0 : 0.006 * ws * sway), roll);
+  camera.rotation.set(aim.y * 0.16 - nod, -aim.x * 0.38 + lookYaw + (reduce ? 0 : 0.006 * ws * sway), roll);
 
   /* lanterna */
   camera.updateMatrixWorld();
@@ -503,7 +506,7 @@ if (import.meta.env.DEV) {
     aimAt(ax, ay) { aimGoal.set(ax, ay); lastMove = simNow; },
     goto(d) { forceD = d; }, release() { forceD = null; goalS = camD; }, dFromPx, pxFromD, gait: () => ({ camD: +camD.toFixed(2), wv: +wv.toFixed(2), phase: +phase.toFixed(2), ws: +ws.toFixed(2) }),
     run(n, ms = 16.7) { running = false; const log = []; let prev = shownPoi; for (let i = 0; i < n; i++) { simNow += ms; lastT = simNow - ms; step(simNow); if (shownPoi !== prev) { log.push([i, prev, shownPoi]); prev = shownPoi; } } return log; },
-    state: () => ({ shownPoi, camD: +camD.toFixed(2), floor: lastFloor, aim: [aim.x, aim.y].map((v) => +v.toFixed(2)), open: pois.map((p) => +p.open.toFixed(2)) }),
+    state: () => ({ lookYaw, shownPoi, camD: +camD.toFixed(2), floor: lastFloor, aim: [aim.x, aim.y].map((v) => +v.toFixed(2)), open: pois.map((p) => +p.open.toFixed(2)) }),
     poiNdc(i) { camera.updateMatrixWorld(); const v = pois[i].hit.getWorldPosition(new THREE.Vector3()).project(camera); return [+v.x.toFixed(3), +v.y.toFixed(3)]; },
     segs, D_END,
   };
