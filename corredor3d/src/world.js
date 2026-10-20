@@ -188,15 +188,26 @@ export function buildWorld(scene, { tl, aniso, Q }) {
   const labelOf = (zi) => `${zones[zi].floor}`;
   cabins.forEach((c) => {
     const cz = zOf(c.d0 + CL / 2);
-    const brushed = canvasTex(256, 256, (g, w2, h2) => {                                                    /* aço escovado: fibras verticais finas */
-      g.fillStyle = '#8c9298'; g.fillRect(0, 0, w2, h2);
-      for (let x = 0; x < w2; x++) { const a = rr(0.02, 0.16); g.fillStyle = rnd() < 0.5 ? `rgba(255,255,255,${a})` : `rgba(0,0,0,${a})`; g.fillRect(x, 0, 1, h2); }
-      for (let k = 0; k < 40; k++) { g.fillStyle = `rgba(0,0,0,${rr(0.02, 0.07)})`; g.fillRect(rr(0, w2), rr(0, h2), rr(1, 3), rr(10, 80)); }
-    }).t;
-    brushed.wrapS = brushed.wrapT = THREE.RepeatWrapping; brushed.repeat.set(3, 2);
-    const mm = new THREE.MeshStandardMaterial({ map: brushed, color: 0x9ba1a8, roughness: 0.45, metalness: 0.4 });
-    const fl = new THREE.Mesh(new THREE.PlaneGeometry(W, CL), mat(sets.metal, 2, 2, { color: 0x3a3e44, roughness: 0.9, metalness: 0.1, roughnessMap: null })); fl.rotation.x = -Math.PI / 2; fl.position.set(0, 0.005, cz); fl.receiveShadow = true; scene.add(fl);
-    const ce = new THREE.Mesh(new THREE.PlaneGeometry(W, CL), mat(sets.metal, 2, 2, { color: 0x50555c, roughness: 0.9, metalness: 0.1, roughnessMap: null })); ce.rotation.x = Math.PI / 2; ce.position.set(0, H, cz); scene.add(ce);
+    /* cabine velha e castigada (referência: elevador de prédio abandonado): chapa escura, riscada, com ferrugem escorrida */
+    const rustTex = (base, rust, S = 256) => { const t = canvasTex(S, S, (g, w2, h2) => {
+      g.fillStyle = base; g.fillRect(0, 0, w2, h2);
+      for (let x = 0; x < w2; x += 2) { g.fillStyle = `rgba(${rnd() < 0.5 ? '255,255,255' : '0,0,0'},${rr(0.02, 0.1)})`; g.fillRect(x, 0, 2, h2); }                      /* fibra vertical */
+      for (let n = 0; n < 14; n++) { const x = rr(0, w2), len = rr(40, h2), gr = g.createLinearGradient(0, 0, 0, len); gr.addColorStop(0, rust + '0.0)'); gr.addColorStop(0.2, rust + rr(0.12, 0.35).toFixed(2) + ')'); gr.addColorStop(1, rust + '0.0)'); g.fillStyle = gr; g.fillRect(x, rr(0, h2 - len), rr(3, 14), len); }   /* ferrugem escorrida */
+      for (let n = 0; n < 10; n++) { const x = rr(0, w2), y = rr(0, h2), r = rr(15, 60), gr = g.createRadialGradient(x, y, 1, x, y, r); gr.addColorStop(0, rust + '0.26)'); gr.addColorStop(1, rust + '0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }   /* manchas de oxidação */
+      g.strokeStyle = 'rgba(210,214,220,.22)'; g.lineWidth = 1; for (let n = 0; n < 26; n++) { g.beginPath(); const x = rr(0, w2), y = rr(0, h2); g.moveTo(x, y); g.lineTo(x + rr(-60, 60), y + rr(-40, 40)); g.stroke(); }   /* riscos */
+      const gb = g.createLinearGradient(0, 0, 0, h2); gb.addColorStop(0.55, 'rgba(0,0,0,0)'); gb.addColorStop(1, 'rgba(0,0,0,.45)'); g.fillStyle = gb; g.fillRect(0, 0, w2, h2);   /* sujeira acumulada embaixo */
+    }).t; t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; };
+    const RS = Q.tex >= 1024 ? 512 : 256, darkSheet = rustTex('#3c3e42', 'rgba(112,56,24,', RS), rustSheet = rustTex('#6a3b23', 'rgba(40,16,6,', RS);
+    darkSheet.repeat.set(2, 1.4); rustSheet.repeat.set(3, 1);
+    const mm = addGrunge(new THREE.MeshStandardMaterial({ map: darkSheet, color: 0x86888c, roughness: 0.62, metalness: 0.35 }), 0.55, 0.6);
+    const rustM = addGrunge(new THREE.MeshStandardMaterial({ map: rustSheet, color: 0xb0b0b0, roughness: 0.7, metalness: 0.3 }), 0.5, 0.6);
+    const plate = canvasTex(256, 256, (g, w2, h2) => {                                                    /* chapa de piso xadrez (diamante) suja */
+      g.fillStyle = '#222326'; g.fillRect(0, 0, w2, h2);
+      for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) { const cx2 = x * 32 + 16 + (y % 2) * 16, cy2 = y * 32 + 16; g.fillStyle = 'rgba(160,165,172,.38)'; g.beginPath(); g.moveTo(cx2, cy2 - 11); g.lineTo(cx2 + 6, cy2); g.lineTo(cx2, cy2 + 11); g.lineTo(cx2 - 6, cy2); g.fill(); }
+      for (let n = 0; n < 12; n++) { const x = rr(0, w2), y = rr(0, h2), r = rr(20, 70), gr = g.createRadialGradient(x, y, 1, x, y, r); gr.addColorStop(0, 'rgba(60,30,12,.5)'); gr.addColorStop(1, 'rgba(60,30,12,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }
+    }).t; plate.wrapS = plate.wrapT = THREE.RepeatWrapping; plate.repeat.set(5, 10);
+    const fl = new THREE.Mesh(new THREE.PlaneGeometry(W, CL), new THREE.MeshStandardMaterial({ map: plate, color: 0xb8b8b8, roughness: 0.5, metalness: 0.55 })); fl.rotation.x = -Math.PI / 2; fl.position.set(0, 0.005, cz); fl.receiveShadow = true; scene.add(fl);
+    const ce = new THREE.Mesh(new THREE.PlaneGeometry(W, CL), addGrunge(new THREE.MeshStandardMaterial({ map: darkSheet, color: 0x606266, roughness: 0.85, metalness: 0.2 }), 0.6, 0.5)); ce.rotation.x = Math.PI / 2; ce.position.set(0, H, cz); scene.add(ce);
     for (const s of [-1, 1]) {
       const w = new THREE.Mesh(new THREE.PlaneGeometry(CL, H), mm); w.rotation.y = -s * Math.PI / 2; w.position.set(s * (W / 2 - 0.004), H / 2, cz); w.receiveShadow = true; scene.add(w);
       box(0.06, 0.05, CL - 0.3, steel, s * (W / 2 - 0.05), 1.0, cz, scene, false);                      /* corrimão */
@@ -206,9 +217,10 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     const seams = []; for (let k = 1; k < 7; k++) for (const sd of [-1, 1]) seams.push([sd * (W / 2 - 0.008), H / 2, cz - CL / 2 + k * (CL / 7)]);
     const sm2 = new THREE.InstancedMesh(new THREE.BoxGeometry(0.012, H - 0.1, 0.012), seam, seams.length), so2 = new THREE.Object3D();
     seams.forEach((v, i) => { so2.position.set(v[0], v[1], v[2]); so2.updateMatrix(); sm2.setMatrixAt(i, so2.matrix); }); scene.add(sm2);
-    const mirror = new THREE.Mesh(new THREE.PlaneGeometry(CL * 0.55, 1.5), new THREE.MeshStandardMaterial({ color: 0xbfc6cc, roughness: 0.06, metalness: 1 }));
-    mirror.rotation.y = Math.PI / 2; mirror.position.set(-(W / 2 - 0.012), 1.75, cz); scene.add(mirror);                      /* espelho na parede esquerda */
-    for (const [w, h, y] of [[CL * 0.55 + 0.1, 0.05, 2.52], [CL * 0.55 + 0.1, 0.05, 0.98]]) box(0.025, h, w, steel, -(W / 2 - 0.012), y, cz, scene, false);
+    for (const sd of [-1, 1]) {                                                                                 /* faixa central de chapa enferrujada entre frisos (como na referência) */
+      box(0.02, 0.62, CL - 0.2, rustM, sd * (W / 2 - 0.016), 1.3, cz, scene, false);
+      box(0.03, 0.04, CL - 0.2, darkMetal, sd * (W / 2 - 0.02), 1.62, cz, scene, false); box(0.03, 0.04, CL - 0.2, darkMetal, sd * (W / 2 - 0.02), 0.98, cz, scene, false);
+    }
     for (const sd of [-1, 1]) box(0.03, 0.3, CL, darkMetal, sd * (W / 2 - 0.016), 0.15, cz, scene, false);                  /* rodapé de aço escuro */
     box(W, 0.02, 0.2, steel, 0, 0.012, zOf(c.d0), scene, false); box(W, 0.02, 0.2, steel, 0, 0.012, zOf(c.d1), scene, false);   /* soleiras */
     const plaque = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.2), new THREE.MeshStandardMaterial({ roughness: 0.4, metalness: 0.5, map: canvasTex(256, 150, (g, w2, h2) => {
@@ -238,10 +250,10 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     const panel = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.75), new THREE.MeshStandardMaterial({ map: btn.t, roughness: 0.45, metalness: 0.6, emissive: 0xffffff, emissiveMap: btn.t, emissiveIntensity: 0.15 }));
     panel.rotation.y = -Math.PI / 2; panel.position.set(W / 2 - 0.012, 1.3, zOf(c.d0 + 0.95)); scene.add(panel);
     box(0.02, 0.8, 0.35, steel, W / 2 - 0.012, 1.3, zOf(c.d0 + 0.95), scene, false);
-    c.light = { D: c.d0 + CL / 2, y: H - 0.35, color: 0xfff0dc, base: 2.0, bad: false, seed: 1, k: 1, cabin: true };
-    const tube = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.04, 0.7), new THREE.MeshBasicMaterial({ color: 0xfff0dc })); tube.position.set(0, H - 0.05, cz); scene.add(tube);
+    c.light = { D: c.d0 + CL / 2, y: H - 0.35, color: 0xfff0dc, base: 3.2, bad: false, seed: 1, k: 1, cabin: true };
+    const tube = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.04, 0.28), new THREE.MeshBasicMaterial({ color: 0xe8ead0 })); tube.position.set(0, H - 0.05, cz); scene.add(tube);
     c.light.tube = tube;
-    box(1.34, 0.03, 0.84, darkMetal, 0, H - 0.015, cz, scene, false);                       /* moldura da luminária */
+    box(1.0, 0.03, 0.36, darkMetal, 0, H - 0.015, cz, scene, false);                       /* moldura da luminária */
   });
   const drawFloor = (c, text, glitchy) => {
     const { g } = c.disp; g.fillStyle = '#050505'; g.fillRect(0, 0, 256, 128);
