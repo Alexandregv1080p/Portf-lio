@@ -476,29 +476,45 @@ export function buildWorld(scene, { tl, aniso, Q }) {
         blockers.push(box(1.0, 1.45, 0.05, cubFabric, cx, 0.95, cz2, scene));
         box(1.02, 0.04, 0.07, trim, cx, 1.69, cz2, scene, false); box(0.04, 1.49, 0.07, trim, cx - side * 0.5, 0.95, cz2, scene, false); box(0.05, 0.2, 0.09, trim, cx - side * 0.5, 0.1, cz2, scene, false);
         if (e === 1 && k >= 2) {                                                 /* escrito com sangue direto na divisória: letras tremidas, escorridos, mão espalmada e poça */
-          const bt = canvasTex(512, 512, (g, w, h) => {
-            g.clearRect(0, 0, w, h);
-            const words = txt.split(' '), lh = Math.min(120, 380 / words.length);
+          const bt = canvasTex(Q.tex >= 1024 ? 1024 : 512, Q.tex >= 1024 ? 1024 : 512, (g, w0) => {
+            const f = w0 / 512, w = 512, h = 512; g.scale(f, f); g.clearRect(0, 0, w, h); g.lineCap = g.lineJoin = 'round';
+            const words = txt.split(' '), lh = Math.min(118, 330 / words.length), fs = 100 - words.length * 6;
+            const dark = ['#450408', '#51050a', '#5f070c'];
+            const blob = (x1, y1, x2, y2, r, col) => { g.fillStyle = col; const n = Math.max(4, Math.hypot(x2 - x1, y2 - y1) / 3); for (let i = 0; i <= n; i++) { const t = i / n; g.beginPath(); g.arc(x1 + (x2 - x1) * t + rr(-1.2, 1.2), y1 + (y2 - y1) * t + rr(-1.2, 1.2), r * rr(0.85, 1.1), 0, 6.3); g.fill(); } };
+            for (let n = 0; n < 6; n++) { const x = rr(40, w - 40), y = rr(40, h - 120), r = rr(40, 120), gr = g.createRadialGradient(x, y, 4, x, y, r); gr.addColorStop(0, 'rgba(60,3,6,.34)'); gr.addColorStop(1, 'rgba(60,3,6,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }   /* sangue seco ao fundo */
             words.forEach((wd, i) => {
-              const fs = 96 - words.length * 4, tw = wd.length * fs * 0.62; let x = (w - tw) / 2; const y0 = 90 + i * lh;
-              for (const ch of wd) {
-                g.save(); g.translate(x + fs * 0.3 + rr(-3, 3), y0 + rr(-6, 6)); g.rotate(rr(-0.16, 0.16)); g.font = `900 ${fs * rr(0.9, 1.12)}px Georgia, serif`; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
-                g.fillStyle = ['#3a0205', '#4b0306', '#620509'][(rnd() * 3) | 0]; g.shadowColor = 'rgba(30,0,2,.95)'; g.shadowBlur = 7; g.fillText(ch, 0, 0); g.shadowBlur = 0; g.strokeStyle = 'rgba(160,20,24,.45)'; g.lineWidth = 2; g.strokeText(ch, -1, -2);   /* brilho úmido na borda */
-                g.restore();
-                if (rnd() < 0.8) {                                                    /* escorrido sob a letra */
-                  const dx = x + fs * 0.3 + rr(-fs * 0.2, fs * 0.2), len = rr(30, 170), wdt = rr(3, 7);
-                  const gr = g.createLinearGradient(0, y0, 0, y0 + len); gr.addColorStop(0, 'rgba(110,6,10,.95)'); gr.addColorStop(1, 'rgba(60,0,3,.9)');
-                  g.fillStyle = gr; g.fillRect(dx - wdt / 2, y0, wdt, len); g.beginPath(); g.arc(dx, y0 + len, wdt * 0.85, 0, 6.3); g.fill();
+              g.font = `900 ${fs}px Impact, "Arial Black", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+              const tw = g.measureText(wd).width, y0 = 100 + i * lh, chW = tw / wd.length; let x = (w - tw) / 2 + rr(-8, 8);
+              for (const ch of wd) {                                                  /* traço de dedo: bordas irregulares (várias passadas deslocadas), sem contorno de "adesivo" */
+                const rot = rr(-0.13, 0.13), sc = rr(0.92, 1.08);
+                for (let pass = 0; pass < 4; pass++) {
+                  g.save(); g.translate(x + chW / 2 + rr(-1.8, 1.8), y0 + rr(-6, 6) + rr(-1.5, 1.5)); g.rotate(rot + rr(-0.02, 0.02)); g.scale(sc, rr(0.96, 1.1));
+                  g.fillStyle = dark[(rnd() * 3) | 0]; g.globalAlpha = pass ? 0.55 : 0.95; g.fillText(ch, 0, 0); g.restore();
                 }
-                x += fs * 0.62;
+                g.globalAlpha = 1;
+                for (let d = 0; d < (rnd() < 0.55 ? 2 : 1); d++) if (rnd() < 0.85) {   /* escorridos grossos que afunilam e terminam em gota */
+                  const dx = x + chW / 2 + rr(-chW * 0.28, chW * 0.28), len = rr(16, lh * 0.8), wd2 = rr(4, 11), y1 = y0 + rr(-2, 8);
+                  g.fillStyle = dark[(rnd() * 3) | 0]; g.beginPath(); g.moveTo(dx - wd2 / 2, y1); g.lineTo(dx + wd2 / 2, y1); g.quadraticCurveTo(dx + wd2 * 0.4, y1 + len * 0.6, dx + wd2 * 0.28, y1 + len); g.lineTo(dx - wd2 * 0.28, y1 + len); g.quadraticCurveTo(dx - wd2 * 0.4, y1 + len * 0.6, dx - wd2 / 2, y1); g.fill();
+                  g.beginPath(); g.arc(dx, y1 + len + wd2 * 0.3, wd2 * 0.7, 0, 6.3); g.fill();
+                  g.fillStyle = 'rgba(150,18,22,.5)'; g.beginPath(); g.arc(dx - wd2 * 0.2, y1 + len, wd2 * 0.16, 0, 6.3); g.fill();   /* brilho da gota */
+                }
+                x += chW;
               }
             });
-            for (let n2 = 0; n2 < 90; n2++) { g.fillStyle = `rgba(${rr(70, 110) | 0},0,4,${rr(0.5, 0.95)})`; g.beginPath(); g.arc(rr(20, w - 20), rr(20, h - 60), rr(1, 5), 0, 6.3); g.fill(); }   /* respingos */
-            g.strokeStyle = 'rgba(80,0,4,.55)'; g.lineWidth = 22; g.lineCap = 'round'; g.beginPath(); g.moveTo(rr(40, 160), rr(380, 460)); g.quadraticCurveTo(rr(180, 300), rr(330, 500), rr(340, 470), rr(400, 480)); g.stroke();   /* rastro de mão arrastada */
-            g.fillStyle = 'rgba(95,4,8,.9)'; g.save(); g.translate(rr(330, 400), rr(300, 350)); g.rotate(rr(-0.4, 0.4)); g.beginPath(); g.ellipse(0, 0, 38, 46, 0, 0, 6.3); g.fill();
-            for (let f = 0; f < 5; f++) { g.save(); g.rotate((f - 2) * 0.32); g.fillRect(-6, -46 - 38, 12, 52); g.restore(); } g.restore();                                       /* palma e dedos */
+            for (let n = 0; n < 90; n++) { const x = rr(10, w - 10), y = rr(10, h - 80), r = rr(0.7, 4), el = rnd() < 0.4 ? rr(1.6, 4.5) : 1; g.fillStyle = `rgba(${rr(45, 85) | 0},2,6,${rr(0.5, 0.95)})`; g.beginPath(); g.ellipse(x, y, r, r * el, rr(-0.7, 0.7), 0, 6.3); g.fill(); }   /* respingos */
+            /* mão ensanguentada pressionada: formas orgânicas, dedos irregulares, rastro de arrasto */
+            g.save(); g.translate(rr(345, 400), rr(318, 345)); g.rotate(rr(-0.3, 0.15));
+            const tr = g.createLinearGradient(0, 10, 0, 170); tr.addColorStop(0, 'rgba(60,3,6,.7)'); tr.addColorStop(1, 'rgba(60,3,6,0)'); g.fillStyle = tr; g.beginPath(); g.moveTo(-30, 30); g.lineTo(30, 30); g.lineTo(rr(8, 24), 170); g.lineTo(rr(-24, -8), 170); g.fill();
+            const hc = '#4a0509';
+            blob(-14, 18, 14, 26, 30, hc); blob(-20, 4, 20, 8, 26, hc);                                        /* palma */
+            blob(-24, -6, -34, -50, 8.5, hc); blob(-8, -10, -10, -66, 9, hc); blob(9, -10, 12, -62, 9, hc); blob(24, -4, 31, -46, 8, hc);   /* dedos */
+            blob(-32, 22, -62, 0, 10, hc);                                                                        /* polegar */
+            g.restore();
+            g.globalCompositeOperation = 'destination-out';                                                         /* falhas de transferência: o sangue não cobre tudo */
+            for (let n = 0; n < 700; n++) { g.fillStyle = `rgba(0,0,0,${rr(0.35, 0.95)})`; const hx = rnd() < 0.5; g.beginPath(); g.arc(hx ? rr(300, 470) : rr(30, 480), hx ? rr(250, 420) : rr(60, 400), rr(0.5, 2.4), 0, 6.3); g.fill(); }
+            g.globalCompositeOperation = 'source-over';
           });
-          const bm = new THREE.Mesh(new THREE.PlaneGeometry(0.92, 0.92), new THREE.MeshStandardMaterial({ map: bt.t, bumpMap: bt.t, bumpScale: 3, color: 0xa8a8a8, transparent: true, roughness: 0.16, metalness: 0.08, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+          const bm = new THREE.Mesh(new THREE.PlaneGeometry(0.92, 0.92), new THREE.MeshStandardMaterial({ map: bt.t, bumpMap: bt.t, bumpScale: 3, color: 0xe0e0e0, transparent: true, roughness: 0.16, metalness: 0.08, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
           bm.position.set(cx, 1.0, cz2 + 0.034); bm.userData.noAO = true; scene.add(bm);
           const pool = new THREE.Mesh(new THREE.CircleGeometry(0.55, 24), new THREE.MeshStandardMaterial({ color: 0x3a0306, roughness: 0.08, metalness: 0.2, transparent: true, opacity: 0.92, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 }));
           pool.rotation.x = -Math.PI / 2; pool.scale.set(1, rr(0.7, 1.1), 1); pool.position.set(cx - side * 0.1, 0.006, cz2 + 0.4); pool.userData.noAO = true; scene.add(pool);
