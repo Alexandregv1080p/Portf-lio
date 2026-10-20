@@ -99,6 +99,8 @@ export function buildWorld(scene, { tl, aniso, Q }) {
           #ifdef USE_MAP
           vec4 grn = texture2D(tGrunge, vMapUv * uGs);
           vec4 grf = texture2D(tGrunge, vMapUv * 1.7 + 0.37);
+          vec3 altC = texture2D(map, vMapUv * 0.37 + vec2(0.31, 0.17)).rgb;                                   /* quebra a repetição visível da textura */
+          diffuseColor.rgb = mix(diffuseColor.rgb, altC * diffuse, smoothstep(0.3, 0.7, texture2D(tGrunge, vMapUv * 0.21 + 0.5).r) * 0.6);
           diffuseColor.rgb *= mix(1.0, (0.3 + grn.r * 0.85) * (0.58 + grf.g * 0.55), uGr);
           /* sujeira por altura e cantos: rodapé encardido, escorrido do teto, quina parede/piso escura */
           float ax = abs(vWp.x) / uHW.x;
@@ -129,7 +131,7 @@ export function buildWorld(scene, { tl, aniso, Q }) {
   /* ----------------------------------------------- casca dos andares */
   zones.forEach((z) => {
     const L = z.look, cz = zOf(z.d0 + z.len / 2), nsc = new THREE.Vector2(0.55, 0.55);
-    const wm = mat(sets[L.wall[0]], z.len / L.wall[2], H / L.wall[2], { color: L.wall[1] });
+    const wm = mat(sets[L.wall[0]], z.len / L.wall[2], H / L.wall[2], { color: L.wall[1], normalScale: new THREE.Vector2(0.4, 0.4) });
     const fm = mat(sets[L.floor[0]], W / L.floor[2], z.len / L.floor[2], { color: L.floor[1], roughness: L.floor[3] ?? 0.85, normalScale: nsc });
     const cm = mat(sets[L.ceil[0]], W / L.ceil[2], z.len / L.ceil[2], { color: L.ceil[1] });
     addGrunge(wm, 0.9); addGrunge(fm, 0.8, 0.3); addGrunge(cm, 0.75);
@@ -183,8 +185,18 @@ export function buildWorld(scene, { tl, aniso, Q }) {
       box(0.06, 0.07, z.len, darkMetal, sd * (W / 2 - 0.03), 1.08, cz, scene, false);                       /* guarda-corpo / friso */
     }
     if (Q.props >= 0.7) {
-      const st = new THREE.MeshStandardMaterial({ color: accent, roughness: 0.75, metalness: 0.1 });
-      for (const sd of [-1, 1]) box(0.012, 0.12, z.len, st, sd * (W / 2 - 0.006), 1.55, cz, scene, false);   /* faixa de cor do andar */
+      const bandTex = canvasTex(512, 64, (g, w2, h2) => {                                                   /* tinta velha: escorridos, lascas e riscos */
+        g.fillStyle = '#9a9288'; g.fillRect(0, 0, w2, h2);
+        for (let x = 0; x < w2; x++) { g.fillStyle = `rgba(0,0,0,${rr(0, 0.12)})`; g.fillRect(x, 0, 1, h2); }
+        for (let n = 0; n < 26; n++) { const x = rr(0, w2), len = rr(14, h2), gr = g.createLinearGradient(0, 0, 0, len); gr.addColorStop(0, `rgba(30,22,14,${rr(0.2, 0.5)})`); gr.addColorStop(1, 'rgba(30,22,14,0)'); g.fillStyle = gr; g.fillRect(x, 0, rr(2, 7), len); }
+        for (let n = 0; n < 40; n++) { g.fillStyle = `rgba(20,16,12,${rr(0.3, 0.75)})`; g.fillRect(rr(0, w2), rr(0, h2), rr(1, 6), rr(1, 3)); }            /* lascas */
+        g.fillStyle = 'rgba(255,255,255,.18)'; g.fillRect(0, 0, w2, 3); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(0, h2 - 4, w2, 4);
+      }).t; bandTex.wrapS = bandTex.wrapT = THREE.RepeatWrapping; bandTex.repeat.set(z.len / 4, 1);
+      const st = new THREE.MeshStandardMaterial({ map: bandTex, color: new THREE.Color(L.lamp).multiplyScalar(0.55), roughness: 0.8, metalness: 0.05 });
+      for (const sd of [-1, 1]) {
+        box(0.016, 0.12, z.len, st, sd * (W / 2 - 0.008), 1.55, cz, scene, false);                           /* faixa de cor do andar */
+        box(0.02, 0.012, z.len, darkMetal, sd * (W / 2 - 0.01), 1.62, cz, scene, false); box(0.02, 0.012, z.len, darkMetal, sd * (W / 2 - 0.01), 1.48, cz, scene, false);   /* frisos acima/abaixo */
+      }
       const dash = new THREE.MeshStandardMaterial({ color: accent, roughness: 0.6, metalness: 0.05, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
       const dl = []; for (let d = z.d0 + 1; d < z.d1 - 0.5; d += 1.6) dl.push([0, 0.004, zOf(d)]);
       const dm = inst(new THREE.PlaneGeometry(0.07, 0.7).rotateX(-Math.PI / 2), dash, dl);                    /* tracejado central no piso */
