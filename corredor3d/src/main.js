@@ -168,6 +168,7 @@ sndBtn.addEventListener('click', () => { if (!audio.started) { enter(true); retu
 
 /* ------------------------------------------------------------ interação */
 const aim = new THREE.Vector2(0.1, -0.05), aimGoal = new THREE.Vector2(0.1, -0.05);
+const aimEff = new THREE.Vector2(), lookTmp = new THREE.Vector2(), lookV = new THREE.Vector3();
 let lastMove = -1e9, interacted = false;
 addEventListener('pointermove', (e) => {
   aimGoal.set((e.clientX / innerWidth) * 2 - 1, -((e.clientY / innerHeight) * 2 - 1));
@@ -354,7 +355,21 @@ function step(now) {
 
   /* sem mouse por alguns segundos (celular): a luz vagueia sozinha */
   if (touchUI && now - lastMove > 4500) aimGoal.set(Math.sin(t * 0.45) * 0.5, Math.cos(t * 0.33) * 0.18 - 0.04);
-  aim.lerp(aimGoal, 1 - Math.pow(0.0005, dt));
+  /* olhar guiado: ao se aproximar de uma tela/porta/rack a cabeça e a lanterna viram sozinhas para ele (o mouse ainda pesa um pouco) */
+  aimEff.copy(aimGoal);
+  if (!reduce && !inLift && !cardHover) {
+    let best = null, bw = 0;
+    for (const po of pois) {
+      const ahead = po.D - camD;                                              /* >0: o ponto está à frente */
+      const w = THREE.MathUtils.smoothstep(ahead, -1.6, -0.2) * (1 - THREE.MathUtils.smoothstep(ahead, 2.2, 4.6));     /* sobe ao chegar perto, cai ao passar */
+      if (w > bw) { bw = w; best = po; }
+    }
+    if (best) {
+      lookV.set(best.pos.x, best.pos.y, best.pos.z).project(camera);
+      if (lookV.z < 1) { aimEff.lerp(lookTmp.set(clamp(lookV.x, -0.95, 0.95), clamp(lookV.y * 0.8, -0.5, 0.5)), bw * 0.78); }
+    }
+  }
+  aim.lerp(aimEff, 1 - Math.pow(0.0005, dt));
 
   const sx = (Math.random() - 0.5) * shakeAmt, sy = (Math.random() - 0.5) * shakeAmt;
   camera.position.set(bobX + sx, 1.62 + bobY + sy, z);
@@ -369,6 +384,7 @@ function step(now) {
   { const o = ray.ray.origin, d = ray.ray.direction; let tt = 22;
     if (d.x > 1e-4) tt = Math.min(tt, (1.6 - o.x) / d.x); else if (d.x < -1e-4) tt = Math.min(tt, (-1.6 - o.x) / d.x);
     if (d.y < -1e-4) tt = Math.min(tt, -o.y / d.y); else if (d.y > 1e-4) tt = Math.min(tt, (3.2 - o.y) / d.y);
+    const bh = ray.intersectObjects(world.blockers, false)[0]; if (bh) tt = Math.min(tt, bh.distance);          /* divisórias e balcão: mira perto = luz mais fraca */
     aimDist = lerp(aimDist, Math.max(tt, 0.5), 1 - Math.exp(-dt / 0.14)); }
   const nearK = clamp(Math.pow(aimDist / 6, 1.45), 0.1, 1.25);
   spot.intensity = (TIER === 'ultra' || TIER === 'high' ? 150 : 100) * nearK * (1 + env.fear * 0.35) * (0.96 + Math.sin(t * 23) * 0.015 + Math.sin(t * 7.1) * 0.02) * (inLift ? 0.35 : 1);

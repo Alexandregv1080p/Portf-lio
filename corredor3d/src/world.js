@@ -376,6 +376,7 @@ export function buildWorld(scene, { tl, aniso, Q }) {
   /* ----------------------------------------------------------- cenografia por andar */
   const decorT = [];       /* coisas que se animam: { update(t, camD) } */
   const events = {};       /* objetos usados pelos sustos */
+  const blockers = [];      /* objetos que entram no corredor: a lanterna mede a distância até eles (senão estouram de brilho de perto) */
 
   /* recepção */
   {
@@ -388,7 +389,7 @@ export function buildWorld(scene, { tl, aniso, Q }) {
       g.fillStyle = '#16171a'; g.fillRect(0, 0, w, h); g.strokeStyle = 'rgba(200,205,215,.22)';
       for (let i = 0; i < 14; i++) { g.lineWidth = rr(0.6, 2); g.beginPath(); let x = rr(0, w), y = 0; g.moveTo(x, y); for (let k = 0; k < 8; k++) { x += rr(-30, 30); y += h / 8; g.lineTo(x, y); } g.stroke(); }
     }).t });
-    box(1.1, 0.95, 2.6, walnut, 0, 0.5, 0, desk);                                  /* corpo */
+    blockers.push(box(1.1, 0.95, 2.6, walnut, 0, 0.5, 0, desk));                   /* corpo */
     box(1.12, 0.1, 2.62, darkMetal, 0, 0.05, 0, desk, false);                      /* rodapé do balcão */
     const slats = []; for (let k = 0; k < 18; k++) slats.push([-0.565, 0.55, (k - 8.5) * 0.14, 0]);
     const slm = new THREE.InstancedMesh(new THREE.BoxGeometry(0.03, 0.78, 0.075), slatM, slats.length), so = new THREE.Object3D();
@@ -417,13 +418,13 @@ export function buildWorld(scene, { tl, aniso, Q }) {
     const z = zones[1];
     const posters = ['TRABALHE EM EQUIPE', 'FOCO. FOCO. FOCO.', 'ELE ESTÁ AQUI', 'NÃO OLHE ATRÁS', 'VOCÊ É INSUBSTITUÍVEL'];
     const cubFabric = fabric.clone(); cubFabric.color.set(0x3a3f4a); cubFabric.map = fabric.map.clone(); cubFabric.map.repeat.set(1.2, 1.4); cubFabric.bumpMap = cubFabric.map;
-    const trim = new THREE.MeshStandardMaterial({ color: 0x4a4e54, roughness: 0.55, metalness: 0.6 });
+    const trim = new THREE.MeshStandardMaterial({ color: 0x2c2e32, roughness: 0.8, metalness: 0.15 });
     posters.forEach((txt, k) => {
       const side = sideOf(k), d = poiD(z, k);                                   /* baia de trabalho em torno da tela (mesma parede do posto) */
       const t = canvasTex(256, 320, (g, w, h) => { g.fillStyle = k >= 2 ? '#2a0a0a' : '#e8e6de'; g.fillRect(0, 0, w, h); g.fillStyle = k >= 2 ? '#d22' : '#222'; g.font = '700 30px sans-serif'; g.textAlign = 'center'; const parts = txt.split(' '); parts.forEach((p, i) => g.fillText(p, w / 2, 110 + i * 40)); g.strokeStyle = k >= 2 ? '#800' : '#999'; g.lineWidth = 8; g.strokeRect(6, 6, w - 12, h - 12); });
       for (const e of [-1, 1]) {                                                 /* divisórias perpendiculares à parede, com moldura de alumínio */
         const cx = side * (W / 2 - 0.5), cz2 = zOf(d + e * 1.05);
-        box(1.0, 1.45, 0.05, cubFabric, cx, 0.95, cz2, scene);
+        blockers.push(box(1.0, 1.45, 0.05, cubFabric, cx, 0.95, cz2, scene));
         box(1.02, 0.04, 0.07, trim, cx, 1.69, cz2, scene, false); box(0.04, 1.49, 0.07, trim, cx - side * 0.5, 0.95, cz2, scene, false); box(0.05, 0.2, 0.09, trim, cx - side * 0.5, 0.1, cz2, scene, false);
         if (e === 1 && k >= 2) {                                                 /* escrito com sangue direto na divisória: letras tremidas, escorridos, mão espalmada e poça */
           const bt = canvasTex(512, 512, (g, w, h) => {
@@ -454,7 +455,7 @@ export function buildWorld(scene, { tl, aniso, Q }) {
           pool.rotation.x = -Math.PI / 2; pool.scale.set(1, rr(0.7, 1.1), 1); pool.position.set(cx - side * 0.1, 0.006, cz2 + 0.4); pool.userData.noAO = true; scene.add(pool);
         } else if (e === 1) {                                                    /* pôster afixado na divisória, de frente para o posto */
           box(0.5, 0.62, 0.012, darkMetal, cx, 1.25, cz2 + 0.03, scene, false);
-          const m = new THREE.Mesh(new THREE.PlaneGeometry(0.44, 0.56), new THREE.MeshStandardMaterial({ map: t.t, roughness: 0.8 })); m.position.set(cx, 1.25, cz2 + 0.04); scene.add(m);
+          const m = new THREE.Mesh(new THREE.PlaneGeometry(0.44, 0.56), new THREE.MeshStandardMaterial({ map: t.t, roughness: 0.9, color: 0x8c8c8c })); m.position.set(cx, 1.25, cz2 + 0.04); scene.add(m);
         }
       }
     });
@@ -695,5 +696,5 @@ export function buildWorld(scene, { tl, aniso, Q }) {
   indexStatics();
   const populateAndIndex = (models) => { populate(models); indexStatics(); cull(0, true); };
 
-  return { zones, cabins, pois, fixtures, total, envAt, step, zoneAt, cabinAt, events, zOf, decorT, H, W, populate: populateAndIndex, addGrunge, shrinkTex, cull, setShafts };
+  return { zones, cabins, pois, fixtures, total, envAt, step, zoneAt, cabinAt, events, zOf, decorT, H, W, populate: populateAndIndex, blockers, addGrunge, shrinkTex, cull, setShafts };
 }
